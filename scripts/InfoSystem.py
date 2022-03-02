@@ -105,8 +105,11 @@ class InfoSystem:
         # We want to create Users objects only when needed
         # if follower list hasn't been realized into Users(), do it
         if agent.followers is None:
+            follower_list = []
             for fid in info['followers']:
-                agent.add_follower(User(fid, self.agent_info[fid]['friends'], feed_size=self.alpha, is_bot=self.agent_info[fid]['is_bot']))
+                follower_list += [User(fid, self.agent_info[fid]['friends'], feed_size=self.alpha, is_bot=self.agent_info[fid]['is_bot'])]
+            agent.set_follower_list(follower_list)
+            
         print('Agent followers in terms of User objects are: %s, type: %s' %(len(agent.followers), type(agent.followers[0])))
         
         for follower in agent.followers:

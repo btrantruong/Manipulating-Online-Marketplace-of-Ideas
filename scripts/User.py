@@ -34,6 +34,9 @@ class User:
         self.feed[0:0] = [meme] * n_copies #prepend n copies to feed
         self.maintain_feed_size()
 
+    def set_follower_list(self, agent_list):
+        self.followers = agent_list
+        
     def add_follower(self, agent):
         self.followers += [agent] 
     
