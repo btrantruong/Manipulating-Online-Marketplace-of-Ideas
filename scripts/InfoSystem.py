@@ -34,6 +34,7 @@ class InfoSystem:
         self.alpha=alpha
         self.theta=theta
         
+        #Keep track of number of memes globally
         self.num_memes=0
         self.quality_diff = 1
         self.quality = 1
@@ -68,7 +69,7 @@ class InfoSystem:
         while self.quality_diff > self.epsilon: 
             if self.verbose:
                 # print('time_step = {}, q = {}, diff = {}'.format(self.time_step, self.quality, self.quality_diff), flush=True) 
-                print('time_step = {}, q = {}, diff = {}, agents tracked = {}/{}'.format(self.time_step, self.quality, self.quality_diff, len(self.tracking_agents.keys()), self.n_agents), flush=True) 
+                print('time_step = {}, q = {}, diff = {}, agents tracked = {}/{}, memes = {}'.format(self.time_step, self.quality, self.quality_diff, len(self.tracking_agents.keys()), self.n_agents, self.num_memes), flush=True) 
             self.time_step += 1
             for _ in range(self.n_agents):
                 self.simulation_step()
@@ -88,6 +89,7 @@ class InfoSystem:
         if id in self.tracking_agents.keys():
             agent = self.tracking_agents[id]
         else:
+            print('Instantiating User..')
             agent = User(id, info['friends'], feed_size=self.alpha, is_bot=info['is_bot'])
             self.tracking_agents[id] = agent
             
@@ -96,6 +98,7 @@ class InfoSystem:
             # retweet a meme from feed selected on basis of its fitness
             meme = random.choices(agent.feed, weights=[m.fitness for m in agent.feed], k=1)
         else:
+            print('Making new meme...')
             # new meme
             self.num_memes+=1
             meme = Meme(self.num_memes, is_by_bot=agent.is_bot, phi=self.phi)
@@ -109,7 +112,7 @@ class InfoSystem:
             for fid in info['followers']:
                 follower_list += [User(fid, self.agent_info[fid]['friends'], feed_size=self.alpha, is_bot=self.agent_info[fid]['is_bot'])]
             agent.set_follower_list(follower_list)
-            
+
         print('Agent followers in terms of User objects are: %s, type: %s' %(len(agent.followers), type(agent.followers[0])))
         
         for follower in agent.followers:
@@ -132,10 +135,11 @@ class InfoSystem:
         # calculate meme quality for tracked Users
         total=0
         count=0
-        for user in self.tracking_agents.items():
+        for user in self.tracking_agents.values():
             total += sum([meme.quality for meme in user.feed])
             count += sum([1 for meme in user.feed])
-        return total / count
+        print('Count is: ', count)
+        return total / self.num_memes
     
     # calculate fraction of low-quality memes in system (for tracked User)
     #
@@ -143,7 +147,7 @@ class InfoSystem:
         count = 0
         zero_memes = 0 
 
-        human_agents = [agent for agent in self.tracking_agents.items() if not agent.is_bot]
+        human_agents = [agent for agent in self.tracking_agents.values() if not agent.is_bot]
         for agent in human_agents:
             zero_memes += sum([1 for meme in agent.feed if meme.quality==0])
             count += len(agent.feed)
