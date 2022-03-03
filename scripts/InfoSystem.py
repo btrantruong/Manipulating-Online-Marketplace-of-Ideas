@@ -130,14 +130,10 @@ class InfoSystem:
         # calculate meme quality for tracked Users
         total=0
         count=0
-        for user in self.tracking_agents.values():
-            quality = [meme.quality for meme in user.feed]
-            num = [1 for meme in user.feed]
-            total += sum(quality)
-            count += sum(num)
-            # total += sum([meme.quality for meme in user.feed])
-            # count += sum([1 for meme in user.feed])
-        print('Count is same with num memes: ', self.num_memes==count)
+        humans = [user for user in self.tracking_agents.values() if user.is_bot==0] #because quality of bot is 0
+        for user in humans:
+            total += sum([meme.quality for meme in user.feed])
+            count += sum([1 for meme in user.feed])
         return total / self.num_memes
     
     # calculate fraction of low-quality memes in system (for tracked User)
@@ -152,5 +148,3 @@ class InfoSystem:
             count += len(agent.feed)
     
         return zero_memes / count
-    
-        

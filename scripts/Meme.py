@@ -15,13 +15,15 @@ class Meme:
     # default phi = 1 is bot deception; >= 1: meme fitness higher than quality 
     # id: unique IDs
     def get_values(self):
-        if self.is_by_bot:
+        if self.is_by_bot==1:
             exponent = 1 + (1 / self.phi)
         else:
             exponent = 1 + self.phi
+            
         u = random.random()
         fitness = 1 - (1 - u)**(1 / exponent)
-        if self.is_by_bot:
+
+        if self.is_by_bot==1:
             quality = 0
         else:
             quality = fitness
