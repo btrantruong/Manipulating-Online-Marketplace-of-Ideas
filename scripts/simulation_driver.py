@@ -86,18 +86,16 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
 
 @profile
 def bao_simulation():
-  ABS_PATH = ''
-  DATA_PATH = os.path.join(ABS_PATH, 'data')
   path = DATA_PATH
 
   follower_path = os.path.join(path, 'follower_network.gml.gz')
-  network_avail = True
+  network_avail = False
   net_specs = {
         'targeting_criterion': 'hubs',
         'human_network': follower_path,
         'n_humans': 1000, 
-        'beta':0.1, 
-        'gamma': 0.1,
+        'beta':0.01, 
+        'gamma': 0.001,
         'verbose': True
     }
   
@@ -108,11 +106,12 @@ def bao_simulation():
     'phi':1,
     'alpha':15
   }
+
   if network_avail is False:
     G = init_net(**net_specs)
     # nx.write_edgelist(G, "follower_net.edgelist.gz")
     nx.write_gml(G, os.path.join(path, 'network.gml.gz'))
-  
+
   print('Create InfoSystem instance..')
   follower_sys = InfoSystem(os.path.join(path, 'network.gml.gz'), **infosys_specs)
   avg_quality = follower_sys.simulation()
