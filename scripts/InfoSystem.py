@@ -40,12 +40,13 @@ class InfoSystem:
         self.quality = 1
         self.time_step=0
         
-        # dict of agent ids & their info
-        self.agent_info = {}
+        # dict of agent ids & list of their follower ids 
+        self.follower_info = {}
         # only create a User object if that node is chosen during simulation
         # dict of agent ID - User obj for that agent
         self.tracking_agents = {}
         self.init_agents(graph_gml)
+        self.init_followers()
 
     @profile
     def init_agents(self, graph_file):
@@ -55,14 +56,25 @@ class InfoSystem:
         # bots = [n for n in G.nodes if G.nodes[n]['bot']==True]
         # humans = [n for n in G.nodes if G.nodes[n]['bot']==False]
         for agent in G.nodes:
-            followers = [G.nodes[n]['ID'] for n in G.predecessors(agent)]
-            friends= [G.nodes[n]['ID'] for n in G.successors(agent)]
             id = G.nodes[agent]['ID']
-            self.agent_info[id] = {'followers':followers, 'friends':friends, 'is_bot': G.nodes[agent]['bot']}
-            # self.agents += [User(followers, friends, feed_size=self.alpha, is_bot=G.nodes[agent]['bot'])]
-        
-        self.n_agents = len(self.agent_info)
-        print('Finish initializing agents, total: ', self.n_agents)
+            friend_ids= [G.nodes[n]['ID'] for n in G.successors(agent)]
+            self.tracking_agents[id] = User(id, friend_ids, feed_size=self.alpha, is_bot=G.nodes[agent]['bot'])
+
+            follower_ids = [G.nodes[n]['ID'] for n in G.predecessors(agent)]
+            self.follower_info[id] = follower_ids
+        self.n_agents = nx.number_of_nodes(G)
+        print('Finish initializing agents, total in graph: {}, in dict: {}'.format(self.n_agents, len(self.tracking_agents)))
+    
+    def init_followers(self):
+        for aidx, agent in self.tracking_agents.items():
+            # if follower list hasn't been realized into Users(), do it
+            if agent.followers is None:
+                follower_list = []
+                for fid in self.follower_info[aidx]:
+                    follower_list += [self.tracking_agents[fid]] # add all User object based on ids from follower list
+                agent.set_follower_list(follower_list)
+        print('Finish populating followers')
+
 
     @profile
     def simulation(self):
@@ -83,43 +95,26 @@ class InfoSystem:
     @profile
     def simulation_step(self):
         # agent = random.choice(self.agents)
-        id = random.choice(list(self.agent_info.keys())) # convert to list so that it's subscriptable
-        info = self.agent_info[id] #get dict object 
-        
-        if id in self.tracking_agents.keys():
-            agent = self.tracking_agents[id]
-        else:
-            print('Instantiating User..')
-            agent = User(id, info['friends'], feed_size=self.alpha, is_bot=info['is_bot'])
-            self.tracking_agents[id] = agent
+        id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable
+        agent = self.tracking_agents[id]
             
         # tweet or retweet
         if len(agent.feed) and random.random() > self.mu:
             # retweet a meme from feed selected on basis of its fitness
-            meme = random.choices(agent.feed, weights=[m.fitness for m in agent.feed], k=1)
+            meme = random.choices(agent.feed, weights=[m.fitness for m in agent.feed], k=1)[0] #random choices return a list
         else:
-            print('Making new meme...')
             # new meme
             self.num_memes+=1
             meme = Meme(self.num_memes, is_by_bot=agent.is_bot, phi=self.phi)
         #TODO: bookkeeping
 
         # spread (truncate feeds at max len alpha)
-        # We want to create Users objects only when needed
-        # if follower list hasn't been realized into Users(), do it
-        if agent.followers is None:
-            follower_list = []
-            for fid in info['followers']:
-                follower_list += [User(fid, self.agent_info[fid]['friends'], feed_size=self.alpha, is_bot=self.agent_info[fid]['is_bot'])]
-            agent.set_follower_list(follower_list)
-
-        print('Agent followers in terms of User objects are: %s, type: %s' %(len(agent.followers), type(agent.followers[0])))
         
         for follower in agent.followers:
             #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
             # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
             
-            if agent.is_bot:
+            if agent.is_bot==1:
                 follower.add_meme_to_feed(meme, n_copies = self.theta)
             else:
                 follower.add_meme_to_feed(meme)
@@ -136,9 +131,13 @@ class InfoSystem:
         total=0
         count=0
         for user in self.tracking_agents.values():
-            total += sum([meme.quality for meme in user.feed])
-            count += sum([1 for meme in user.feed])
-        print('Count is: ', count)
+            quality = [meme.quality for meme in user.feed]
+            num = [1 for meme in user.feed]
+            total += sum(quality)
+            count += sum(num)
+            # total += sum([meme.quality for meme in user.feed])
+            # count += sum([1 for meme in user.feed])
+        print('Count is same with num memes: ', self.num_memes==count)
         return total / self.num_memes
     
     # calculate fraction of low-quality memes in system (for tracked User)
@@ -147,7 +146,7 @@ class InfoSystem:
         count = 0
         zero_memes = 0 
 
-        human_agents = [agent for agent in self.tracking_agents.values() if not agent.is_bot]
+        human_agents = [agent for agent in self.tracking_agents.values() if agent.is_bot==0]
         for agent in human_agents:
             zero_memes += sum([1 for meme in agent.feed if meme.quality==0])
             count += len(agent.feed)
