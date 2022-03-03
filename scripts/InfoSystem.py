@@ -81,7 +81,7 @@ class InfoSystem:
         while self.quality_diff > self.epsilon: 
             if self.verbose:
                 # print('time_step = {}, q = {}, diff = {}'.format(self.time_step, self.quality, self.quality_diff), flush=True) 
-                print('time_step = {}, q = {}, diff = {}, agents tracked = {}/{}, memes = {}'.format(self.time_step, self.quality, self.quality_diff, len(self.tracking_agents.keys()), self.n_agents, self.num_memes), flush=True) 
+                print('time_step = {}, q = {}, diff = {}, memes = {}'.format(self.time_step, self.quality, self.quality_diff, self.num_memes), flush=True) 
             self.time_step += 1
             for _ in range(self.n_agents):
                 self.simulation_step()
@@ -94,7 +94,6 @@ class InfoSystem:
     
     @profile
     def simulation_step(self):
-        # agent = random.choice(self.agents)
         id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable
         agent = self.tracking_agents[id]
             
@@ -118,10 +117,13 @@ class InfoSystem:
                 follower.add_meme_to_feed(meme, n_copies = self.theta)
             else:
                 follower.add_meme_to_feed(meme)
-    
+
+            assert(len(follower.feed)==self.alpha)
+
     def update_quality(self):
         # use exponential moving average for convergence
         new_quality = 0.8 * self.quality + 0.2 * self.measure_average_quality()
+        self.quality_diff = abs(new_quality - self.quality) / self.quality if self.quality > 0 else 0
         self.quality = new_quality
 
     # calculate average quality of memes in system
@@ -132,9 +134,10 @@ class InfoSystem:
         count=0
         humans = [user for user in self.tracking_agents.values() if user.is_bot==0] #because quality of bot is 0
         for user in humans:
-            total += sum([meme.quality for meme in user.feed])
-            count += sum([1 for meme in user.feed])
-        return total / self.num_memes
+            for meme in user.feed:
+                total += meme.quality
+                count +=1
+        return total / count
     
     # calculate fraction of low-quality memes in system (for tracked User)
     #

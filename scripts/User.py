@@ -1,7 +1,7 @@
 # import queue 
 
 class User:
-    def __init__(self, id, friends, followers=None, feed_size= 15, is_bot=False):
+    def __init__(self, id, friends, followers=None, feed_size= 15, is_bot=0):
         #friends: list of users this one follows 
         self.id = id
         self.friends = friends # list of ids, since we only need to count 
@@ -16,6 +16,9 @@ class User:
     def maintain_feed_size(self):
         if len(self.feed) > self.feedsize:
             self.feed = self.feed[:self.feedsize]
+            return True
+        else:
+            return True
         #TODO: meme bookeeping
             #track forgotten meme
             # if self.count_forgotten_memes and self.is_bot == False:
@@ -28,11 +31,11 @@ class User:
             # del G.nodes[f]['feed'][alpha:]
         #print('follower feed after :', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']]) 
         #print('Bot' if G.nodes[agent]['bot'] else 'Human', 'posted', meme, 'to', G.in_degree(agent), 'followers', flush=True) 
-    
+
     def add_meme_to_feed(self, meme, n_copies=1):
         # newest: index 0; oldest: -1
         self.feed[0:0] = [meme] * n_copies #prepend n copies to feed
-        self.maintain_feed_size()
+        return self.maintain_feed_size()
 
     def set_follower_list(self, agent_list):
         self.followers = agent_list
