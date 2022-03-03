@@ -20,7 +20,7 @@ def profileit(func):
 # Code from https://gist.github.com/ralfstx/a173a7e4c37afa105a66f371a09aa83e
 def prof_to_csv(prof: cProfile.Profile):
     out_stream = io.StringIO()
-    pstats.Stats(prof, stream=out_stream).sort_stats('cumulative')
+    pstats.Stats(prof, stream=out_stream).sort_stats('cumulative').print_stats()
     # pstats.print_stats()
     result = out_stream.getvalue()
     # chop off header lines
