@@ -7,11 +7,11 @@ def read_empirical_network(file):
     net = ig.Graph.Read_GML(file)
     
     #prevent errors with duplicate attribs
-    user_attributes = ['label', 'party', 'misinfo'] #empirical network only ahve 3 attribs
-    for attrib in net.vs.attributes():
-        if attrib not in user_attributes:
-            del(net.vs[attrib])
+    net = _delete_unused_attributes(net, desire_attribs=['label', 'party', 'misinfo'])
     return net 
+
+def write_gmlz(G, file):
+    G.Graph.write_graphmlz(file)
 
 def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
     # create a network with random-walk growth model
@@ -33,11 +33,9 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
             if random.random() < p:
                 n_random_friends += 1
         
-        friends += [random.sample(G.successors(target), n_random_friends)]
-        friends += [random.sample(G.vs, k_out - 1 - n_random_friends)]
-
-        friends.extend(random.sample(list(G.successors(target)), n_random_friends))
-        friends.extend(random.sample(list(G.nodes()), k_out - 1 - n_random_friends))
+        friends += random.sample(G.successors(target), n_random_friends) #return a list of vertex id(int)
+        friends += random.sample(range(G.vcount()), k_out - 1 - n_random_friends)
+        
         G.add_vertex(n) #n becomes 'name' of vertex
         
         edges = [(n,f) for f in friends]
@@ -72,12 +70,14 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
 
     # merge and add feed
     # b: Retain human and bot ids - TODO: prob won't be needed later 
-    # alphas = list(string.ascii_lowercase)
-    # B.vs['ID'] = [str(node)+random.choice(alphas) for node in B.vs]
-    # H.vs['ID'] = [str(node) for node in H.vs]
+    alphas = list(string.ascii_lowercase)
+    B.vs['uid'] = [str(node.index)+random.choice(alphas) for node in B.vs]
+    H.vs['uid'] = [str(node['label']) for node in H.vs]
     
     if verbose: print('Merging human and bot networks...')
-    G = H.disjoint_union( B)
+    G = H.disjoint_union(B)
+    G = _delete_unused_attributes(G, desire_attribs=['uid','bot', 'party', 'misinfo'])
+
     assert(G.vcount() == n_humans + n_bots)
     # b:now nodes are reindex so we want to keep track of which ones are bots and which are humans
     humans = [n for n in G.vs if n['bot'] is False]
@@ -115,3 +115,10 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
         G.add_edges(follower_edges)
 
     return G
+
+def _delete_unused_attributes(net, desire_attribs=['uid','party', 'misinfo']):
+    #delete unused attribs or artifact of igraph to maintain consistency
+    for attrib in net.vs.attributes():
+        if attrib not in desire_attribs:
+            del(net.vs[attrib])
+    return net 
