@@ -59,6 +59,13 @@ def make_sure_dir_exists(parent_path, new_dir_name):
             return False
     return True
 
+def make_sure_file_exists(filepath):
+  file = pathlib.Path(filepath)
+  if file.is_file():
+    return True
+  else: 
+    return False
+
 # def profile(func):
 #     def wrapper(*args, **kwargs):
 #         start = time.time()
