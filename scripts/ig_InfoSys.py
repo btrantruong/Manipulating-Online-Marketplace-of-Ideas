@@ -23,7 +23,8 @@ class InfoSystem:
                 gamma=0.1,
                 alpha=15,
                 theta=1):
-
+        
+        self.mode = mode
         self.network = None
         self.preferential_targeting=preferential_targeting
         # self.return_net = return_net
@@ -101,13 +102,16 @@ class InfoSystem:
                 agent.set_follower_list(follower_list)
         print('Finish populating followers')
 
+
     #TODO: Remove seed
+    
     @profile
     def simulation(self):
         while self.quality_diff > self.epsilon: 
             if self.verbose:
                 # print('time_step = {}, q = {}, diff = {}'.format(self.time_step, self.quality, self.quality_diff), flush=True) 
                 print('time_step = {}, q = {}, diff = {}, unique/human memes = {}/{}, all memes created={}'.format(self.time_step, self.quality, self.quality_diff, self.num_meme_unique, self.memes_human_feed, self.num_memes), flush=True) 
+
             self.time_step += 1
             for _ in range(self.n_agents):
                 if self.network is None: 
@@ -117,10 +121,14 @@ class InfoSystem:
             self.update_quality()
 
             #TODO: track meme
-            # b: Return net: no need because the network doesn't change. 
-            # we just need the net we init before 
-        return self.quality
-    
+            
+        if self.mode=='igraph':
+            all_feeds = self.agent_feeds
+        else:
+            all_feeds = self.tracking_agents
+
+        return all_feeds, self.quality
+
 
     @profile
     def ig_simulation_step(self, seed=100):
@@ -139,17 +147,19 @@ class InfoSystem:
 
         # spread (truncate feeds at max len alpha)
         follower_idxs = self.network.predecessors(agent) #return list of int
-        follower_uids = [n for n in self.network.vs if n.index in follower_idxs]
+        follower_uids = [n['uid'] for n in self.network.vs if n.index in follower_idxs]
         for follower in follower_uids:
             #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
             # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
         
-            if agent['bot'] is True:
+            if agent['bot']==1:
                 self._add_meme_to_feed(follower, meme, n_copies = self.theta)
+                self.num_memes += self.theta
             else:
                 self._add_meme_to_feed(follower, meme)
+                self.num_memes += 1
 
-            assert(len(self.agent_feeds[follower['uid']])<=self.alpha)
+            assert(len(self.agent_feeds[follower]) <= self.alpha)
 
     @profile
     def simulation_step(self, seed=100):
@@ -193,24 +203,37 @@ class InfoSystem:
         # calculate meme quality for tracked Users
         total=0
         count=0
-        humans = [user for user in self.tracking_agents.values() if user.is_bot==0] 
-        for user in humans:
-            for meme in user.feed:
-                total += meme.quality
-                count +=1
+        if self.mode=='igraph':
+            human_uids = [n['uid'] for n in self.network.vs if n['bot']==0]
+            for u in human_uids:
+                for meme in self.agent_feeds[u]:
+                    total+= meme.quality
+                    count+=1
+        else:
+            humans = [user for user in self.tracking_agents.values() if user.is_bot==0] 
+            for user in humans:
+                for meme in user.feed:
+                    total += meme.quality
+                    count +=1
         self.memes_human_feed = count
         return total / count if count >0 else 0
-    
+
     # calculate fraction of low-quality memes in system (for tracked User)
     #
     def measure_average_zero_fraction(self):
         count = 0
         zero_memes = 0 
 
-        human_agents = [agent for agent in self.tracking_agents.values() if agent.is_bot==0]
-        for agent in human_agents:
-            zero_memes += sum([1 for meme in agent.feed if meme.quality==0])
-            count += len(agent.feed)
+        if self.mode=='igraph':
+            human_uids = [n['uid'] for n in self.network.vs if n['bot']==0]
+            for u in human_uids:
+                zero_memes += sum([1 for meme in self.agent_feeds[u] if meme.quality==0])
+                count += len(self.agent_feeds[u])
+        else:
+            human_agents = [agent for agent in self.tracking_agents.values() if agent.is_bot==0]
+            for agent in human_agents:
+                zero_memes += sum([1 for meme in agent.feed if meme.quality==0])
+                count += len(agent.feed)
     
         return zero_memes / count
 
@@ -218,10 +241,8 @@ class InfoSystem:
         feed = self.agent_feeds[agent_id]
         feed[0:0] = [meme] * n_copies
 
-        self.num_memes += n_copies
-
         if len(feed) > self.alpha:
-            feed = feed[:self.alpha]
+            self.agent_feeds[agent_id] = self.agent_feeds[agent_id][:self.alpha] # we can make sure dict values reassignment is correct this way
             return True
         else:
             return True
