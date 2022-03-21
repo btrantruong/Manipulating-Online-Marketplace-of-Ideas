@@ -138,13 +138,14 @@ class InfoSystem:
             meme = Meme(self.num_meme_unique, is_by_bot=agent['bot'], phi=self.phi)
 
         # spread (truncate feeds at max len alpha)
-        followers = self.network.predecessors(agent)
-        for follower in followers:
+        follower_idxs = self.network.predecessors(agent) #return list of int
+        follower_uids = [n for n in self.network.vs if n.index in follower_idxs]
+        for follower in follower_uids:
             #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
             # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
         
             if agent['bot'] is True:
-                self._add_meme_to_feed(follower,meme, n_copies = self.theta)
+                self._add_meme_to_feed(follower, meme, n_copies = self.theta)
             else:
                 self._add_meme_to_feed(follower, meme)
 
@@ -213,8 +214,7 @@ class InfoSystem:
     
         return zero_memes / count
 
-    def _add_meme_to_feed(self, agent, meme, n_copies=1):
-        agent_id = agent['uid']
+    def _add_meme_to_feed(self, agent_id, meme, n_copies=1):
         feed = self.agent_feeds[agent_id]
         feed[0:0] = [meme] * n_copies
 
