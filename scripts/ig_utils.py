@@ -13,6 +13,7 @@ def read_empirical_network(file):
 def write_gmlz(G, file):
     G.Graph.write_graphmlz(file)
 
+#TODO: comment out random seed in actual run
 def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
     # create a network with random-walk growth model
     # default p = 0.5 for network clustering
@@ -65,7 +66,7 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
     # bots
     if verbose: print('Generating bot network...')
     n_bots = int(n_humans * beta) 
-    B = random_walk_network(n_bots)
+    B = random_walk_network(n_bots, seed=101)
     B.vs['bot'] = [True] * B.vcount()
 
     # merge and add feed
@@ -101,6 +102,7 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
         else:
             raise ValueError('Unrecognized targeting_criterion passed to init_net')
     
+    random.seed(102)
     for b in bots:
         n_followers = 0
         for _ in humans:
