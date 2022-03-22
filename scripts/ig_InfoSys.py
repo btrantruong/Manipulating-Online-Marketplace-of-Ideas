@@ -27,8 +27,8 @@ class InfoSystem:
         self.mode = mode
         self.network = None
         self.preferential_targeting=preferential_targeting
-        # self.return_net = return_net
         self.verbose = verbose
+        self.track_meme = track_meme
 
         self.epsilon=epsilon
         self.mu=mu
@@ -63,6 +63,10 @@ class InfoSystem:
             self._init_agents(graph_gml)
             self._init_followers()
 
+        if verbose and mode=='igraph':
+            in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
+            print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
+
     @profile
     def _init_agents(self, graph_file):
         G = nx.read_gml(graph_file)
@@ -72,7 +76,7 @@ class InfoSystem:
         # humans = [n for n in G.nodes if G.nodes[n]['bot']==False]
 
         #debug
-        # bao_indeg = []
+        bao_indeg = []
 
         for agent in G.nodes:
             id = G.nodes[agent]['uid']
@@ -81,16 +85,15 @@ class InfoSystem:
 
             follower_ids = [G.nodes[n]['uid'] for n in G.predecessors(agent)]
             self.follower_info[id] = follower_ids
-            # if self.verbose:
-            #     bao_indeg+=[len(follower_ids)]
+            if self.verbose:
+                bao_indeg+=[len(follower_ids)]
 
         self.n_agents = nx.number_of_nodes(G)
         print('Initialized agents, total in original graph: {}, in Infosystem: {}'.format(self.n_agents, len(self.tracking_agents)))
-        
-        # if self.verbose:
-        #     in_deg = [deg for node, deg in G.in_degree(G.nodes())] #number of followers
-        #     print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
-        #     print('Info Sys in deg: ', round(sum(bao_indeg)/len(bao_indeg),2))
+        print('Number of edges: %s' %nx.number_of_edges(G))
+
+        if self.verbose and self.mode!='igraph':
+            print('Info Sys in deg: ', round(sum(bao_indeg)/len(bao_indeg),2))
 
     def _init_followers(self):
         for aidx, agent in self.tracking_agents.items():
@@ -114,14 +117,15 @@ class InfoSystem:
 
             self.time_step += 1
             for _ in range(self.n_agents):
-                if self.network is None: 
+                if self.mode!='igraph' and self.network is None: 
                     self.simulation_step(seed=self.num_meme_unique)
                 else: #igraph mode
+                    self.num_memes = sum([len(f) for f in self.agent_feeds.values() if len(f)>0])
                     self.ig_simulation_step(seed=self.num_meme_unique)
             self.update_quality()
 
             #TODO: track meme
-            
+
         if self.mode=='igraph':
             all_feeds = self.agent_feeds
         else:
@@ -132,7 +136,7 @@ class InfoSystem:
 
     @profile
     def ig_simulation_step(self, seed=100):
-        random.seed(seed)
+        # random.seed(seed)
         agent = random.choice(self.network.vs)
         agent_id = agent['uid']
         feed = self.agent_feeds[agent_id]
@@ -154,16 +158,15 @@ class InfoSystem:
         
             if agent['bot']==1:
                 self._add_meme_to_feed(follower, meme, n_copies = self.theta)
-                self.num_memes += self.theta
             else:
                 self._add_meme_to_feed(follower, meme)
-                self.num_memes += 1
 
             assert(len(self.agent_feeds[follower]) <= self.alpha)
 
+
     @profile
     def simulation_step(self, seed=100):
-        random.seed(seed)
+        # random.seed(seed)
         id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable
         agent = self.tracking_agents[id]
             
