@@ -2,7 +2,7 @@
 import random
 
 class Meme:
-    def __init__(self, id, is_by_bot=False, phi=1):
+    def __init__(self, id, is_by_bot=0, phi=1):
         self.id = id
         self.is_by_bot = is_by_bot
         self.phi = phi

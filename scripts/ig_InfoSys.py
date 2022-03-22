@@ -12,10 +12,8 @@ class InfoSystem:
     def __init__(self, graph_gml,
                 mode='igraph', #mode is the implementation 
                 preferential_targeting=None,
-                return_net=False,
                 count_forgotten=False,
                 track_meme=False,
-                network=None, 
                 verbose=False,
                 epsilon=0.001,
                 mu=0.5,
@@ -29,6 +27,7 @@ class InfoSystem:
         self.preferential_targeting=preferential_targeting
         self.verbose = verbose
         self.track_meme = track_meme
+        self.meme_popularity = None
 
         self.epsilon=epsilon
         self.mu=mu
@@ -45,6 +44,9 @@ class InfoSystem:
         self.quality = 1
         self.time_step=0
         
+        if track_meme is True:
+            self.meme_popularity = {} #dict of {"meme_id": (human_popularity, bot_popularity)}
+
         if mode=='igraph': #Use igraph data struct
             try:
                 self.network = ig.Graph.Read_GML(graph_gml)
@@ -131,7 +133,7 @@ class InfoSystem:
         else:
             all_feeds = self.tracking_agents
 
-        return all_feeds, self.quality
+        return all_feeds, self.meme_popularity, self.quality, 
 
 
     @profile
@@ -148,6 +150,11 @@ class InfoSystem:
             # new meme
             self.num_meme_unique+=1
             meme = Meme(self.num_meme_unique, is_by_bot=agent['bot'], phi=self.phi)
+        
+        #book keeping
+        # TODO: add forgotten memes per degree
+        if self.track_meme is True:
+            self._update_meme_popularity(meme, agent)
 
         # spread (truncate feeds at max len alpha)
         follower_idxs = self.network.predecessors(agent) #return list of int
@@ -246,6 +253,21 @@ class InfoSystem:
 
         if len(feed) > self.alpha:
             self.agent_feeds[agent_id] = self.agent_feeds[agent_id][:self.alpha] # we can make sure dict values reassignment is correct this way
+            # Only track popularity of extinct memes
+            for meme in set(self.agent_feeds[agent_id][self.alpha:]):
+                _ = self.meme_popularity.pop(meme.id, 'No Key found')
             return True
         else:
             return True
+    
+    def _update_meme_popularity(self, meme, agent):
+        # meme_popularity is a value in a dict: tuple (is_by_bot, human popularity, bot popularity)
+        
+        if meme.id not in self.meme_popularity.keys():
+            self.meme_popularity[meme.id] = (meme.is_by_bot, 0, 0)
+        else:
+            if agent['bot']==0:
+                self.meme_popularity[meme.id][0] += 1
+            else:
+                self.meme_popularity[meme.id][1] += self.theta
+        return 
