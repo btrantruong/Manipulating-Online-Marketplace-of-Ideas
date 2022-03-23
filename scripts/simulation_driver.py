@@ -1,4 +1,4 @@
-# from InfoSystem import InfoSystem
+""" Script for running simulation - Use for debugging"""
 from ig_InfoSys import InfoSystem
 from profileit import profile
 import graphutils
