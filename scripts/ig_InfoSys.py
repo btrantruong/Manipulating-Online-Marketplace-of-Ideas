@@ -11,28 +11,28 @@ or None for no targeting
 class InfoSystem:
     def __init__(self, graph_gml,
                 mode='igraph', #mode is the implementation 
-                preferential_targeting=None,
-                count_forgotten=False,
-                track_meme=False,
+                # preferential_targeting=None,
+                # count_forgotten=False,
+                trackmeme=False,
                 verbose=False,
                 epsilon=0.001,
                 mu=0.5,
                 phi=1,
-                gamma=0.1,
+                # gamma=0.1,
                 alpha=15,
                 theta=1):
         
         self.mode = mode
         self.network = None
-        self.preferential_targeting=preferential_targeting
+        # self.preferential_targeting=preferential_targeting
         self.verbose = verbose
-        self.track_meme = track_meme
+        self.trackmeme = trackmeme
         self.meme_popularity = None
 
         self.epsilon=epsilon
         self.mu=mu
         self.phi=phi
-        self.gamma=gamma 
+        # self.gamma=gamma 
         self.alpha=alpha
         self.theta=theta
         
@@ -44,7 +44,7 @@ class InfoSystem:
         self.quality = 1
         self.time_step=0
         
-        if track_meme is True:
+        if trackmeme is True:
             self.meme_popularity = {} #dict of {"meme_id": (human_popularity, bot_popularity)}
 
         if mode=='igraph': #Use igraph data struct
@@ -153,7 +153,7 @@ class InfoSystem:
         
         #book keeping
         # TODO: add forgotten memes per degree
-        if self.track_meme is True:
+        if self.trackmeme is True:
             self._update_meme_popularity(meme, agent)
 
         # spread (truncate feeds at max len alpha)
