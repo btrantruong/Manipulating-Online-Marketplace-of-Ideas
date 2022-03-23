@@ -1,7 +1,7 @@
 import igraph as ig
 import random 
 import string 
-from utils import *
+import utils
 
 def read_empirical_network(file):
     net = ig.Graph.Read_GML(file)
@@ -73,7 +73,10 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
     # b: Retain human and bot ids - TODO: prob won't be needed later 
     alphas = list(string.ascii_lowercase)
     B.vs['uid'] = [str(node.index)+random.choice(alphas) for node in B.vs]
-    H.vs['uid'] = [str(node['label']) for node in H.vs]
+    if human_network is None:
+        H.vs['uid'] = [str(node.index) for node in H.vs]
+    else:
+        H.vs['uid'] = [str(node['label']) for node in H.vs]
     
     if verbose: print('Merging human and bot networks...')
     G = H.disjoint_union(B)
@@ -109,7 +112,7 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
             if random.random() < gamma:
                 n_followers += 1
         if targeting_criterion is not None:
-            followers = sample_with_prob_without_replacement(humans, n_followers, w)
+            followers = utils.sample_with_prob_without_replacement(humans, n_followers, w)
         else:
             followers = random.sample(humans, n_followers)
         
