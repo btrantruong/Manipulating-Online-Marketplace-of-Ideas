@@ -3,6 +3,7 @@ import graphutils
 import networkx as nx
 import sys
 import argparse
+import json
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -32,15 +33,16 @@ def main(args):
     infile = args.infile #infile is a json {"beta": 0.0, "gamma": 0.0}
     outfile = args.outfile
     mode = args.mode
-    targeting = args.targeting
-    beta = args.beta
-    gamma = args.gamma
+    # targeting = args.targeting
+    # beta = args.beta
+    # gamma = args.gamma
 
+    net_spec = json.load(open(infile,'r'))
     if mode=="igraph":
-        G = ig_utils.init_net(targeting_criterion=targeting, verbose=False, human_network=infile, beta=beta, gamma=gamma)
+        G = ig_utils.init_net(**net_spec)
         G.write_gml(outfile)
     else:
-        G = graphutils.init_net(targeting_criterion=targeting, verbose=False, human_network=infile, beta=beta, gamma=gamma)
+        G = graphutils.init_net(**net_spec)
         nx.write_gml(G, outfile)
 
 if __name__ == '__main__': main(sys.argv[1:])

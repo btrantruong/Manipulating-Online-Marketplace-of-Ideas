@@ -31,6 +31,5 @@ rule make_infosys: #init_net
     # input: 'None'
     output: os.path.join(DATA_PATH, mode, 'intermediate', "{exp_no}_network.gml"
     shell: """
-            python3 init_net.py -i {input} -o {output} \ 
-            --mode {mode} --targeting {targeting} --beta {beta} --gamma {gamma}
+            python3 init_net.py -i {input} -o {output} --mode {mode}
         """ 
