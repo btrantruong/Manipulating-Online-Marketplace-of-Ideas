@@ -29,5 +29,3 @@ class Meme:
             quality = fitness
         
         return quality, fitness
-    
-    # def popularity()
