@@ -13,7 +13,7 @@ class InfoSystem:
                 mode='igraph', #mode is the implementation 
                 # preferential_targeting=None,
                 # count_forgotten=False,
-                trackmeme=False,
+                trackmeme=True,
                 verbose=False,
                 epsilon=0.001,
                 mu=0.5,
@@ -133,7 +133,11 @@ class InfoSystem:
         else:
             all_feeds = self.tracking_agents
 
-        return all_feeds, self.meme_popularity, self.quality, 
+        feeds = {}
+        for agent, memelist in all_feeds.items():
+            feeds[agent] = [meme.__dict__  for meme in memelist] #convert to dict to avoid infinite recursion
+        
+        return feeds, self.meme_popularity, self.quality
 
 
     @profile
@@ -261,13 +265,13 @@ class InfoSystem:
             return True
     
     def _update_meme_popularity(self, meme, agent):
-        # meme_popularity is a value in a dict: tuple (is_by_bot, human popularity, bot popularity)
-        
+        # meme_popularity is a value in a dict: list (is_by_bot, human popularity, bot popularity)
+        # (don't use tuple! tuple doesn't support item assignment)
         if meme.id not in self.meme_popularity.keys():
-            self.meme_popularity[meme.id] = (meme.is_by_bot, 0, 0)
+            self.meme_popularity[meme.id] = {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0}
         else:
             if agent['bot']==0:
-                self.meme_popularity[meme.id][0] += 1
+                self.meme_popularity[meme.id]["human_shares"] += 1
             else:
-                self.meme_popularity[meme.id][1] += self.theta
+                self.meme_popularity[meme.id]["bot_shares"] += self.theta
         return 

@@ -8,10 +8,10 @@ import igraph
 import networkx as nx 
 from pathlib import Path
 import pickle as pkl 
+import json
 
-
-ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
-# ABS_PATH = ''
+# ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
+ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 # TODO: save network as .gml.gz, keep only friend relationships
 
@@ -24,16 +24,16 @@ def bao_simulation(mode='igraph'):
     
     net_specs = {
         "targeting_criterion": "hubs",
-        "human_network": follower_path,
-        "track_meme": True,
-        "n_humans": 1000,
+        # "human_network": follower_path,
+        "human_network": None,
+        "n_humans": 10,
         "beta": 0.01,
         "gamma": 0.001,
         "verbose": True,
     }
 
     infosys_specs = {
-        "preferential_targeting": None,
+        "trackmeme": True,
         "verbose": True,
         "mu": 0.5,
         "phi": 1,
@@ -57,12 +57,18 @@ def bao_simulation(mode='igraph'):
     all_feeds, meme_popularity, avg_quality = follower_sys.simulation()
     print("average quality for follower network:", avg_quality)
     
-    final_allmemes = os.path.join(path, mode, "meme.pkl")
-    pkl.dump(all_feeds, open(final_allmemes, 'wb'))
+    # final_allmemes = os.path.join(path, mode, "meme.pkl")
+    # pkl.dump(all_feeds, open(final_allmemes, 'wb'))
 
-    final_meme_popularity = os.path.join(path, mode, "meme_popularity.pkl")
-    pkl.dump(meme_popularity, open(final_meme_popularity, 'wb'))
+    final_allmemes = os.path.join(path, mode, "meme.json")
+    json.dump(all_feeds, open(final_allmemes, 'w'))
 
+    # final_meme_popularity = os.path.join(path, mode, "meme_popularity.pkl")
+    # pkl.dump(meme_popularity, open(final_meme_popularity, 'wb'))
+
+    final_meme_popularity = os.path.join(path, mode, "meme_popularity.json")
+    json.dump(meme_popularity, open(final_meme_popularity, 'w'))
+    
 if __name__ == "__main__":
     bao_simulation(mode='igraph')
     # bao_simulation(mode='nx')
