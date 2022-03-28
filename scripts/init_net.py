@@ -22,9 +22,10 @@ def main(args):
     parser.add_argument('--mode',
         action="store", dest="mode", type=str, required=True,
         help="mode of implementation")
-    parser.add_argument('--exp',
-        action="store", dest="expno", type=str, required=True,
-        help="experiment number in config file")
+    # parser.add_argument('--exp',
+    #     action="store", dest="expno", type=str, required=True,
+    #     help="experiment number in config file")
+    
     # parser.add_argument('--targeting',
     #     action="store", dest="targeting", type=str, required=True,
     #     help="bot targeting strategy")

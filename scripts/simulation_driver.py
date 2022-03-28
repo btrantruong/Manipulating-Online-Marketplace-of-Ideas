@@ -54,20 +54,15 @@ def bao_simulation(mode='igraph'):
     print("Create InfoSystem instance..")
     follower_sys = InfoSystem(os.path.join(path,mode, "network.gml"), mode=mode, **infosys_specs)
     print("Start simulation (mode: %s).." %mode)
-    all_feeds, meme_popularity, avg_quality = follower_sys.simulation()
+    avg_quality, diversity, tau_tuple = follower_sys.simulation()
+    # all_feeds, meme_popularity, avg_quality = follower_sys.simulation()
     print("average quality for follower network:", avg_quality)
-    
-    # final_allmemes = os.path.join(path, mode, "meme.pkl")
-    # pkl.dump(all_feeds, open(final_allmemes, 'wb'))
 
-    final_allmemes = os.path.join(path, mode, "meme.json")
-    json.dump(all_feeds, open(final_allmemes, 'w'))
+    # final_allmemes = os.path.join(path, mode, "meme.json")
+    # json.dump(all_feeds, open(final_allmemes, 'w'))
 
-    # final_meme_popularity = os.path.join(path, mode, "meme_popularity.pkl")
-    # pkl.dump(meme_popularity, open(final_meme_popularity, 'wb'))
-
-    final_meme_popularity = os.path.join(path, mode, "meme_popularity.json")
-    json.dump(meme_popularity, open(final_meme_popularity, 'w'))
+    # final_meme_popularity = os.path.join(path, mode, "meme_popularity.json")
+    # json.dump(meme_popularity, open(final_meme_popularity, 'w'))
     
 if __name__ == "__main__":
     bao_simulation(mode='igraph')
