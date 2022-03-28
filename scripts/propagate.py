@@ -18,9 +18,9 @@ def run_simulation(infosys_specs):
     print("Create InfoSystem instance..")
     follower_sys = InfoSystem(**infosys_specs)
     print("Start simulation (mode: %s).." %infosys_specs['mode'])
-    all_feeds,  meme_popularity, avg_quality = follower_sys.simulation()
+    avg_quality, tau_tuple = follower_sys.simulation()
     print("average quality for follower network:", avg_quality)
-    return all_feeds, meme_popularity, avg_quality
+    return avg_quality, tau_tuple
     
 
 def main(args):
@@ -73,12 +73,12 @@ def main(args):
         "alpha": args.alpha,
         "theta": args.theta
     }
-    all_feeds, meme_popularity, avg_quality = run_simulation(infosys_specs)
-    if len(all_feeds) > 0:
-        pkl.dump(all_feeds, open(os.path.join(outdir, "meme.pkl"), 'wb'))
-        pkl.dump(meme_popularity, open(os.path.join(outdir, "meme_popularity.pkl"), 'wb'))
-    else:
-        pass
+    avg_quality, tau_tuple = run_simulation(infosys_specs)
+    # if len(all_feeds) > 0:
+    #     pkl.dump(all_feeds, open(os.path.join(outdir, "meme.pkl"), 'wb'))
+    #     pkl.dump(meme_popularity, open(os.path.join(outdir, "meme_popularity.pkl"), 'wb'))
+    # else:
+    #     pass
 
 if __name__ == "__main__": main(sys.argv[1:])
 

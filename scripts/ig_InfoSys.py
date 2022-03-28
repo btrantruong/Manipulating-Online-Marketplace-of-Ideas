@@ -4,6 +4,7 @@ from Meme import Meme
 import networkx as nx
 from ig_utils import *
 from profileit import profile
+from scripts.utils import kendall_tau
 """
 preferential_targeting = ['hubs', 'partisanship', 'misinformation', 'conservative', 'liberal']
 or None for no targeting
@@ -37,6 +38,7 @@ class InfoSystem:
         self.theta=theta
         
         #Keep track of number of memes globally
+        self.all_memes = []
         self.num_memes=0
         self.num_meme_unique=0
         self.memes_human_feed = 0
@@ -133,11 +135,16 @@ class InfoSystem:
         else:
             all_feeds = self.tracking_agents
 
-        feeds = {}
-        for agent, memelist in all_feeds.items():
-            feeds[agent] = [meme.__dict__  for meme in memelist] #convert to dict to avoid infinite recursion
+        # b: We don't need to save feed info & meme popularity in json anymore
+        # feeds = {} 
+        # for agent, memelist in all_feeds.items():
+        #     feeds[agent] = [meme.__dict__  for meme in memelist] #convert to dict to avoid infinite recursion
         
-        return feeds, self.meme_popularity, self.quality
+        # return feeds, self.meme_popularity, self.quality
+
+        self.all_memes = self._return_all_meme_info
+        tau, p_val = self.measure_kendall_tau()
+        return self.quality, (tau, p_val) 
 
 
     @profile
@@ -189,6 +196,7 @@ class InfoSystem:
             # new meme
             self.num_meme_unique+=1
             meme = Meme(self.num_meme_unique, is_by_bot=agent.is_bot, phi=self.phi)
+            self.all_memes += [meme]
         #TODO: bookkeeping
 
         # spread (truncate feeds at max len alpha)
@@ -211,9 +219,25 @@ class InfoSystem:
         self.quality_diff = abs(new_quality - self.quality) / self.quality if self.quality > 0 else 0
         self.quality = new_quality
 
-    # calculate average quality of memes in system
-    # count_bot=False
+    def measure_kendall_tau(self):
+        # calculate discriminative power of system
+        quality_ranked = sorted(self.all_memes, key=lambda m: m['quality']) 
+        for ith, elem in enumerate(quality_ranked):
+            elem.update({'qual_th':ith})
+        
+        share_ranked = sorted(quality_ranked, key=lambda m: m['human_shares']) 
+        for ith, elem in enumerate(share_ranked):
+            elem.update({'share_th':ith})
+
+        idx_ranked = sorted(share_ranked, key=lambda m: m['id'])
+        ranking1 = [meme['qual_th'] for meme in idx_ranked]
+        ranking2 = [meme['share_th'] for meme in idx_ranked]
+        tau, p_value = kendall_tau(ranking1, ranking2)
+        return tau, p_value
+
     def measure_average_quality(self):
+        # calculate average quality of memes in system
+        # count_bot=False
         # calculate meme quality for tracked Users
         total=0
         count=0
@@ -257,13 +281,21 @@ class InfoSystem:
 
         if len(feed) > self.alpha:
             self.agent_feeds[agent_id] = self.agent_feeds[agent_id][:self.alpha] # we can make sure dict values reassignment is correct this way
-            # Only track popularity of extinct memes
+            # Remove memes from popularity info & all_meme list if extinct
             for meme in set(self.agent_feeds[agent_id][self.alpha:]):
                 _ = self.meme_popularity.pop(meme.id, 'No Key found')
+                self.all_memes.remove(meme)
             return True
         else:
             return True
     
+    def _return_all_meme_info(self):
+        #Be careful 
+        memes = [meme.__dict__ for meme in self.all_memes]
+        for meme_dict in memes:
+            meme_dict.update(self.meme_popularity[meme_dict['id']])
+        return memes
+
     def _update_meme_popularity(self, meme, agent):
         # meme_popularity is a value in a dict: list (is_by_bot, human popularity, bot popularity)
         # (don't use tuple! tuple doesn't support item assignment)

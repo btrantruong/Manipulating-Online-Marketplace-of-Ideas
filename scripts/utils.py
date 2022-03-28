@@ -14,6 +14,7 @@ import logging
 import pathlib 
 import io 
 import os 
+import scipy.stats as stats
 
 
 def get_logger(name):
@@ -250,6 +251,14 @@ def gini(G):
     coefficient += (2*(i+1) - n - 1) * humans[i][1]
   return coefficient / (n * total)
 
+
+def kendall_tau(ranking1, ranking2):
+  # ranking1: list of ranking for n elements in criteria1
+  # ranking2: list of ranking for n elements in criteria2
+  # such that ranking1[i] and ranking2[i] is the ranking of element i in 2 different criteria
+  tau, p_value = stats.kendalltau(ranking1, ranking2)
+  return tau, p_value 
+  
 # sample a bunch of objects from a list without replacement 
 # and with given weights (to be used as probabilities), which can be zero
 # NB: cannot use random_choices, which samples with replacement
