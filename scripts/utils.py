@@ -258,6 +258,13 @@ def kendall_tau(ranking1, ranking2):
   # such that ranking1[i] and ranking2[i] is the ranking of element i in 2 different criteria
   tau, p_value = stats.kendalltau(ranking1, ranking2)
   return tau, p_value 
+
+
+def entropy(x):
+  # x: list of proportion
+  entropy = np.sum(x * np.log(x))
+  return entropy
+
   
 # sample a bunch of objects from a list without replacement 
 # and with given weights (to be used as probabilities), which can be zero

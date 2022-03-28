@@ -4,7 +4,8 @@ from Meme import Meme
 import networkx as nx
 from ig_utils import *
 from profileit import profile
-from scripts.utils import kendall_tau
+from utils import *
+import numpy as np
 """
 preferential_targeting = ['hubs', 'partisanship', 'misinformation', 'conservative', 'liberal']
 or None for no targeting
@@ -142,9 +143,10 @@ class InfoSystem:
         
         # return feeds, self.meme_popularity, self.quality
 
-        self.all_memes = self._return_all_meme_info
+        self.all_memes = self._return_all_meme_info()
         tau, p_val = self.measure_kendall_tau()
-        return self.quality, (tau, p_val) 
+        diversity = self.measure_diversity()
+        return self.quality, diversity, (tau, p_val)
 
 
     @profile
@@ -161,7 +163,8 @@ class InfoSystem:
             # new meme
             self.num_meme_unique+=1
             meme = Meme(self.num_meme_unique, is_by_bot=agent['bot'], phi=self.phi)
-        
+            self.all_memes += [meme]
+
         #book keeping
         # TODO: add forgotten memes per degree
         if self.trackmeme is True:
@@ -196,7 +199,7 @@ class InfoSystem:
             # new meme
             self.num_meme_unique+=1
             meme = Meme(self.num_meme_unique, is_by_bot=agent.is_bot, phi=self.phi)
-            self.all_memes += [meme]
+
         #TODO: bookkeeping
 
         # spread (truncate feeds at max len alpha)
@@ -221,6 +224,8 @@ class InfoSystem:
 
     def measure_kendall_tau(self):
         # calculate discriminative power of system
+        # Call only after self._return_all_meme_info() is called 
+
         quality_ranked = sorted(self.all_memes, key=lambda m: m['quality']) 
         for ith, elem in enumerate(quality_ranked):
             elem.update({'qual_th':ith})
@@ -256,9 +261,21 @@ class InfoSystem:
         self.memes_human_feed = count
         return total / count if count >0 else 0
 
-    # calculate fraction of low-quality memes in system (for tracked User)
-    #
+    #TODO: implement diversity 
+    def measure_diversity(self):
+        # calculate diversity of the system using entropy (in terms of unique memes)
+        # Call only after self._return_all_meme_info() is called 
+        humanshares = np.array([meme["human_shares"] for meme in self.all_memes])
+        botshares = np.array([meme["bot_shares"] for meme in self.all_memes])
+        
+        hshare_pct = np.divide(humanshares, sum(humanshares))
+        diversity = entropy(hshare_pct)*-1
+        # Note that (np.sum(humanshares)+np.sum(botshares)) !=self.num_memes because a meme can be shared multiple times 
+        return diversity
+
+    
     def measure_average_zero_fraction(self):
+        # calculate fraction of low-quality memes in system (for tracked User)
         count = 0
         zero_memes = 0 
 
@@ -301,9 +318,9 @@ class InfoSystem:
         # (don't use tuple! tuple doesn't support item assignment)
         if meme.id not in self.meme_popularity.keys():
             self.meme_popularity[meme.id] = {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0}
+        
+        if agent['bot']==0:
+            self.meme_popularity[meme.id]["human_shares"] += 1
         else:
-            if agent['bot']==0:
-                self.meme_popularity[meme.id]["human_shares"] += 1
-            else:
-                self.meme_popularity[meme.id]["bot_shares"] += self.theta
+            self.meme_popularity[meme.id]["bot_shares"] += self.theta
         return 
