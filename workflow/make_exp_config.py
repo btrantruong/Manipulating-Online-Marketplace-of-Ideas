@@ -8,7 +8,8 @@ import json
 
 
 # ABS_PATH = ''
-ABS_PATH = '/nobackup/baotruon/marketplace'
+# ABS_PATH = '/nobackup/baotruon/marketplace'
+ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 follower_network = 'follower_network.gml'
 mode = 'igraph'
