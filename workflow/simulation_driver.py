@@ -3,7 +3,7 @@ from infosys.ig_InfoSys import InfoSystem
 import infosys.utils as utils
 import infosys.ig_utils as ig_utils
 import infosys.graphutils as graphutils
-
+from infosys.profileit import profile
 
 import igraph
 import networkx as nx 
@@ -43,15 +43,15 @@ def bao_simulation(mode='igraph'):
         "alpha": 15,
     }
 
-    if make_sure_file_exists(infosys_path) is False:
+    if utils.make_sure_file_exists(infosys_path) is False:
         if mode=='igraph':
             G = ig_utils.init_net(**net_specs)
-            if make_sure_dir_exists(path, mode):
+            if utils.make_sure_dir_exists(path, mode):
                 G.write_gml(infosys_path)
         else:
             G = graphutils.init_net(**net_specs)
             # nx.write_edgelist(G, "follower_net.edgelist.gz")
-            if make_sure_dir_exists(path, mode):
+            if utils.make_sure_dir_exists(path, mode):
                 nx.write_gml(G, infosys_path)
 
     print("Create InfoSystem instance..")
