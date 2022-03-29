@@ -1,5 +1,6 @@
 
-ABS_PATH = ''
+# ABS_PATH = ''
+ABS_PATH = '/nobackup/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 print(os.getcwd())

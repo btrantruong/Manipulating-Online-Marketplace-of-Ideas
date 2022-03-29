@@ -4,8 +4,8 @@ import numpy as np
 import os 
 import json 
 
-# ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
-ABS_PATH = ''
+# ABS_PATH = ''
+ABS_PATH = '/nobackup/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 follower_network = 'follower_network.gml'
 mode = 'igraph'
