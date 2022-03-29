@@ -1,18 +1,16 @@
 """ Script for running simulation - Use for debugging"""
-import sys 
+from infosys.ig_InfoSys import InfoSystem
+import infosys.utils as utils
+import infosys.ig_utils as ig_utils
+import infosys.graphutils as graphutils
 
-sys.path.append("..")
 
-from ig_InfoSys import InfoSystem
-from profileit import profile
-import graphutils
-import ig_utils
-from utils import *
 import igraph
 import networkx as nx 
 from pathlib import Path
 import pickle as pkl 
 import json
+import os
 
 
 # ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"

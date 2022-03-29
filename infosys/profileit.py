@@ -2,6 +2,8 @@
 import cProfile, pstats, io
 from datetime import datetime 
 # Adapted from https://stackoverflow.com/a/53619707
+
+
 def profileit(func):
     def wrapper(*args, **kwargs):
         datafn = func.__name__ + ".profile"  # Name the data file sensibly

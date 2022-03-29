@@ -1,9 +1,10 @@
+from infosys.profileit import profile
+import infosys.utils as utils
+
 import networkx as nx
 import random
 import pandas as pd
 import json
-from profileit import *
-from utils import *
 import string
 
 # create network of humans and bots
@@ -87,7 +88,7 @@ def init_net(
             if random.random() < gamma:
                 n_followers += 1
         if targeting_criterion is not None:
-            followers = sample_with_prob_without_replacement(humans, n_followers, w)
+            followers = utils.sample_with_prob_without_replacement(humans, n_followers, w)
         else:
             followers = random.sample(humans, n_followers)
         for f in followers:

@@ -1,12 +1,13 @@
 
 """ Script for running simulation - Use for snakemake"""
-# from InfoSystem import InfoSystem
-from torch import mode
-from ig_InfoSys import InfoSystem
-from profileit import profile
-import graphutils
-import ig_utils
-from utils import *
+
+from infosys.ig_InfoSys import InfoSystem
+import infosys.utils as utils
+import infosys.ig_utils as ig_utils
+import infosys.graphutils as graphutils
+from infosys.profileit import profile
+
+import sys
 import igraph
 import networkx as nx 
 from pathlib import Path

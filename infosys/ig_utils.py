@@ -1,7 +1,8 @@
+import infosys.utils as utils
+
 import igraph as ig
 import random 
 import string 
-import utils
 
 def read_empirical_network(file):
     net = ig.Graph.Read_GML(file)

@@ -1,10 +1,12 @@
-import random
-from User import User 
-from Meme import Meme
+from infosys.User import User
+from infosys.Meme import Meme
+from infosys.profileit import profile
+import infosys.utils as utils
+import infosys.ig_utils as ig_utils
+import igraph as ig
+
 import networkx as nx
-from ig_utils import *
-from profileit import profile
-from utils import *
+import random
 import numpy as np
 """
 preferential_targeting = ['hubs', 'partisanship', 'misinformation', 'conservative', 'liberal']
@@ -237,7 +239,7 @@ class InfoSystem:
         idx_ranked = sorted(share_ranked, key=lambda m: m['id'])
         ranking1 = [meme['qual_th'] for meme in idx_ranked]
         ranking2 = [meme['share_th'] for meme in idx_ranked]
-        tau, p_value = kendall_tau(ranking1, ranking2)
+        tau, p_value = utils.kendall_tau(ranking1, ranking2)
         return tau, p_value
 
     def measure_average_quality(self):
@@ -269,7 +271,7 @@ class InfoSystem:
         botshares = np.array([meme["bot_shares"] for meme in self.all_memes])
         
         hshare_pct = np.divide(humanshares, sum(humanshares))
-        diversity = entropy(hshare_pct)*-1
+        diversity = utils.entropy(hshare_pct)*-1
         # Note that (np.sum(humanshares)+np.sum(botshares)) !=self.num_memes because a meme can be shared multiple times 
         return diversity
 

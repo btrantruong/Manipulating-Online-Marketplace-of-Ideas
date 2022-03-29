@@ -1,11 +1,11 @@
-from scripts import ig_utils
-from scripts import graphutils
-# import ig_utils
-# import graphutils
+import infosys.ig_utils as ig_utils
+import infosys.graphutils as graphutils
+
 import networkx as nx
 import sys
 import argparse
 import json
+
 
 def main(args):
     parser = argparse.ArgumentParser(
