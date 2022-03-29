@@ -1,8 +1,11 @@
+import os
+print(os.getcwd())
 import infosys.utils as utils
 
 import numpy as np 
 import os 
 import json 
+
 
 # ABS_PATH = ''
 ABS_PATH = '/nobackup/baotruon/marketplace'
@@ -64,82 +67,83 @@ def update_dict_with_default(adict, default_dict):
             adict.update({k:v})
     return adict
     
+def make_exps():
+    # Varying beta gamma: (use to init net)
+    all_exps["vary_betagamma"] = {}
+    for idx, beta in enumerate(BETA):
+        for jdx,gamma in enumerate(GAMMA):
+            cf = {'beta': beta, 'gamma':gamma}
+            config = update_dict_with_default(cf, default_net)
 
-# Varying beta gamma: (use to init net)
-all_exps["vary_betagamma"] = {}
-for idx, beta in enumerate(BETA):
-    for jdx,gamma in enumerate(GAMMA):
-        cf = {'beta': beta, 'gamma':gamma}
-        config = update_dict_with_default(cf, default_net)
+            if beta ==0.02 and gamma==0.001:
+                config_name = 'default'
+            elif beta ==0.02:
+                config_name = 'gamma%s' %gamma
+            else:
+                config_name = '%s%s' %(idx,jdx)
+            all_exps["vary_betagamma"][config_name] = config
+            
+            if utils.make_sure_dir_exists(DATA_PATH, 'vary_betagamma'):
+                fp = os.path.join(DATA_PATH, 'vary_betagamma','%s.json' %config_name)
+                json.dump(config,open(fp,'w'))
 
-        if beta ==0.02 and gamma==0.001:
-            config_name = 'default'
-        elif beta ==0.02:
-            config_name = 'gamma%s' %gamma
-        else:
-            config_name = '%s%s' %(idx,jdx)
-        all_exps["vary_betagamma"][config_name] = config
-        
-        if utils.make_sure_dir_exists(DATA_PATH, 'vary_betagamma'):
-            fp = os.path.join(DATA_PATH, 'vary_betagamma','%s.json' %config_name)
-            json.dump(config,open(fp,'w'))
-
-    #Add an additional default file for info sys
-    fp = os.path.join(DATA_PATH, 'vary_betagamma','default_infosys.json')
-    json.dump(default_infosys,open(fp,'w'))
-
-
-all_exps["vary_targetgamma"] = {}
-for idx, target in enumerate(TARGETING):
-    for jdx,gamma in enumerate(GAMMA):
-        cf = {'targeting_criterion': target, 'gamma':gamma}
-        config = update_dict_with_default(cf, default_net)
-
-        if target is None and gamma==0.001:
-            config_name = 'default'
-        else:
-            config_name = '%s%s' %(idx,jdx)
-        all_exps["vary_targetgamma"][config_name] = config
-        
-        if utils.make_sure_dir_exists(DATA_PATH, 'vary_targetgamma'):
-            fp = os.path.join(DATA_PATH, 'vary_targetgamma','%s.json' %config_name)
-            json.dump(config,open(fp,'w'))
-
-    #Add an additional default file for info sys
-    fp = os.path.join(DATA_PATH, 'vary_targetgamma','default_infosys.json')
-    json.dump(default_infosys,open(fp,'w'))
+        #Add an additional default file for info sys
+        fp = os.path.join(DATA_PATH, 'vary_betagamma','default_infosys.json')
+        json.dump(default_infosys,open(fp,'w'))
 
 
-#Varying phi gamma:
-all_exps["vary_phigamma"] = {}
-for idx, phi in enumerate(PHI_LIN):
-    for jdx,gamma in enumerate(GAMMA):
-        cf = {'phi': phi, 'gamma':gamma, 'graph_gml': 'network_gamma%s.gml' %gamma}
-        config = update_dict_with_default(cf, default_infosys)
-        
-        config_name = '{}{}_gamma{}'.format(idx,jdx, gamma)
-        all_exps["vary_phigamma"][config_name] = config
-        
-        if utils.make_sure_dir_exists(DATA_PATH, 'vary_phigamma'):
-            fp = os.path.join(DATA_PATH, 'vary_phigamma','%s.json' %config_name)
-            json.dump(config,open(fp,'w'))
+    all_exps["vary_targetgamma"] = {}
+    for idx, target in enumerate(TARGETING):
+        for jdx,gamma in enumerate(GAMMA):
+            cf = {'targeting_criterion': target, 'gamma':gamma}
+            config = update_dict_with_default(cf, default_net)
 
-#Varying theta gamma:
-all_exps["vary_thetagamma"] = {}
-for idx, theta in enumerate(THETA):
-    for jdx,gamma in enumerate(GAMMA):
-        cf = {'theta':theta, 'gamma':gamma, 'graph_gml': 'network_gamma%s.gml' %gamma}
-        config = update_dict_with_default(cf, default_infosys)
-        
-        config_name = '{}{}_gamma{}'.format(idx,jdx, gamma)
-        all_exps["vary_thetagamma"][config_name] = config
-        
-        if utils.make_sure_dir_exists(DATA_PATH, 'vary_thetagamma'):
-            fp = os.path.join(DATA_PATH, 'vary_thetagamma','%s.json' %config_name)
-            json.dump(config,open(fp,'w'))
+            if target is None and gamma==0.001:
+                config_name = 'default'
+            else:
+                config_name = '%s%s' %(idx,jdx)
+            all_exps["vary_targetgamma"][config_name] = config
+            
+            if utils.make_sure_dir_exists(DATA_PATH, 'vary_targetgamma'):
+                fp = os.path.join(DATA_PATH, 'vary_targetgamma','%s.json' %config_name)
+                json.dump(config,open(fp,'w'))
+
+        #Add an additional default file for info sys
+        fp = os.path.join(DATA_PATH, 'vary_targetgamma','default_infosys.json')
+        json.dump(default_infosys,open(fp,'w'))
 
 
-fp = os.path.join(DATA_PATH, 'all_configs.json')
-json.dump(all_exps,open(fp,'w'))
+    #Varying phi gamma:
+    all_exps["vary_phigamma"] = {}
+    for idx, phi in enumerate(PHI_LIN):
+        for jdx,gamma in enumerate(GAMMA):
+            cf = {'phi': phi, 'gamma':gamma, 'graph_gml': 'network_gamma%s.gml' %gamma}
+            config = update_dict_with_default(cf, default_infosys)
+            
+            config_name = '{}{}_gamma{}'.format(idx,jdx, gamma)
+            all_exps["vary_phigamma"][config_name] = config
+            
+            if utils.make_sure_dir_exists(DATA_PATH, 'vary_phigamma'):
+                fp = os.path.join(DATA_PATH, 'vary_phigamma','%s.json' %config_name)
+                json.dump(config,open(fp,'w'))
 
-# def make_config_dict(): #cross product of 2 lists
+    #Varying theta gamma:
+    all_exps["vary_thetagamma"] = {}
+    for idx, theta in enumerate(THETA):
+        for jdx,gamma in enumerate(GAMMA):
+            cf = {'theta':theta, 'gamma':gamma, 'graph_gml': 'network_gamma%s.gml' %gamma}
+            config = update_dict_with_default(cf, default_infosys)
+            
+            config_name = '{}{}_gamma{}'.format(idx,jdx, gamma)
+            all_exps["vary_thetagamma"][config_name] = config
+            
+            if utils.make_sure_dir_exists(DATA_PATH, 'vary_thetagamma'):
+                fp = os.path.join(DATA_PATH, 'vary_thetagamma','%s.json' %config_name)
+                json.dump(config,open(fp,'w'))
+
+
+    fp = os.path.join(DATA_PATH, 'all_configs.json')
+    json.dump(all_exps,open(fp,'w'))
+
+if __name__=='__main__':
+    make_exps()
