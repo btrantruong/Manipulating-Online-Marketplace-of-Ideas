@@ -74,7 +74,7 @@ class InfoSystem:
             in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
             print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
 
-    @profile
+    # @profile
     def _init_agents(self, graph_file):
         G = nx.read_gml(graph_file)
         
@@ -115,7 +115,7 @@ class InfoSystem:
 
     #TODO: Remove seed
     
-    @profile
+    # @profile
     def simulation(self):
         while self.quality_diff > self.epsilon: 
             if self.verbose:
@@ -151,7 +151,7 @@ class InfoSystem:
         return self.quality, diversity, (tau, p_val)
 
 
-    @profile
+    # @profile
     def ig_simulation_step(self, seed=100):
         # random.seed(seed)
         agent = random.choice(self.network.vs)
@@ -187,7 +187,7 @@ class InfoSystem:
             assert(len(self.agent_feeds[follower]) <= self.alpha)
 
 
-    @profile
+    # @profile
     def simulation_step(self, seed=100):
         # random.seed(seed)
         id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable

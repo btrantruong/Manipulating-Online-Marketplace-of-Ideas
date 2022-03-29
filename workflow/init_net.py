@@ -37,6 +37,7 @@ def main(args):
     if net_spec['human_network'] is not None:
         net_spec.update({'human_network':infile})
 
+    print(net_spec)
     if mode=="igraph":
         G = ig_utils.init_net(**net_spec)
         G.write_gml(outfile)

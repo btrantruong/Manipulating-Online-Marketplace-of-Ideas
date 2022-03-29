@@ -13,7 +13,7 @@ import string
 # default beta=0.1 is bots/humans ratio
 # default gamma=0.1 is infiltration: probability that a human follows each bot
 #
-@profile
+# @profile
 def init_net(
     targeting_criterion=None,
     verbose=False,

@@ -5,6 +5,7 @@ import random
 import string 
 
 def read_empirical_network(file):
+    print('File: ', file)
     net = ig.Graph.Read_GML(file)
     
     #prevent errors with duplicate attribs
