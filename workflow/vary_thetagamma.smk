@@ -1,12 +1,12 @@
 
 # GAMMAS = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-GAMMAS = [0.1, 0.02, 0.5]
+GAMMAS = [0.1, 0.02]
 ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 print(os.getcwd())
 exp_configs = json.load(open('data/all_configs.json','r'))
-EXPS = list(exp_configs['vary_phigamma'].keys())
+EXPS = list(exp_configs['vary_thetagamma'].keys())
 NAMES = [tuple(expname.split('_')) for expname in EXPS] # turn "07_gamma0.05" to ('07', 'gamma0.05')
 exp_nos, gs = zip(*NAMES)
 # wildcard_constraints:
@@ -18,13 +18,13 @@ mode='igraph'
 
 rule all:
     # input: expand("network_gamma{gamma}.gml", gamma=GAMMAS)
-    input: expand('results/vary_phigamma/{exp_no}_gamma{gamma}.json', zip, exp_no = exp_nos, gamma=gs)
+    input: expand('results/vary_thetagamma/{exp_no}_gamma{gamma}.json', zip, exp_no = exp_nos, gamma=gs)
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'intermediate', "network_gamma{gamma}.gml"),
-        configfile = os.path.join(DATA_PATH, "vary_phigamma", "{exp_no}_gamma{gamma}.json")
-    output: 'results/vary_phigamma/{exp_no}_gamma{gamma}.json'
+        network = os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_gamma{gamma}.gml"),
+        configfile = os.path.join(DATA_PATH, "vary_thetagamma", "{exp_no}_gamma{gamma}.json")
+    output: 'results/vary_thetagamma/{exp_no}_gamma{gamma}.json'
     shell: """
         python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """
@@ -34,7 +34,7 @@ rule init_net:
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
         configfile = os.path.join(DATA_PATH, 'vary_betagamma', "gamma{gamma}.json")
         
-    output: os.path.join(DATA_PATH, mode, 'intermediate', "network_gamma{gamma}.gml")
+    output: os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_gamma{gamma}.gml")
 
     shell: """
             python3 -m workflow.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
