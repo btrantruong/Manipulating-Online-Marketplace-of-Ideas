@@ -26,7 +26,7 @@ rule run_simulation:
         configfile = os.path.join(DATA_PATH, "vary_phigamma", "{exp_no}_gamma{gamma}.json")
     output: 'results/vary_phigamma/{exp_no}_gamma{gamma}.json'
     shell: """
-        python3 -m scripts.driver.py -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
@@ -37,5 +37,5 @@ rule init_net:
     output: os.path.join(DATA_PATH, mode, 'intermediate', "network_gamma{gamma}.gml")
 
     shell: """
-            python3 -m scripts.init_net.py -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
+            python3 -m workflow.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 
