@@ -8,6 +8,8 @@ import igraph as ig
 import networkx as nx
 import random
 import numpy as np
+from collections import Counter 
+
 """
 preferential_targeting = ['hubs', 'partisanship', 'misinformation', 'conservative', 'liberal']
 or None for no targeting
@@ -267,8 +269,18 @@ class InfoSystem:
     def measure_diversity(self):
         # calculate diversity of the system using entropy (in terms of unique memes)
         # Call only after self._return_all_meme_info() is called 
-        humanshares = np.array([meme["human_shares"] for meme in self.all_memes])
-        botshares = np.array([meme["bot_shares"] for meme in self.all_memes])
+
+        humanshares = []
+        for human, feed in self.agent_feeds.items():
+            for meme in feed:
+                humanshares += [meme.id]
+        meme_counts = Counter(humanshares)
+        count_byid = sorted(dict(meme_counts).items()) #return a list of [(memeid, count)], sorted by id
+        humanshares = np.array([m[1] for m in count_byid])
+
+        # humanshares = np.array([meme["human_shares"] for meme in self.all_memes])
+        # humanshares = np.array([meme["human_shares"] for meme in self.all_memes])
+        # botshares = np.array([meme["bot_shares"] for meme in self.all_memes])
         
         hshare_pct = np.divide(humanshares, sum(humanshares))
         diversity = utils.entropy(hshare_pct)*-1
