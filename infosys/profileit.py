@@ -1,7 +1,6 @@
 """ Functions for method profiling """
 import cProfile, pstats, io
 from datetime import datetime 
-
 # Adapted from https://stackoverflow.com/a/53619707
 def profileit(func):
     def wrapper(*args, **kwargs):
@@ -36,8 +35,8 @@ def profile(func):
     def wrapper(*args, **kwargs):
         now = datetime.now()
         timestr = now.strftime("%m%d%Y_%H%M%S")
-        datafn = func.__name__ + "_profile_%s.csv" %timestr  # Name the data file sensibly
-        # datafn = func.__name__ + "_profile.csv"  # Name the data file sensibly
+        # datafn = func.__name__ + "_profile_%s.csv" %timestr  # Name the data file sensibly
+        datafn = func.__name__ + "_profile.csv"  # Name the data file sensibly
         prof = cProfile.Profile()
         retval = prof.runcall(func, *args, **kwargs)
 

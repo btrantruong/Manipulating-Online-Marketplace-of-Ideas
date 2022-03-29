@@ -1,3 +1,4 @@
+""" Modified to separate model and utils"""
 ##################################################################
 # Code to (re)produce results in the paper 
 # "Manipulating the Online Marketplace of Ideas" 
@@ -9,6 +10,7 @@
 # * remember link direction is following, opposite of info spread!
 ##################################################################
 
+from utils import *
 import networkx as nx
 import random
 import numpy as np
@@ -20,40 +22,20 @@ from operator import itemgetter
 import sys
 import fcntl
 import time
-import bot_model
-
-# plot average quality (relative to baseline) vs given parameters, 
-#      for different values of other params (one per data file)
-# each filename is a csv with two columns, the first is the param and the second is average quality
-# each label is a string, eg r'$\gamma$=0.001'
-# xlabel is a string, eg r'$\theta$'
-def plot_avg_quality(data_files, labels, xlabel, log_flag=False, baseline=0.5, path=""):
-    assert(len(data_files) == len(labels))
-    plt.gca().set_prop_cycle(plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list('.s*o^v<>+x')))
-    if log_flag: plt.xscale('log')
-    plt.xlabel(xlabel, fontsize=16)
-    plt.ylabel('Relative Average Quality', fontsize=16)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    plt.ylim(bottom=0)
-    for i in range(len(data_files)):
-        data = {}
-        with open(path+data_files[i], newline='') as f:
-            reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            for row in reader:
-                data[row[0]] = row[1] / baseline
-        plt.plot(*zip(*sorted(data.items())), label=labels[i])
-    plt.legend()
-
+from profileit import profile
+from graphutils import *
+import model 
 
 # create a network with random-walk growth model
 # default p = 0.5 for network clustering
 # default k_out = 3 is average no. friends within humans & bots
 #
-def random_walk_network(net_size, p=0.5, k_out=3):
+
+def random_walk_network(net_size, p=0.5, k_out=3,seed=100):
   if net_size <= k_out + 1: # if super small just return a clique
     return nx.complete_graph(net_size, create_using=nx.DiGraph())
   G = nx.complete_graph(k_out, create_using=nx.DiGraph()) 
+  random.seed(seed)
   for n in range(k_out, net_size):
     target = random.choice(list(G.nodes()))
     friends = [target]
@@ -68,44 +50,13 @@ def random_walk_network(net_size, p=0.5, k_out=3):
       G.add_edge(n, f)
   return G
 
-
-# sample a bunch of objects from a list without replacement 
-# and with given weights (to be used as probabilities), which can be zero
-# NB: cannot use random_choices, which samples with replacement
-#     nor numpy.random.choice, which can only use non-zero probabilities
-#
-def sample_with_prob_without_replacement(elements, sample_size, weights): 
-  
-  # first remove the elements with zero prob, normalize rest
-  assert(len(elements) == len(weights))
-  total = 0
-  non_zeros = []
-  probs = []
-  zeros = []
-  for i in range(len(elements)):
-    if weights[i] > 0:
-      non_zeros.append(elements[i])
-      probs.append(weights[i])
-      total += weights[i]
-    else: 
-      zeros.append(elements[i])
-  probs = [w/total for w in probs]
-
-  # if we have enough elements with non-zero probabilities, sample from those
-  if sample_size <= len(non_zeros):
-    return np.random.choice(non_zeros, p=probs, size=sample_size, replace=False)
-  else:
-    # if we need more, take all the elements with non-zero probability
-    # plus a random sample of the elements with zero probability
-    return non_zeros + random.sample(zeros, sample_size - len(non_zeros))
-
-
 # create network of humans and bots
 # preferential_targeting is a flag; if False, random targeting
 # default n_humans=1000 but 10k for paper
 # default beta=0.1 is bots/humans ratio
 # default gamma=0.1 is infiltration: probability that a human follows each bot
 #
+@profile
 def init_net(preferential_targeting, verbose=False, targeting_criterion = 'hubs', human_network = None, n_humans=1000, beta=0.1, gamma=0.1):
 
   # humans
@@ -117,12 +68,13 @@ def init_net(preferential_targeting, verbose=False, targeting_criterion = 'hubs'
     H = read_empirical_network(human_network, add_feed=False)
     n_humans = H.number_of_nodes()
   for h in H.nodes:
+      #h['bot'] = False #b
     H.nodes[h]['bot'] = False
 
   # bots
   if verbose: print('Generating bot network...')
   n_bots = int(n_humans * beta) 
-  B = random_walk_network(n_bots)
+  B = random_walk_network(n_bots, seed=101)
   for b in B.nodes:
     B.nodes[b]['bot'] = True
 
@@ -134,7 +86,9 @@ def init_net(preferential_targeting, verbose=False, targeting_criterion = 'hubs'
   humans = []
   bots = []
   for n in G.nodes:
+      #b:initialize feed
     G.nodes[n]['feed'] = []
+    #b:now nodes are reindex so we want to keep track of which ones are bots and which are humans
     if G.nodes[n]['bot']:
       bots.append(n)
     else:
@@ -155,6 +109,8 @@ def init_net(preferential_targeting, verbose=False, targeting_criterion = 'hubs'
       w = [1 if float(G.nodes[h]['party']) < 0 else 0 for h in humans]
     else:
       raise ValueError('Unrecognized targeting_criterion passed to init_net')
+  
+  random.seed(102)
   for b in bots:
     n_followers = 0
     for _ in humans:
@@ -197,6 +153,7 @@ def get_meme(bot_flag, phi=1):
 # using dict attribute 'forgotten_memes' as a static variable
 # that can be accessed as: forgotten_memes_per_degree.forgotten_memes
 #
+# b: seems to only be used for debugging
 def forgotten_memes_per_degree(n_forgotten, followers):
   if not hasattr(forgotten_memes_per_degree, 'forgotten_memes'):
     forgotten_memes_per_degree.forgotten_memes = {} # initialize
@@ -240,13 +197,15 @@ def track_memes(meme, bot_flag, theta=1):
 # default mu = 0.75 is average prob of new meme vs retweet; 
 #         mu could also be drawn from empirical distribution
 #
+
 def simulation_step(G,
                     count_forgotten_memes=False,
                     track_meme=False,
                     alpha=15,
                     mu=0.75,
                     phi=1,
-                    theta=1):
+                    theta=1,
+                    debug=False):
 
   agent = random.choice(list(G.nodes()))
   memes_in_feed = G.nodes[agent]['feed']
@@ -266,29 +225,42 @@ def simulation_step(G,
 
   # spread (truncate feeds at max len alpha)
   followers = G.predecessors(agent)
+  # b: count total memes in system
+  count = 0
   for f in followers:
-    #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
-    # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
-    if G.nodes[agent]['bot']:
-      G.nodes[f]['feed'][0:0] = [meme] * theta
-    else:
-      G.nodes[f]['feed'].insert(0, meme)
-    # truncate feeds if needed
-    if len(G.nodes[f]['feed']) > alpha:
-      if count_forgotten_memes and G.nodes[f]['bot'] == False:
-        # count only forgotten memes with zero quality
-        forgotten_zeros = 0
-        for m in G.nodes[f]['feed'][alpha:]:
-          if m[0] == 0:
-            forgotten_zeros += 1
-        forgotten_memes_per_degree(forgotten_zeros, G.in_degree(f))
-      del G.nodes[f]['feed'][alpha:]
-      #print('follower feed after :', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']]) 
-  #print('Bot' if G.nodes[agent]['bot'] else 'Human', 'posted', meme, 'to', G.in_degree(agent), 'followers', flush=True) 
+      # print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])
+      # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
+      if G.nodes[agent]["bot"]:
+          G.nodes[f]["feed"][0:0] = [meme] * theta
+          count += theta  # b
+      else:
+          G.nodes[f]["feed"].insert(0, meme)
+          count += 1
 
+      # truncate feeds if needed
+      if len(G.nodes[f]["feed"]) > alpha:
+          if count_forgotten_memes and G.nodes[f]["bot"] == False:
+              # count only forgotten memes with zero quality
+              forgotten_zeros = 0
+              for m in G.nodes[f]["feed"][alpha:]:
+                  if m[0] == 0:
+                      forgotten_zeros += 1
+              forgotten_memes_per_degree(forgotten_zeros, G.in_degree(f))
+          del G.nodes[f]["feed"][alpha:]
+          # print('follower feed after :', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])
+  # print('Bot' if G.nodes[agent]['bot'] else 'Human', 'posted', meme, 'to', G.in_degree(agent), 'followers', flush=True)
+  # b: debug
+  num_human_memes = [
+      1
+      for i in G.nodes[agent]["feed"]
+      for agent in G.nodes
+      if G.nodes[agent]["bot"] == False
+  ]
+
+  return count, sum(num_human_memes)
 
 # calculate average quality of memes in system
-#
+# b: count_bot is not used here 
 def measure_average_quality(G, count_bot=False):
   total = 0
   count = 0
@@ -332,6 +304,7 @@ def add_avq_to_net(G):
 # default epsilon=0.001 is threshold used to check for steady-state convergence
 # default theta=1 is the flooding factor for bots
 #
+@profile
 def simulation(preferential_targeting_flag, 
                return_net=False,
                count_forgotten=False,
@@ -352,21 +325,44 @@ def simulation(preferential_targeting_flag,
   # prepare for bookkeeping by resetting counters in case of notebook execution
   track_memes.popularity = {}
   track_memes.bad_popularity = {}
-  bot_model.get_meme.id = 0
+  get_meme.id = 0
 
   # main loop
+  total_memes = 0  # b: count memes
+  hum_memes = 0  # b:debug
   old_quality = 1
   quality_diff = 1
   time_steps = 0
+
+  # b: debug
+  print('Nodes: %s - Edges: %s' %(network.number_of_nodes(), network.number_of_edges()))
+  in_deg = [
+      deg for node, deg in network.in_degree(network.nodes())
+  ]  # number of followers
+  print("Avg in deg", round(sum(in_deg) / len(in_deg), 2))
+
   while quality_diff > epsilon: 
     if verbose:
-      print('time_steps = {}, q = {}, diff = {}'.format(time_steps, old_quality, quality_diff), flush=True) 
+      # print('time_steps = {}, q = {}, diff = {}'.format(time_steps, old_quality, quality_diff), flush=True) 
+      print(
+                "time_steps = {}, q = {}, diff = {}, unique/human memes = {}/{}, all memes ={}".format(
+                    time_steps,
+                    old_quality,
+                    quality_diff,
+                    model.get_meme.id,
+                    hum_memes,
+                    total_memes,
+                ),
+                flush=True,
+            )
     time_steps += 1
     for _ in range(n_agents):
-      simulation_step(network,
+      num_memes, hum_memes = simulation_step(network,
                       count_forgotten_memes=count_forgotten,
                       track_meme=track_meme,
                       mu=mu, phi=phi, alpha=alpha, theta=theta) 
+      #debug:
+      total_memes += num_memes
     # use exponential moving average for convergence
     new_quality = 0.8 * old_quality + 0.2 * measure_average_quality(network)
     quality_diff = abs(new_quality - old_quality) / old_quality if old_quality > 0 else 0
@@ -384,144 +380,6 @@ def simulation(preferential_targeting_flag,
     return (new_quality, network)
   else:
     return new_quality
-
-
-# append to file, locking file and waiting if busy in case of multi-processing
-#
-def save_csv(data_array, csvfile='results.csv'): 
-  with open(csvfile, 'a', newline='') as file:
-    while True:
-      try:
-        fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        writer = csv.writer(file)
-        writer.writerow(data_array)
-        fcntl.flock(file, fcntl.LOCK_UN)
-        break
-      except:
-        time.sleep(0.1)
-
-
-# read from file
-#
-def read_csv(filename):
-  q_mean_random = {} 
-  q_stderr_random = {} 
-  q_mean_preferential = {} 
-  q_stderr_preferential = {} 
-  q_mean_ratio = {} 
-  q_stderr_ratio = {} 
-  with open(filename, newline='') as file:
-    reader = csv.reader(file, quoting=csv.QUOTE_NONNUMERIC)
-    for row in reader:
-      q_mean_random[row[0]] = row[1]
-      q_stderr_random[row[0]] = row[2]
-      q_mean_preferential[row[0]] = row[3]
-      q_stderr_preferential[row[0]] = row[4]
-      q_mean_ratio[row[0]] = row[5]
-      q_stderr_ratio[row[0]] = row[6]
-  return(q_mean_random, q_stderr_random, 
-         q_mean_preferential, q_stderr_preferential, 
-         q_mean_ratio, q_stderr_ratio)
-
-
-# calculate log with default base
-#
-def logbase(x, base=1.5):
-    return np.log(x)/np.log(base)
-
-
-# histogram
-# 
-def get_count(list):
-    count = {}
-    for q in list:
-        if q in count:
-            count[q] += 1
-        else:
-            count[q] = 1
-    return count
-
-
-# log-bin given histogram
-#
-def get_distr(count):
-    distr = {}
-    sum = 0
-    for a in count:
-        sum += count[a]
-        bin = int(logbase(a))
-        if bin in distr:
-            distr[bin] += count[a]
-        else:
-            distr[bin] = count[a]
-    return distr, sum
-
-
-# log-binned distribution given log-binned histogram with default base
-#
-def getbins(distr, sum, base=1.5):
-    mids = []
-    heights = []
-    bin = sorted(distr.keys())
-    for i in bin:
-        start = base ** i
-        width = base ** (i+1) - start
-        mid = start + width/2
-        mids.append(mid)
-        heights.append(distr[i]/(sum * width))
-    return mids, heights
-
-
-# plot heatmap
-#
-def draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=None, vmin=None):
-    data = data[::-1, :]
-    if vmin == None:
-        vmin = data[0][0]
-        for i in data:
-            for j in i:
-                if j<vmin:
-                    vmin=j
-    if vmax == None:
-        vmax = data[0][0]
-        for i in data:
-            for j in i:
-                if j>vmax:
-                    vmax=j
-
-    map = ax.imshow(data, interpolation='nearest', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
-    yticks = yticks[::-1]
-    ax.set_yticks(range(len(yticks)))
-    ax.set_yticklabels(yticks, fontsize=14)
-    ax.set_xticks(range(len(xticks)))
-    ax.set_xticklabels(xticks, fontsize=14) #, rotation=40
-    cb = plt.colorbar(mappable=map, cax=None, ax=None)
-    cb.ax.tick_params(labelsize=12)
-    plt.xlabel(xlabel, fontsize=14)
-    plt.ylabel(ylabel, fontsize=14)
-    plt.title(title)
-
-
-# calculate Gini coefficient of concentration of low-quality memes around hubs
-# inspired by https://github.com/oliviaguest/gini
-#
-def gini(G):
-  humans = []
-  total = 0
-  for agent in G.nodes:
-    if G.nodes[agent]['bot'] == False:
-      zeros = 0
-      for m in G.nodes[agent]['feed']:
-        if m[0] == 0: 
-          zeros += 1 
-      humans.append((G.in_degree(agent), zeros))
-      total += zeros
-  humans.sort(key=itemgetter(0))
-  n = len(humans)
-  coefficient = 0
-  for i in range(n):
-    coefficient += (2*(i+1) - n - 1) * humans[i][1]
-  return coefficient / (n * total)
 
 
 # relationship between indegree (#followers) and low-quality in humans
@@ -584,27 +442,6 @@ def simulation_timeline(preferential_targeting_flag, max_time_steps=10, gamma=0.
   for time_steps in range(max_time_steps):
     quality_timeline[time_steps] = statistics.mean(quality_timeline[time_steps])
   return quality_timeline 
-
-
-# plot some quantity in a dictionary where keys are no. followers 
-#
-def plot_quantity_vs_degree(title, ylabel, data_dict):
-  plt.figure()
-  plt.xlabel('Followers', fontsize=16)
-  plt.ylabel(ylabel, fontsize=16)
-  plt.title(title, fontsize=16)
-  #plt.xscale('log')
-  plt.plot(*zip(*sorted(data_dict.items())))
-
-
-# READ EMPIRICAL NETWORK FROM GML FILE
-#
-def read_empirical_network(file, add_feed=True):
-    net = nx.read_gml(file)
-    if add_feed:
-        for n in net.nodes:
-            net.nodes[n]['feed'] = []
-    return net
 
 
 # CALCULATE beta AND gamma 

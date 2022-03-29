@@ -1,5 +1,7 @@
-import ig_utils
-import graphutils
+from scripts import ig_utils
+from scripts import graphutils
+# import ig_utils
+# import graphutils
 import networkx as nx
 import sys
 import argparse

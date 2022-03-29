@@ -1,4 +1,8 @@
 """ Script for running simulation - Use for debugging"""
+import sys 
+
+sys.path.append("..")
+
 from ig_InfoSys import InfoSystem
 from profileit import profile
 import graphutils
@@ -9,6 +13,7 @@ import networkx as nx
 from pathlib import Path
 import pickle as pkl 
 import json
+
 
 # ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
 ABS_PATH = ''

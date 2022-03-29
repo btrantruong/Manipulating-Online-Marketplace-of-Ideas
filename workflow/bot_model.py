@@ -53,10 +53,12 @@ def plot_avg_quality(data_files, labels, xlabel, log_flag=False, baseline=0.5, p
 # default p = 0.5 for network clustering
 # default k_out = 3 is average no. friends within humans & bots
 #
-def random_walk_network(net_size, p=0.5, k_out=3):
+def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
     if net_size <= k_out + 1:  # if super small just return a clique
         return nx.complete_graph(net_size, create_using=nx.DiGraph())
     G = nx.complete_graph(k_out, create_using=nx.DiGraph())
+
+    # random.seed(seed)
     for n in range(k_out, net_size):
         target = random.choice(list(G.nodes()))
         friends = [target]
@@ -136,7 +138,7 @@ def init_net(
     if verbose:
         print("Generating bot network...")
     n_bots = int(n_humans * beta)
-    B = random_walk_network(n_bots)
+    B = random_walk_network(n_bots, seed=101)
     for b in B.nodes:
         B.nodes[b]["bot"] = True
 
@@ -171,6 +173,8 @@ def init_net(
             w = [1 if float(G.nodes[h]["party"]) < 0 else 0 for h in humans]
         else:
             raise ValueError("Unrecognized targeting_criterion passed to init_net")
+    
+    # random.seed(102)
     for b in bots:
         n_followers = 0
         for _ in humans:
@@ -365,7 +369,7 @@ def simulation(
     preferential_targeting_flag,
     return_net=False,
     count_forgotten=False,
-    track_meme=False,
+    track_meme=True,
     network=None,
     verbose=False,
     epsilon=0.001,
@@ -393,6 +397,7 @@ def simulation(
     time_steps = 0
 
     # b: debug
+    print('Nodes: %s - Edges: %s' %(network.number_of_nodes(), network.number_of_edges()))
     in_deg = [
         deg for node, deg in network.in_degree(network.nodes())
     ]  # number of followers
