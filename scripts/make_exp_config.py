@@ -13,6 +13,7 @@ mode = 'igraph'
 # BETA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
 # GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
 # PHI_LIN = list(range(1,11))
+# DEBUG
 BETA = [0.1, 0.02, 0.5]
 GAMMA = [0.1, 0.02, 0.5]
 PHI_LIN = list(range(1,3))
@@ -32,7 +33,11 @@ default_infosys = {
     'theta': 1
 }
 
-default_net = {'verbose':False, 'targeting_criterion':None}
+# default_net = {'verbose':False, 'targeting_criterion':None}
+
+#DEBUG
+default_net = {'verbose':False, 'targeting_criterion':None, "human_network": None, "n_humans": 10}
+
 
 def update_dict_with_default(adict, default_dict):
     for k,v in default_dict.items():

@@ -1,38 +1,27 @@
-import os 
-import numpy as np
-import math
-import json 
-# ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
+
+# GAMMAS = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
+GAMMAS = [0.1, 0.02, 0.5]
 ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
-mode = 'igraph'
-wildcard_constraints:
-    exp_no="\d+"
 
-exp_configs = json.load(open('data/all_configs/bgconfig.json','r'))
-EXPS = list(exp_configs.keys())
+print(os.getcwd())
+exp_configs = json.load(open('data/all_configs.json','r'))
+EXPS = list(exp_configs['vary_betagamma'].keys())
 
+
+sim_num = 20
+mode='igraph'
 
 rule all:
-    # input: os.path.join(DATA_PATH, mode, 'intermediate', "{exp_no}_network.gml")
-    input:  expand(os.path.join(DATA_PATH, mode, 'intermediate', "{exp_no}_network.gml"), exp_no = EXPS)
+    input: expand("network_gamma{gamma}.gml", gamma=GAMMAS)
 
-# rule run_simulation:
-#     input: os.path.join(path, mode, "network.gml")
-#     output: os.path.join(path, mode, "meme.pkl"), os.path.join(path, mode, "meme_popularity.pkl")
-#     shell: """
-#         python3 driver.py -i {input} -o {output} \
-#         --mode {} --trackmeme {} --verbose {} \
-#         --eps {} --mu {} --phi {} --alpha {} --theta {}
-#     """
-#TODO: difference between """ and ""? 
-# {var} vs {{var}}?
- 
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(DATA_PATH, 'configs', "bgconfig_{exp_no}.json")
-    output: os.path.join(DATA_PATH, mode, 'intermediate', "{exp_no}_network.gml")
+        configfile = os.path.join(DATA_PATH, 'vary_phigamma', "{exp_no}_gamma{gamma}.json")
+        
+    output: "network_gamma{gamma}.gml"
+
     shell: """
-            python3 init_net.py -i {input.follower} -o {output} --config {input.configfile} --mode {mode} --exp {wildcards.exp_no}
+            python3 init_net.py -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 
