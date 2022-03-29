@@ -12,42 +12,42 @@ mode = 'igraph'
 
 #Default:alpha (15), beta (0.01), gamma (0.001), phi (1), theta (1)
 
-# BETA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-# GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-# TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
-# PHI_LIN = list(range(1,11))
-# THETA = [1,2,4,6,8,10,12,14]
+BETA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
+GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
+TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
+PHI_LIN = list(range(1,11))
+THETA = [1,2,4,6,8,10,12,14]
 # DEBUG
-BETA = [0.1, 0.02]
-GAMMA = [0.1, 0.02]
-PHI_LIN = list(range(1,3))
-TARGETING = [None, 'hubs']
-THETA = [2,8]
+# BETA = [0.1, 0.02]
+# GAMMA = [0.1, 0.02]
+# PHI_LIN = list(range(1,3))
+# TARGETING = [None, 'hubs']
+# THETA = [2,8]
 #!TODO: Change back epsilon in default params! 
 
-PHI_LOG = [2,4,8,16,32]
+# PHI_LOG = [2,4,8,16,32]
 
-default_infosys = {
-    'trackmeme': True,
-    'verbose': False,
-    'epsilon': 0.01,
-    'mu': 0.5,
-    'phi': 1,
-    'alpha': 15,
-    'theta': 1
-}
-
-all_exps = {}
-## DEFAULT 
 # default_infosys = {
 #     'trackmeme': True,
 #     'verbose': False,
-#     'epsilon': 0.001,
+#     'epsilon': 0.01,
 #     'mu': 0.5,
 #     'phi': 1,
 #     'alpha': 15,
 #     'theta': 1
 # }
+
+all_exps = {}
+## DEFAULT 
+default_infosys = {
+    'trackmeme': True,
+    'verbose': False,
+    'epsilon': 0.001,
+    'mu': 0.5,
+    'phi': 1,
+    'alpha': 15,
+    'theta': 1
+}
 
 default_net = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.001}
 

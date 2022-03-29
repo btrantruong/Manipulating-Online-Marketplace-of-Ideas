@@ -1,6 +1,4 @@
 
-# GAMMAS = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-GAMMAS = [0.1, 0.02, 0.5]
 ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
@@ -13,7 +11,7 @@ sim_num = 20
 mode='igraph'
 
 rule all:
-    input: expand(os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_{exp_no}.gml"), exp_no=EXPS)
+    input: expand('results/vary_betagamma/{exp_no}.json', exp_no=EXPS)
 
 rule run_simulation:
     input: 
