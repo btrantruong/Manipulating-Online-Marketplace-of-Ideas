@@ -13,8 +13,8 @@ import json
 import os
 
 
-# ABS_PATH = "/N/u/baotruon/Carbonate/marketplace/igraphvsnx"
-ABS_PATH = ''
+ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
+# ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 # TODO: save network as .gml.gz, keep only friend relationships
 
@@ -23,7 +23,7 @@ def bao_simulation(mode='igraph'):
     path = DATA_PATH
 
     follower_path = os.path.join(path, "follower_network.gml")
-    infosys_path = os.path.join(path, mode, "network.gml")
+    infosys_path = os.path.join(path, 'test', "network.gml")
     
     net_specs = {
         "targeting_criterion": "hubs",
