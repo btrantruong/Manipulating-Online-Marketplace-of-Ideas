@@ -23,7 +23,7 @@ def bao_simulation(mode='igraph'):
     path = DATA_PATH
 
     follower_path = os.path.join(path, "follower_network.gml")
-    infosys_path = os.path.join(path, 'test', "network.gml")
+    infosys_path = os.path.join(path, mode, "network.gml")
     
     net_specs = {
         "targeting_criterion": "hubs",

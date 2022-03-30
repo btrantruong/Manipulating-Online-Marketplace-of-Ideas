@@ -92,7 +92,11 @@ def main(args):
     })
     
     if len(qualities)>0:
-        json.dump(infosys_spec,open(outfile,'w'))
-
+        # json.dump(infosys_spec,open(outfile,'w'))
+        fout = open(outfile,'w')
+        json.dump(infosys_spec, fout)
+        # force writing out the changes
+        fout.flush()
+        
 if __name__ == "__main__": main(sys.argv[1:])
 
