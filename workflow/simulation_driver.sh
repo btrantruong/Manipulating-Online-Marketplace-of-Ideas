@@ -10,8 +10,10 @@
 #SBATCH --job-name=test_simulation
 
 ######  Module commands #####
+source /N/u/baotruon/Carbonate/miniconda3/etc/profile.d/conda.sh
 conda activate graph
 
 
 ######  Job commands go below this line #####
-python3 simulation_driver.py
+cd /N/u/baotruon/Carbonate/marketplace
+python3 workflow/simulation_driver.py
