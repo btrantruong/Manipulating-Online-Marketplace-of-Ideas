@@ -18,7 +18,7 @@ ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 # TODO: save network as .gml.gz, keep only friend relationships
 
-@profile
+# @profile
 def bao_simulation(mode='igraph'):
     path = DATA_PATH
 
@@ -27,8 +27,8 @@ def bao_simulation(mode='igraph'):
     
     net_specs = {
         "targeting_criterion": "hubs",
-        # "human_network": follower_path,
-        "human_network": None,
+        "human_network": follower_path,
+        # "human_network": None, #DEBUG
         "n_humans": 10,
         "beta": 0.01,
         "gamma": 0.001,
@@ -38,6 +38,7 @@ def bao_simulation(mode='igraph'):
     infosys_specs = {
         "trackmeme": True,
         "verbose": True,
+        "epsilon": 0.001, #TODO: change back to 0.001
         "mu": 0.5,
         "phi": 1,
         "alpha": 15,
@@ -59,8 +60,7 @@ def bao_simulation(mode='igraph'):
     print("Start simulation (mode: %s).." %mode)
     avg_quality, diversity, tau_tuple = follower_sys.simulation()
     # all_feeds, meme_popularity, avg_quality = follower_sys.simulation()
-    print("average quality for follower network:", avg_quality)
-
+    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
     # final_allmemes = os.path.join(path, mode, "meme.json")
     # json.dump(all_feeds, open(final_allmemes, 'w'))
 
