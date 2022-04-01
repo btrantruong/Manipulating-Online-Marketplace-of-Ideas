@@ -1,12 +1,12 @@
 ## For a small numbers of exps 
 
-ABS_PATH = ''
-# ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
+# ABS_PATH = ''
+ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 print(os.getcwd())
 exp_configs = json.load(open('data/all_configs.json','r'))
-anchor_gamma = 0.02 #change to 0.001
+anchor_gamma = 0.01 #change to 0.001
 RES_DIR = os.path.join(ABS_PATH, "results", "vary_phigamma", "gamma%s" %str(anchor_gamma))
 EXPS = list([name for name in exp_configs['vary_phigamma'].keys() if str(anchor_gamma) in name])
 NAMES = [tuple(expname.split('_')) for expname in EXPS] # turn "07_gamma0.05" to ('07', 'gamma0.05')
