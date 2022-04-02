@@ -12,18 +12,19 @@ exp_nos, gs = zip(*NAMES) #example: exp_nos[i]=00, gs[i]=gamma0.01
 #     exp_no="\d+",
 #     gamma="\d+"
 
-sim_num = 20
+sim_num = 2
 mode='igraph'
+RES_DIR = os.join.path(ABS_PATH,'results', 'vary_phigamma_%sruns' %sim_num)
 
 rule all:
     # input: expand("network_gamma{gamma}.gml", gamma=GAMMAS)
-    input: expand('results/vary_phigamma/{exp_no}_{gamma}.json', zip, exp_no = exp_nos, gamma=gs)
+    input: expand(os.path.join(RES_DIR, '{exp_no}_{gamma}.json'), zip, exp_no = exp_nos, gamma=gs)
 
 rule run_simulation:
     input: 
         network = os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_{gamma}.gml"),
         configfile = os.path.join(DATA_PATH, "vary_phigamma", "{exp_no}_{gamma}.json")
-    output: 'results/vary_phigamma/{exp_no}_{gamma}.json'
+    output: os.path.join(RES_DIR, '{exp_no}_{gamma}.json')
     shell: """
         python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """

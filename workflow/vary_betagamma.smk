@@ -1,5 +1,4 @@
 # ABS_PATH = ''
-# ABS_PATH = '/nobackup/baotruon/marketplace'
 ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
@@ -8,17 +7,18 @@ exp_configs = json.load(open('data/all_configs.json','r'))
 EXPS = list(exp_configs['vary_betagamma'].keys())
 
 
-sim_num = 20
+sim_num = 2
 mode='igraph'
+RES_DIR = os.join.path(ABS_PATH,'results', 'vary_betagamma_%sruns' %sim_num)
 
 rule all:
-    input: expand('results/vary_betagamma/{exp_no}.json', exp_no=EXPS)
+    input: expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
 
 rule run_simulation:
     input: 
         network = os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_{exp_no}.gml"),
         configfile = os.path.join(DATA_PATH, "vary_betagamma", "default_infosys.json")
-    output: 'results/vary_betagamma/{exp_no}.json'
+    output: os.path.join(RES_DIR, '{exp_no}.json')
     shell: """
         python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """

@@ -22,7 +22,8 @@ def multiple_simulations(infosys_specs, times=20):
     avg_quality = []
     diversity = []
     tau_tuple = []
-    for _ in range(20):
+    print("Run simulation %s times.." %times)
+    for _ in range(times):
         print("Create InfoSystem instance..")
         follower_sys = InfoSystem(**infosys_specs)
         print("Start simulation (mode: %s).." %infosys_specs['mode'])
@@ -82,7 +83,7 @@ def main(args):
     if 'gamma' in infosys_spec.keys():
         gamma = infosys_spec.pop('gamma')
 
-    qualities, diversities, tau_tuples = multiple_simulations(infosys_spec)
+    qualities, diversities, tau_tuples = multiple_simulations(infosys_spec, times=n_simulations)
     # add back gamma for completeness
     infosys_spec.update({
         'gamma': gamma,
