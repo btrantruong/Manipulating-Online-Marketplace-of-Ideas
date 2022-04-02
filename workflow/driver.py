@@ -83,7 +83,7 @@ def main(args):
     if 'gamma' in infosys_spec.keys():
         gamma = infosys_spec.pop('gamma')
 
-    qualities, diversities, tau_tuples = multiple_simulations(infosys_spec, times=n_simulations)
+    qualities, diversities, tau_tuples = multiple_simulations(infosys_spec, times=int(n_simulations))
     # add back gamma for completeness
     infosys_spec.update({
         'gamma': gamma,
