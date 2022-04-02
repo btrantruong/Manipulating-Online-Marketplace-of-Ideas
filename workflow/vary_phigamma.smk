@@ -14,7 +14,7 @@ exp_nos, gs = zip(*NAMES) #example: exp_nos[i]=00, gs[i]=gamma0.01
 
 sim_num = 2
 mode='igraph'
-RES_DIR = os.join.path(ABS_PATH,'results', 'vary_phigamma_%sruns' %sim_num)
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_phigamma_%sruns' %sim_num)
 
 rule all:
     # input: expand("network_gamma{gamma}.gml", gamma=GAMMAS)

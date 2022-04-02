@@ -13,7 +13,7 @@ exp_nos, gs = zip(*NAMES) #example: exp_nos[i]=00, gs[i]=gamma0.01
 
 sim_num = 2
 mode='igraph'
-RES_DIR = os.join.path(ABS_PATH,'results', 'vary_thetagamma_%sruns' %sim_num)
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetagamma_%sruns' %sim_num)
 
 rule all:
     input: expand(os.path.join(RES_DIR, '{exp_no}_{gamma}.json'), zip, exp_no = exp_nos, gamma=gs)

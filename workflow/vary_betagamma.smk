@@ -9,7 +9,7 @@ EXPS = list(exp_configs['vary_betagamma'].keys())
 
 sim_num = 2
 mode='igraph'
-RES_DIR = os.join.path(ABS_PATH,'results', 'vary_betagamma_%sruns' %sim_num)
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_betagamma_%sruns' %sim_num)
 
 rule all:
     input: expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
