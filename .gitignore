@@ -2,5 +2,6 @@
 __pycache__/
 data/*
 .snakemake/*
-./results/*
-./infosys.egg-info/*
+results/
+infosys.egg-info/
+synthetic_results/*
