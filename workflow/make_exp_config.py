@@ -7,9 +7,9 @@ import os
 import json 
 
 
-# ABS_PATH = ''
+ABS_PATH = ''
 # ABS_PATH = '/nobackup/baotruon/marketplace'
-ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
+# ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 follower_network = 'follower_network.gml'
 mode = 'igraph'
@@ -75,10 +75,12 @@ def make_exps():
         for jdx,gamma in enumerate(GAMMA):
             cf = {'beta': beta, 'gamma':gamma}
             config = update_dict_with_default(cf, default_net)
-
-            if beta ==0.02 and gamma==0.001:
-                config_name = 'default'
-            elif beta ==0.02:
+            #TODO: reflect this change remotely
+            # if beta ==0.02 and gamma==0.001:
+            #     config_name = 'default'
+            # elif beta ==0.02:
+            #     config_name = 'gamma%s' %gamma
+            if beta ==0.02:
                 config_name = 'gamma%s' %gamma
             else:
                 config_name = '%s%s' %(idx,jdx)
