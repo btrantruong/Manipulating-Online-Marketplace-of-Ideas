@@ -57,16 +57,10 @@ def heatmap_data(result_dir, exp_type='vary_thetagamma', cell_type='quality'):
     y = heatmap_config[exp_type]['y']
 
     results = defaultdict(lambda: [])
-    # for idx, yval in enumerate(heatmap_config[exp_type]['yvals']):
-    #     for xval in heatmap_config[exp_type]['xvals']:
-    #         if cell_type=='discriminative_pow':
-    #             results[yval] += [np.mean(res[cell_type][0]) for res in all_results if res[x]==xval and res[y]==yval]
-    #         else:
-    #             results[yval] += [np.mean(res[cell_type]) for res in all_results if res[x]==xval and res[y]==yval]
-    
     for idx, yval in enumerate(heatmap_config[exp_type]['yvals']):
         for xval in heatmap_config[exp_type]['xvals']:
             if cell_type=='discriminative_pow':
+                #Fill 0 for exps that haven't finished running yet
                 vals = [res[cell_type][0] for res in all_results if res[x]==xval and res[y]==yval]
                 results[yval] += [np.mean(vals) if len(vals)>0 else 0]
             else:
@@ -128,34 +122,37 @@ def lineplot_data(config_fpath=None, exp_type='vary_thetagamma', anchors=[('gamm
                     data += [(info[x], info[y][0])] #since discrinminative_pow is a tuple of (tau,p_val)
                 else:
                     data += [(info[x], info[y])] 
-#         data = [(info[x], info[y]) for info in results.values() if info[anchor[0]]==anchor[1]]
         
         avg_data = []
         y_err = []
         for xval,yval in data:
-            if relative is True:
-                baseline = 0.5
-                avg_data += [(xval, np.mean(yval)/baseline)]
+            if y=='discriminative_pow':
+                avg_data += [(xval, np.mean(yval[0]))]
+                y_err += [(xval, np.std(yval[0]))]
+            # if relative is True:
+            #     baseline = 0.5
+            #     avg_data += [(xval, np.mean(yval)/baseline)]
             else:
                 avg_data += [(xval, np.mean(yval))]
-            y_err += [np.std(yval)]
+                y_err += [(xval, np.std(yval))]
 
-        multiline_data+= [avg_data] #list of lists, each list is a line
+        multiline_data += [avg_data] #list of lists, each list is a line
         multiline_err += [y_err]
     return multiline_data, multiline_err
 
-
-def plotmulti_infosys(ax, data, anchors=[('gamma', 0.01), ('gamma', 0.02)], 
-                        x='beta', y='quality', log_flag=False):
+def plotmulti_infosys(ax, ys, errors, anchors=[('gamma', 0.01), ('gamma', 0.02)], 
+                        x='beta', y='quality', log_flag=False, error=True):
     
     markers=list('.s*o^v<>+x')
-    for idx,avg_data in enumerate(data):
+    for idx,avg in enumerate(ys):
         anchor = anchors[idx]
-        # plt.gca().set_prop_cycle(plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list('.s*o^v<>+x')))
         if log_flag: ax.set_xscale('log')
-        # plt.errorbar(*zip(*sorted(avg_data)), yerr=y_err, elinewidth=3, capsize=0, label=anchor[1] if anchor[1] is not None else 'None')
-        ax.plot(*zip(*sorted(avg_data)), label='%s: %s' %(pprint[anchor[0]],anchor[1]) if anchor[1] is not None else 'None', marker=markers[idx])
-    
+        xs, ys= zip(*sorted(avg))
+        xs, errs = zip(*sorted(errors[idx]))
+        ax.plot(xs,ys, label='%s: %s' %(pprint[anchor[0]],anchor[1]) if anchor[1] is not None else 'None', marker=markers[idx])
+        if error is True:
+            ax.fill_between(xs, np.subtract(np.array(ys), np.array(errs)), np.add(np.array(ys), np.array(errs)), alpha=0.3)
+
     ax.set_xlabel(pprint[x])
     ax.set_ylabel(pprint[y])
     ax.legend()
@@ -188,14 +185,9 @@ def panel_plot(result_dir, config_fpath=None, exp_type= 'vary_thetagamma'):
     laxs = [figure.add_subplot(3,2,i) for i in left]
 
     for plot_specs,ax in zip(lineplots, laxs):
-        line_data, _  = lineplot_data(config_fpath, **plot_specs)
-        plotmulti_infosys(ax, line_data, anchors=anchors, 
-                            x=plot_specs['x'], y=plot_specs['y'], log_flag=True)
-
-    #TODO: Reduce tick size for betagamma
-    # if exp_type=='vary_betagamma':
-    #     ax.tick_params(axis='x', which='major', labelsize=5)
-    #     ax.tick_params(axis='x', which='minor', labelsize=5)
+        line_data, error = lineplot_data(config_fpath, **plot_specs)
+        plotmulti_infosys(ax, line_data, error, anchors=anchors, 
+                            x=plot_specs['x'], y=plot_specs['y'], log_flag=True, error=True)
 
     raxs = [figure.add_subplot(3,2,i) for i in right]
     for map_spec, ax, cell in zip(plots, raxs, measurements): 
@@ -203,8 +195,10 @@ def panel_plot(result_dir, config_fpath=None, exp_type= 'vary_thetagamma'):
         utils.draw_heatmap(ax, data, xticks[exp_type]['vals'], GAMMA, xticks[exp_type]['label'], pprint['gamma'], cmap, cell, vmax=None, vmin=None)
 
     figure.tight_layout() 
+    # plt.show()
     plt.savefig(os.path.join(PLOT_PATH,'%s.png' %exp_type), dpi=100)
 
-# panel_plot(RES_PATH, config_fpath, exp_type='vary_phigamma')
-# panel_plot(RES_PATH, config_fpath, exp_type='vary_thetagamma')
-panel_plot(RES_PATH, config_fpath, exp_type='vary_betagamma')
+if __name__=="__main__":
+    panel_plot(RES_PATH, config_fpath, exp_type='vary_phigamma')
+    panel_plot(RES_PATH, config_fpath, exp_type='vary_thetagamma')
+    panel_plot(RES_PATH, config_fpath, exp_type='vary_betagamma')

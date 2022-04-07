@@ -27,6 +27,13 @@ def update_dict(adict, default_dict,fill_na=True):
             adict.update({k:v})
     return adict
 
+def update_results(adict, newres_dict):
+    measures = ['quality','diversity','discriminative_pow']
+    # Append a dict with results from another run
+    for m in measures:
+        adict[m].extend(newres_dict[m])
+    return adict
+    
 def plotmulti_infosys(result_dir, exp_type='vary_betagamma', anchors=[('gamma', 0.01), ('gamma', 0.02)], 
                         x='beta', y='quality', log_flag=False, relative=False):
     respath = glob.glob('%s/*.json' %result_dir)
@@ -44,8 +51,12 @@ def plotmulti_infosys(result_dir, exp_type='vary_betagamma', anchors=[('gamma', 
     for i,anchor in enumerate(anchors):
         results = {}
         for file in resfiles: 
+            #2run results
             res = json.load(open(os.path.join(result_dir,'%s.json' %file),'r'))
-            results[file] = update_dict(res, params[file])
+            #3run results
+            new_res = json.load(open(os.path.join('results/vary_targetgamma_3runs','%s.json' %file),'r'))
+            run1 = update_dict(res, params[file])
+            results[file] = update_results(run1,new_res)
         # print(results)
         data = []
         for info in results.values():
@@ -80,7 +91,7 @@ def plotmulti_infosys(result_dir, exp_type='vary_betagamma', anchors=[('gamma', 
     plt.yticks(fontsize=14)
     plt.ylim(bottom=0)
     plt.legend()
-    plt.savefig(os.path.join(result_dir, '%s%s.png' %(x,y)), dpi=300)
+    plt.savefig(os.path.join(result_dir, '%s%s_.png' %(x,y)), dpi=300)
     # plt.show()
     plt.clf()
 

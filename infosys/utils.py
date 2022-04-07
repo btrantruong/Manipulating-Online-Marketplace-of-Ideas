@@ -217,9 +217,9 @@ def draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=Non
     map = ax.imshow(data, interpolation='nearest', cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
     # create an axes on the right side of ax. The width of cax will be 5%
     # of ax and the padding between cax and ax will be fixed at 0.05 inch.
-    # divider = make_axes_locatable(ax)
-    # cax = divider.append_axes("left", size="5%", pad=0.05)
-      
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    cb = plt.colorbar(mappable=map, cax=cax, ax=None)
     # ax.colorbar(map, cax=None, ax=ax)
 
     yticks = yticks[::-1]
