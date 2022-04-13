@@ -4,7 +4,7 @@ ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 print(os.getcwd())
-exp_configs = json.load(open('data/all_configs.json','r'))
+exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
 EXPS = list(exp_configs['vary_phigamma'].keys())
 NAMES = [tuple(expname.split('_')) for expname in EXPS] # turn "07_gamma0.05" to ('07', 'gamma0.05')
 exp_nos, gs = zip(*NAMES) #example: exp_nos[i]=00, gs[i]=gamma0.01
