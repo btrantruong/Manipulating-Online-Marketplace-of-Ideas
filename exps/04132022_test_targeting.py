@@ -16,7 +16,7 @@ ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
 # DATA_PATH = os.path.join(ABS_PATH, "data")
 DATA_PATH = '/N/slate/baotruon/marketplace/data/igraph'
 
-hub = os.path.join(DATA_PATH, 'vary_thetagamma/network_13.gml')
+hub = os.path.join(DATA_PATH, 'vary_targetgamma/network_13.gml')
 nohub= os.path.join(DATA_PATH, 'vary_betagamma/network_gamma0.001.gml')
 
 default_infosys = {
@@ -49,8 +49,8 @@ def bao_simulation(net_fpath, infosys_specs, mode='igraph'):
         print('Network file doesnt exist! ')
 
 if __name__ == "__main__":
-    print('--- NO HUB')
-    bao_simulation(nohub, default_infosys, mode='igraph')
+    # print('--- NO HUB')
+    # bao_simulation(nohub, default_infosys, mode='igraph')
 
     print('--- HUB')
     bao_simulation(hub, default_infosys, mode='igraph')
