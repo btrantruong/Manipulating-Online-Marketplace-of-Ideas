@@ -56,6 +56,7 @@ class InfoSystem:
         
         if trackmeme is True:
             self.meme_popularity = {} #dict of {"meme_id": (human_popularity, bot_popularity)}
+            #dict of {"meme_id": meme.__dict__ and 'popularity':(human_popularity, bot_popularity)}
 
         if mode=='igraph': #Use igraph data struct
             try:
@@ -142,21 +143,38 @@ class InfoSystem:
             #TODO: track meme
 
         if self.mode=='igraph':
-            all_feeds = self.agent_feeds
+            all_feeds = self.agent_feeds # dict of {agent['uid']:[Meme()] } each value is a list of Meme obj in the agent's feed
         else:
             all_feeds = self.tracking_agents
 
-        # b: We don't need to save feed info & meme popularity in json anymore
-        # feeds = {} 
-        # for agent, memelist in all_feeds.items():
-        #     feeds[agent] = [meme.__dict__  for meme in memelist] #convert to dict to avoid infinite recursion
+        # b: Save feed info of agent & meme popularity
+        # convert self.agent_feed into dict of agent_uid - [meme_id]
+        feeds = {} 
+        for agent, memelist in all_feeds.items():
+            feeds[agent] = [meme.id  for meme in memelist] 
         
         # return feeds, self.meme_popularity, self.quality
 
-        self.all_memes = self._return_all_meme_info()
-        tau, p_val = self.measure_kendall_tau()
-        diversity = self.measure_diversity()
-        return self.quality, diversity, (tau, p_val), self.quality_timestep
+        #b: return all values in a dict & meme popularity
+        # save meme_popularity
+        self.all_memes = self._return_all_meme_info() #need to call this before calculating tau and diversity!!
+
+        measurements = {
+            'quality': self.quality,
+            'diversity' : self.measure_diversity(),
+            'discriminative_pow': self.measure_kendall_tau(),
+            'quality_timestep': self.quality_timestep,
+            'all_memes': self.all_memes, 
+            'all_feeds': feeds
+        }
+
+        return measurements
+        #b: If not saving agent feed into & all memes info
+        # self.all_memes = self._return_all_meme_info()
+        # tau, p_val = self.measure_kendall_tau()
+        # diversity = self.measure_diversity()
+        # return self.quality, diversity, (tau, p_val), self.quality_timestep
+
 
 
     # @profile
@@ -328,7 +346,7 @@ class InfoSystem:
     
     def _return_all_meme_info(self):
         #Be careful 
-        memes = [meme.__dict__ for meme in self.all_memes]
+        memes = [meme.__dict__ for meme in self.all_memes] #convert to dict to avoid infinite recursion
         for meme_dict in memes:
             meme_dict.update(self.meme_popularity[meme_dict['id']])
         return memes

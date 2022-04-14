@@ -13,8 +13,8 @@ import json
 import os
 
 
-ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
-# ABS_PATH = ''
+# ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
+ABS_PATH = ''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 # TODO: save network as .gml.gz, keep only friend relationships
 
@@ -27,8 +27,8 @@ def bao_simulation(mode='igraph'):
     
     net_specs = {
         "targeting_criterion": "hubs",
-        "human_network": follower_path,
-        # "human_network": None, #DEBUG
+        # "human_network": follower_path,
+        "human_network": None, #DEBUG
         "n_humans": 10,
         "beta": 0.01,
         "gamma": 0.001,
@@ -37,8 +37,9 @@ def bao_simulation(mode='igraph'):
 
     infosys_specs = {
         "trackmeme": True,
+        "tracktimestep": True,
         "verbose": True,
-        "epsilon": 0.001, #TODO: change back to 0.001
+        "epsilon": 0.1, #TODO: change back to 0.001
         "mu": 0.5,
         "phi": 1,
         "alpha": 15,
@@ -55,14 +56,29 @@ def bao_simulation(mode='igraph'):
             if utils.make_sure_dir_exists(path, mode):
                 nx.write_gml(G, infosys_path)
 
+    timestep_fname = 'timestep_%s.pkl' %utils.get_now()
     print("Create InfoSystem instance..")
+    print("Time step saved at %s" %timestep_fname)
     follower_sys = InfoSystem(os.path.join(path,mode, "network.gml"), mode=mode, **infosys_specs)
     print("Start simulation (mode: %s).." %mode)
-    avg_quality, diversity, tau_tuple = follower_sys.simulation()
-    # all_feeds, meme_popularity, avg_quality = follower_sys.simulation()
-    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
-    # final_allmemes = os.path.join(path, mode, "meme.json")
-    # json.dump(all_feeds, open(final_allmemes, 'w'))
+    measurements = follower_sys.simulation()
+    # b: code if not saving meme and feed info
+    # avg_quality, diversity, tau_tuple, quality_timestep= follower_sys.simulation()
+     # print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
+    
+    quality_timestep = measurements['quality_timestep']
+    pkl.dump(quality_timestep, open(timestep_fname, 'wb'))
+    
+   
+    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(measurements['quality'], measurements['diversity'], 
+    measurements['discriminative_pow'][0], measurements['discriminative_pow'][1]))
+
+    allmemes = os.path.join(path, mode, "meme.json")
+    json.dump(measurements['all_memes'], open(allmemes, 'w'))
+
+    allfeeds = os.path.join(path, mode, "feeds.json")
+    json.dump(measurements['all_feeds'], open(allfeeds, 'w'))
+    # pkl.dump(measurements['all_feeds'], open(timestep_fname, 'wb'))
 
     # final_meme_popularity = os.path.join(path, mode, "meme_popularity.json")
     # json.dump(meme_popularity, open(final_meme_popularity, 'w'))
