@@ -33,7 +33,7 @@ default_infosys = {
 }
 def bao_simulation(net_fpath, infosys_specs, mode='igraph'):
     if utils.make_sure_file_exists(net_fpath) is True:
-        specs = {'graph_gml': net_fpath, 'mode':mode}.update(infosys_specs)
+        infosys_specs.update({'graph_gml': net_fpath, 'mode':mode})
 
     ts = utils.get_now()
     timestep_fname = os.path.join(ABS_PATH, 'timestep_%s.pkl' %ts)
