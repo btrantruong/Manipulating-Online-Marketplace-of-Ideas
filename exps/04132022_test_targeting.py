@@ -35,19 +35,21 @@ def bao_simulation(net_fpath, infosys_specs, mode='igraph'):
     if utils.make_sure_file_exists(net_fpath) is True:
         infosys_specs.update({'graph_gml': net_fpath, 'mode':mode})
 
-    ts = utils.get_now()
-    timestep_fname = os.path.join(ABS_PATH, 'timestep_%s.pkl' %ts)
+        ts = utils.get_now()
+        timestep_fname = os.path.join(ABS_PATH, 'timestep_%s.pkl' %ts)
 
-    print("Create InfoSystem instance..")
-    print("Time step saved at %s" %ts)
-    follower_sys = InfoSystem(**specs)
-    print("Start simulation (mode: %s).." %mode)
-    avg_quality, diversity, tau_tuple, quality_timestep= follower_sys.simulation()
-    
-    pkl.dump(quality_timestep, open(timestep_fname, 'wb'))
+        print("Create InfoSystem instance..")
+        print("Time step saved at %s" %ts)
+        follower_sys = InfoSystem(**infosys_specs)
+        print("Start simulation (mode: %s).." %mode)
+        avg_quality, diversity, tau_tuple, quality_timestep= follower_sys.simulation()
+        
+        pkl.dump(quality_timestep, open(timestep_fname, 'wb'))
 
-    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
-    
+        print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
+    else:
+        print('Network file doesnt exist! ')
+        
 if __name__ == "__main__":
     print('--- NO HUB')
     bao_simulation(nohub, default_infosys, mode='igraph')
