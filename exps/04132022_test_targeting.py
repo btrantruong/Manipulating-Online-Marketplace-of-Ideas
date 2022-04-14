@@ -14,12 +14,10 @@ import os
 ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
 # ABS_PATH = ''
 # DATA_PATH = os.path.join(ABS_PATH, "data")
-DATA_PATH = '/N/slate/baotruon/marketplace/data'
+DATA_PATH = '/N/slate/baotruon/marketplace/data/igraph'
 
-follower_path = os.path.join(DATA_PATH, "follower_network.gml")
-
-hub = os.path.join(DATA_PATH, 'vary_thetagamma/13_gamma0.001.json')
-nohub= os.path.join(DATA_PATH, 'vary_betagamma/gamma0.001.json')
+hub = os.path.join(DATA_PATH, 'vary_thetagamma/network_13.gml')
+nohub= os.path.join(DATA_PATH, 'vary_betagamma/network_gamma0.001.gml')
 
 default_infosys = {
     "trackmeme": True,
@@ -49,7 +47,7 @@ def bao_simulation(net_fpath, infosys_specs, mode='igraph'):
         print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
     else:
         print('Network file doesnt exist! ')
-        
+
 if __name__ == "__main__":
     print('--- NO HUB')
     bao_simulation(nohub, default_infosys, mode='igraph')
