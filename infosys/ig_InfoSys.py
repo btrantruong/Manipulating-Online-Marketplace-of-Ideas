@@ -20,6 +20,7 @@ class InfoSystem:
                 # preferential_targeting=None,
                 # count_forgotten=False,
                 trackmeme=True,
+                tracktimestep=None,
                 verbose=False,
                 epsilon=0.001,
                 mu=0.5,
@@ -33,6 +34,8 @@ class InfoSystem:
         # self.preferential_targeting=preferential_targeting
         self.verbose = verbose
         self.trackmeme = trackmeme
+        self.tracktimestep = tracktimestep
+        self.quality_timestep=[]
         self.meme_popularity = None
 
         self.epsilon=epsilon
@@ -125,6 +128,9 @@ class InfoSystem:
                 print('time_step = {}, q = {}, diff = {}, unique/human memes = {}/{}, all memes created={}'.format(self.time_step, self.quality, self.quality_diff, self.num_meme_unique, self.memes_human_feed, self.num_memes), flush=True) 
 
             self.time_step += 1
+            if self.tracktimestep is True:
+                self.quality_timestep+= [self.quality]
+
             for _ in range(self.n_agents):
                 if self.mode!='igraph' and self.network is None: 
                     self.simulation_step(seed=self.num_meme_unique)
@@ -150,7 +156,7 @@ class InfoSystem:
         self.all_memes = self._return_all_meme_info()
         tau, p_val = self.measure_kendall_tau()
         diversity = self.measure_diversity()
-        return self.quality, diversity, (tau, p_val)
+        return self.quality, diversity, (tau, p_val), self.quality_timestep
 
 
     # @profile

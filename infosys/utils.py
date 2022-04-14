@@ -19,6 +19,7 @@ import glob
 from matplotlib import cm 
 import json 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import datetime as dt 
 
 def update_dict(adict, default_dict,fill_na=True):
     #only update the dictionary if key doesn't exist
@@ -98,6 +99,10 @@ def plotmulti_infosys(result_dir, config_fpath=None, exp_type='vary_betagamma', 
 
 # def heatmap_infosys(result_dir, exp_type='vary_thetagamma', data, xticks, yticks, '$\\theta$', '$\gamma$', cmap, 'TEST', vmax=None, vmin=None)
 
+def get_now():
+    #return timestamp
+    return int(dt.datetime.now().timestamp())
+    
 def get_logger(name):
     # Create a custom logger
     logger = logging.getLogger(name)
