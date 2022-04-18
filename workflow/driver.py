@@ -31,9 +31,9 @@ def multiple_simulations(infosys_specs, times=20):
 
         n_measures['quality'] += [measurements['quality']]
         n_measures['diversity'] += [measurements['diversity']]
-        n_measures['discriminative_pow'] += [ measurements['discriminative_pow']] 
-        n_measures['memes'] += [measurements['all_memes']]
-        n_measures['feeds'] += [measurements['all_feeds']]
+        n_measures['discriminative_pow'] += [measurements['discriminative_pow']] 
+        n_measures['memes'] += [measurements['all_memes']] #memes: list of dict
+        n_measures['feeds'] += [measurements['all_feeds']] #feeds: dict of list
     print("average quality for follower network: %s pm %s" %(np.mean(np.array(n_measures['quality'])), np.std(np.array(n_measures['quality']))))
     return dict(n_measures)
 
