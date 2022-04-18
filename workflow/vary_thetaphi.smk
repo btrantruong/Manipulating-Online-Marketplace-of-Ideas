@@ -40,7 +40,7 @@ rule run_simulation:
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(DATA_PATH, 'vary_thetaphi', "{exp_no}.json")
+        configfile = os.path.join(DATA_PATH, 'vary_targetgamma', "network_{exp_network[exp_no]}.gml")
         
     output: os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{exp_network[exp_no]}.gml")
 
