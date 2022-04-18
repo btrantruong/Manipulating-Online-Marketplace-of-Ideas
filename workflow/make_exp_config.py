@@ -1,3 +1,4 @@
+""" Config for the first set of exps (vary phi&gamma; vary beta&gamma, vary theta&gamma)"""
 import os
 print(os.getcwd())
 import infosys.utils as utils
@@ -7,9 +8,8 @@ import os
 import json 
 
 
-ABS_PATH = ''
-# ABS_PATH = '/nobackup/baotruon/marketplace'
-# ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
+# ABS_PATH = ''
+ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 follower_network = 'follower_network.gml'
 mode = 'igraph'
@@ -55,6 +55,9 @@ default_infosys = {
 
 default_net = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.001}
 
+#gamma is 0.01 for the range in which targeting has some effect
+default_targeting = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.01}
+
 #DEBUG
 # default_net = {'verbose':False, 'targeting_criterion':None, "human_network": None, "n_humans": 10}
 
@@ -75,11 +78,6 @@ def make_exps():
         for jdx,gamma in enumerate(GAMMA):
             cf = {'beta': beta, 'gamma':gamma}
             config = update_dict_with_default(cf, default_net)
-            #TODO: reflect this change remotely
-            # if beta ==0.02 and gamma==0.001:
-            #     config_name = 'default'
-            # elif beta ==0.02:
-            #     config_name = 'gamma%s' %gamma
             if beta ==0.02:
                 config_name = 'gamma%s' %gamma
             else:
@@ -113,6 +111,26 @@ def make_exps():
 
         #Add an additional default file for info sys
         fp = os.path.join(DATA_PATH, 'vary_targetgamma','default_infosys.json')
+        json.dump(default_infosys,open(fp,'w'))
+
+
+    #vary theta & phi for each targeting strategy
+    all_exps["vary_thetaphi"] = {}
+    for idx, target in enumerate(TARGETING):
+        for jdx,theta in enumerate(THETA):
+            for kdx,phi in enumerate(PHI_LIN):
+                cf = {'targeting_criterion': target, 'theta':theta, 'phi':phi}
+                config = update_dict_with_default(cf, default_targeting)
+
+                config_name = '%s_%s%s' %(target,jdx, kdx) if target is not None else 'none_%s%s' %(jdx, kdx)
+                all_exps["vary_thetaphi"][config_name] = config
+                
+                if utils.make_sure_dir_exists(DATA_PATH, 'vary_thetaphi'):
+                    fp = os.path.join(DATA_PATH, 'vary_thetaphi','%s.json' %config_name)
+                    json.dump(config,open(fp,'w'))
+
+        #Add an additional default file for info sys
+        fp = os.path.join(DATA_PATH, 'vary_thetaphi','default_infosys.json')
         json.dump(default_infosys,open(fp,'w'))
 
 
