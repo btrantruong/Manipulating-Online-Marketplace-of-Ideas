@@ -30,7 +30,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{exp_network[exp_no]}.gml"),
+        network = os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{{exp_network[exp_no]}}.gml"),
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
     output: os.path.join(RES_DIR, '{exp_no}.json')
     shell: """
@@ -40,9 +40,9 @@ rule run_simulation:
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(DATA_PATH, 'vary_targetgamma', "network_{exp_network[exp_no]}.gml")
+        configfile = os.path.join(DATA_PATH, 'vary_targetgamma', "network_{{exp_network[exp_no]}}.gml")
         
-    output: os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{exp_network[exp_no]}.gml")
+    output: os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{{exp_network[exp_no]}}.gml")
 
     shell: """
             python3 -m workflow.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
