@@ -7,6 +7,7 @@ import infosys.ig_utils as ig_utils
 import infosys.graphutils as graphutils
 from infosys.profileit import profile
 
+import gzip
 import sys
 import igraph
 import networkx as nx 
@@ -88,9 +89,12 @@ def main(args):
     infosys_spec.update(nruns_measurements)
     
     if len(nruns_measurements['quality'])>0:
-        # json.dump(infosys_spec,open(outfile,'w'))
-        fout = open(outfile,'w')
-        json.dump(infosys_spec, fout)
+        # fout = open(outfile,'w')
+        # json.dump(infosys_spec, fout)
+
+        fout = gzip.open(outfile,'w')
+        utils.write_json_compressed(fout, infosys_spec)
+
         # force writing out the changes
         fout.flush()
         

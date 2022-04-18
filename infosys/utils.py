@@ -21,6 +21,15 @@ import json
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import datetime as dt 
 import inspect 
+import gzip 
+
+def write_json_compressed(fout, data):
+    #write compressed json for hpc - pass file handle instead of filename so we can flush
+    try:
+        fout.write(json.dumps(data).encode('utf-8')) 
+    except Exception as e:
+        print(e)
+
 
 def update_dict(adict, default_dict,fill_na=True):
     #only update the dictionary if key doesn't exist
@@ -43,6 +52,7 @@ def remove_illegal_kwargs(adict, amethod):
         if k in legal:
             new_dict[k] = v
     return new_dict
+
 
 pprint = {'gamma':'$\gamma$','theta': '$\theta$', 'beta':'$\beta$', 'phi': '$phi$', 
         'quality': 'Relative Average Quality', 'discriminative_pow': 'Discriminative Power', 'diversity': 'Diversity'}
