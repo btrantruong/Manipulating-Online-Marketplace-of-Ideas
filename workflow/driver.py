@@ -1,6 +1,7 @@
 
 """ Script for running simulation - Use for snakemake"""
 
+from operator import mul
 from infosys.ig_InfoSys import InfoSystem
 import infosys.utils as utils
 import infosys.ig_utils as ig_utils
@@ -15,24 +16,26 @@ import pickle as pkl
 import argparse
 import json
 import numpy as np 
-
+from collections import defaultdict
 
 def multiple_simulations(infosys_specs, times=20):
     # baseline:  mu=0.5, alpha=15, beta=0.01, gamma=0.001, phi=1, theta=1
-    avg_quality = []
-    diversity = []
-    tau_tuple = []
+    n_measures = defaultdict(lambda: [])
+
     print("Run simulation %s times.." %times)
     for _ in range(times):
         print("Create InfoSystem instance..")
         follower_sys = InfoSystem(**infosys_specs)
         print("Start simulation (mode: %s).." %infosys_specs['mode'])
-        qual, diver, tau_p = follower_sys.simulation()
-        avg_quality +=[qual]
-        diversity +=[diver]
-        tau_tuple += [tau_p] 
-    print("average quality for follower network: %s pm %s" %(np.mean(np.array(avg_quality)), np.std(np.array(avg_quality))))
-    return avg_quality, diversity, tau_tuple
+        measurements = follower_sys.simulation()
+
+        n_measures['quality'] += [measurements['quality']]
+        n_measures['diversity'] += [measurements['diversity']]
+        n_measures['discriminative_pow'] += [ measurements['discriminative_pow']] 
+        n_measures['memes'] += [measurements['all_memes']]
+        n_measures['feeds'] += [measurements['all_feeds']]
+    print("average quality for follower network: %s pm %s" %(np.mean(np.array(n_measures['quality'])), np.std(np.array(n_measures['quality']))))
+    return dict(n_measures)
 
 
 def run_simulation(infosys_specs):
@@ -40,9 +43,9 @@ def run_simulation(infosys_specs):
     print("Create InfoSystem instance..")
     follower_sys = InfoSystem(**infosys_specs)
     print("Start simulation (mode: %s).." %infosys_specs['mode'])
-    avg_quality, diversity, tau_tuple = follower_sys.simulation()
-    print("average quality for follower network:", avg_quality)
-    return avg_quality, diversity, tau_tuple
+    measurements = follower_sys.simulation()
+    print("average quality for follower network:", measurements['quality'])
+    return measurements
 
 
 def main(args):
@@ -83,16 +86,12 @@ def main(args):
     if 'gamma' in infosys_spec.keys():
         gamma = infosys_spec.pop('gamma')
 
-    qualities, diversities, tau_tuples = multiple_simulations(infosys_spec, times=int(n_simulations))
+    nruns_measurements = multiple_simulations(infosys_spec, times=int(n_simulations))
     # add back gamma for completeness
-    infosys_spec.update({
-        'gamma': gamma,
-        'quality': qualities,
-        'diversity': diversities,
-        'discriminative_pow': tau_tuples
-    })
+    infosys_spec.update({'gamma': gamma})
+    infosys_spec.update(nruns_measurements)
     
-    if len(qualities)>0:
+    if len(nruns_measurements['quality'])>0:
         # json.dump(infosys_spec,open(outfile,'w'))
         fout = open(outfile,'w')
         json.dump(infosys_spec, fout)
