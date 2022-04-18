@@ -19,6 +19,7 @@ mode = 'igraph'
 BETA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
 GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
 TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
+THETAPHI_TARGETING = [None, 'hubs', 'partisanship', 'misinformation']
 PHI_LIN = list(range(1,11))
 THETA = [1,2,4,6,8,10,12,14]
 # DEBUG
@@ -116,7 +117,7 @@ def make_exps():
 
     #vary theta & phi for each targeting strategy
     all_exps["vary_thetaphi"] = {}
-    for idx, target in enumerate(TARGETING):
+    for idx, target in enumerate(THETAPHI_TARGETING):
         for jdx,theta in enumerate(THETA):
             for kdx,phi in enumerate(PHI_LIN):
                 cf = {'targeting_criterion': target, 'theta':theta, 'phi':phi}
