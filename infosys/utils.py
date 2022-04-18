@@ -20,6 +20,7 @@ from matplotlib import cm
 import json 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import datetime as dt 
+import inspect 
 
 def update_dict(adict, default_dict,fill_na=True):
     #only update the dictionary if key doesn't exist
@@ -32,6 +33,16 @@ def update_dict(adict, default_dict,fill_na=True):
             adict.update({k:v})
     return adict
 
+
+def remove_illegal_kwargs(adict, amethod):
+    #remove a keyword from a dict if it is not in the signature of a method
+    new_dict = {}
+    argspec = inspect.getargspec(amethod)
+    legal = argspec.args
+    for k,v in adict.items():
+        if k in legal:
+            new_dict[k] = v
+    return new_dict
 
 pprint = {'gamma':'$\gamma$','theta': '$\theta$', 'beta':'$\beta$', 'phi': '$phi$', 
         'quality': 'Relative Average Quality', 'discriminative_pow': 'Discriminative Power', 'diversity': 'Diversity'}

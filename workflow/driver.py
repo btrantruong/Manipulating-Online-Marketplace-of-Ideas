@@ -1,7 +1,6 @@
 
 """ Script for running simulation - Use for snakemake"""
 
-from operator import mul
 from infosys.ig_InfoSys import InfoSystem
 import infosys.utils as utils
 import infosys.ig_utils as ig_utils
@@ -82,13 +81,10 @@ def main(args):
     infosys_spec['mode'] = args.mode
 
     #avoid passing undefined keyword to InfoSys
-    gamma=None
-    if 'gamma' in infosys_spec.keys():
-        gamma = infosys_spec.pop('gamma')
+    legal_specs = utils.remove_illegal_kwargs(infosys_spec, InfoSystem.__init__)
 
-    nruns_measurements = multiple_simulations(infosys_spec, times=int(n_simulations))
+    nruns_measurements = multiple_simulations(legal_specs, times=int(n_simulations))
     # add back gamma for completeness
-    infosys_spec.update({'gamma': gamma})
     infosys_spec.update(nruns_measurements)
     
     if len(nruns_measurements['quality'])>0:
