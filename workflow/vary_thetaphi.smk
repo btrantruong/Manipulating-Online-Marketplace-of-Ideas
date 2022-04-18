@@ -28,13 +28,13 @@ mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns' %sim_num)
 
 rule all:
-    input: expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
+    input: expand(os.path.join(RES_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
 
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_%s.gml" %EXP_NETWORK[wildcards.exp_no])),
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
-    output: os.path.join(RES_DIR, '{exp_no}.json')
+    output: os.path.join(RES_DIR, '{exp_no}.json.gz')
     shell: """
         python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """
