@@ -22,7 +22,6 @@ for fpath in fpaths:
     else:
         data = utils.read_json_compressed(fpath)
         data_short = {k:v for k,v in data.items() if k not in ['memes', 'feeds']}
-        fout = gzip.open(newpath, 'w')
-        utils.write_json_compressed(fout, data)
+        json.dump(data_short,open(newpath,'w'))
 print('%s files exists' %exists)
 print('Finish separating data!')
