@@ -30,6 +30,16 @@ def write_json_compressed(fout, data):
     except Exception as e:
         print(e)
 
+def read_json_compressed(fpath):
+    data=None
+    try:
+        fin = gzip.open(fpath, 'r')
+        json_bytes = fin.read()  
+        json_str = json_bytes.decode('utf-8')
+        data = json.loads(json_str)
+    except Exception as e:
+        print(e)
+    return data
 
 def update_dict(adict, default_dict,fill_na=True):
     #only update the dictionary if key doesn't exist
