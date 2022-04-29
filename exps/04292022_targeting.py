@@ -7,13 +7,16 @@ from collections import Counter
 import os
 import infosys.utils as utils 
 
+#debug
+# ABS_PATH=''
+# BETAS = [0.1, 0.5]
+# GAMMAS = [ 0.1,0.5]
+
 ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
 DATA_PATH = '/N/slate/baotruon/marketplace/data'
-
 TARGETING = [None, 'hubs']
 COLORS = ['blue', 'orange']
-# BETAS = [0.01, 0.5]
-# GAMMAS = [ 0.01,0.5]
+
 BETAS = [0.001, 0.01, 0.1, 0.5]
 GAMMAS = [0.001, 0.01, 0.1, 0.5]
 human_net = os.path.join(DATA_PATH, 'follower_network.gml')
@@ -30,15 +33,14 @@ def get_prob_dist(degs):
 
 for kdx,beta in enumerate(BETAS):
     plt_no = 0
+    # fig, axs = plt.subplots(2,2,  sharex=True, sharey=True)
+    fig, axs = plt.subplots(2,4, figsize=(16,8), sharex=True, sharey=True)
     for idx,(color,targeting) in enumerate(zip(COLORS, TARGETING)):
-        # fig, axs = plt.subplots(2,2, figsize=(8,7), sharex=True, sharey=True)
-        fig, axs = plt.subplots(2,4, figsize=(16,8), sharex=True, sharey=True)
-        
         for jdx,gamma in enumerate(GAMMAS):
             net_specs = {
                     "targeting_criterion":targeting,
                     "human_network": human_net, 
-                    # "n_humans": 10000,
+                    # "n_humans": 100,
                     "beta": beta,
                     "gamma": gamma,
                     "track_bot_followers": True
@@ -54,7 +56,7 @@ for kdx,beta in enumerate(BETAS):
             if plt_no%4==0:
                 print('--plot no: ', plt_no)
             plt_no+=1
-    plt.tight_layout()        
+    # plt.tight_layout()        
     fig.suptitle('Degree of human bot followers', fontsize=12)
     if utils.make_sure_dir_exists(plot_path, '04292022_check_targeting'):
         plt.savefig(os.path.join(plot_path, '04292022_check_targeting', 'beta%s.png'%beta), dpi=300)
