@@ -3,6 +3,7 @@ import infosys.utils as utils
 import igraph as ig
 import random 
 import string 
+import numpy as np 
 
 def read_empirical_network(file):
     print('File: ', file)
@@ -52,7 +53,7 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
 # default beta=0.1 is bots/humans ratio
 # default gamma=0.1 is infiltration: probability that a human follows each bot
 #
-def init_net(targeting_criterion=None, verbose=False, human_network = None, n_humans=1000, beta=0.1, gamma=0.1):
+def init_net(targeting_criterion=None, verbose=False, human_network = None, n_humans=1000, beta=0.1, gamma=0.1, track_bot_followers=False):
 
     # humans
     if human_network is None:
@@ -107,21 +108,33 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
         else:
             raise ValueError('Unrecognized targeting_criterion passed to init_net')
     
-    random.seed(102)
+        # random.seed(102)
+        probs = [i/sum(w) for i in w]
+    
+    degs = []
     for b in bots:
         n_followers = 0
         for _ in humans:
             if random.random() < gamma:
                 n_followers += 1
         if targeting_criterion is not None:
-            followers = utils.sample_with_prob_without_replacement(humans, n_followers, w)
+            # followers = utils.sample_with_prob_without_replacement(humans, n_followers, w)
+            #Use np: (vec,size,replace=False, p=P)
+            followers = np.random.choice(humans, n_followers, replace=False, p=probs)
         else:
             followers = random.sample(humans, n_followers)
         
         follower_edges = [(f,b) for f in followers]
         G.add_edges(follower_edges)
 
-    return G
+        #debug: track degree of humans that are bot followers
+        if track_bot_followers is True:
+            degs+=G.degree(followers, mode='in')
+    
+    if track_bot_followers is True:
+        return G, degs
+    else:
+        return degs
 
 def _delete_unused_attributes(net, desire_attribs=['uid','party', 'misinfo']):
     #delete unused attribs or artifact of igraph to maintain consistency
