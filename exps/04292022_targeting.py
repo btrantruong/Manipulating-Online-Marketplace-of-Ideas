@@ -53,6 +53,9 @@ for kdx,beta in enumerate(BETAS):
             ax.set_xscale('log')
             ax.set_yscale('log')
             ax.set_title('%s targeting gamma %s' %(targeting, gamma))
+            if jdx==0:
+                ax.set_xlabel('k')
+                ax.set_ylabel('Pk')
             if plt_no%4==0:
                 print('--plot no: ', plt_no)
             plt_no+=1
