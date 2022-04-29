@@ -17,4 +17,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### Plot degree of human bot followers for hub-targeting and no targeting ######'
-python3 exps/04132022_test_targeting.py
+python3 exps/04292022_targeting.py
