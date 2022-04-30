@@ -134,7 +134,7 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
     if track_bot_followers is True:
         return G, degs
     else:
-        return degs
+        return G
 
 def _delete_unused_attributes(net, desire_attribs=['uid','party', 'misinfo']):
     #delete unused attribs or artifact of igraph to maintain consistency
