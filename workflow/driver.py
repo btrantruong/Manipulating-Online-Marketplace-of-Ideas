@@ -3,19 +3,13 @@
 
 from infosys.ig_InfoSys import InfoSystem
 import infosys.utils as utils
-import infosys.ig_utils as ig_utils
-import infosys.graphutils as graphutils
-from infosys.profileit import profile
 
 import gzip
 import sys
-import igraph
-import networkx as nx 
-from pathlib import Path
-import pickle as pkl 
 import argparse
 import json
 import numpy as np 
+import copy
 from collections import defaultdict
 
 def multiple_simulations(infosys_specs, times=20):
@@ -35,7 +29,13 @@ def multiple_simulations(infosys_specs, times=20):
         n_measures['memes'] += [measurements['all_memes']] #memes: list of dict
         n_measures['feeds'] += [measurements['all_feeds']] #feeds: dict of list
     print("average quality for follower network: %s pm %s" %(np.mean(np.array(n_measures['quality'])), np.std(np.array(n_measures['quality']))))
-    return dict(n_measures)
+    
+    results = {'quality': n_measures['quality'],
+               'diversity': n_measures['diversity'],
+               'discriminative_pow': n_measures['discriminative_pow']
+    }
+    #return a short & long (more details) version of measurements
+    return results, dict(n_measures)
 
 
 def run_simulation(infosys_specs):
@@ -58,7 +58,10 @@ def main(args):
         help="path to input gml file of network")
     parser.add_argument('-o', '--outfile',
         action="store", dest="outfile", type=str, required=True,
-        help="path to out .gml info system network file (with bots and humans)")
+        help="path to .json file containing infosys measurements")
+    parser.add_argument('-v', '--verboseoutfile',
+        action="store", dest="verboseoutfile", type=str, required=False,
+        help="path to .json.gz file containing verbose infosys measurements (track all memes & feeds)")
     parser.add_argument('--config',
         action="store", dest="config", type=str, required=True,
         help="path to all configs file")
@@ -73,6 +76,7 @@ def main(args):
     args = parser.parse_args(args)
     infile = args.infile
     outfile = args.outfile
+    verboseout = args.verboseoutfile
     configfile = args.config
     n_simulations = args.times
     infosys_spec = json.load(open(configfile,'r'))
@@ -84,19 +88,23 @@ def main(args):
     #avoid passing undefined keyword to InfoSys
     legal_specs = utils.remove_illegal_kwargs(infosys_spec, InfoSystem.__init__)
 
-    nruns_measurements = multiple_simulations(legal_specs, times=int(n_simulations))
-    # add back gamma for completeness
+    nruns_measurements, verbose_tracking = multiple_simulations(legal_specs, times=int(n_simulations))
+    # add infosys configuration
     infosys_spec.update(nruns_measurements)
     
     if len(nruns_measurements['quality'])>0:
-        # fout = open(outfile,'w')
-        # json.dump(infosys_spec, fout)
-
-        fout = gzip.open(outfile,'w')
-        utils.write_json_compressed(fout, infosys_spec)
-
-        # force writing out the changes
+        fout = open(outfile,'w')
+        json.dump(infosys_spec, fout)
         fout.flush()
+
+        if verboseout is not None:
+            specs = copy.deepcopy(infosys_spec)
+            specs.update(verbose_tracking)
+            fout = gzip.open(outfile,'w')
+            utils.write_json_compressed(fout, specs)
+            # force writing out the changes
+            fout.flush()
+        
         
 if __name__ == "__main__": main(sys.argv[1:])
 
