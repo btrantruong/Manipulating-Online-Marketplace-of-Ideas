@@ -57,7 +57,7 @@ default_infosys = {
 default_net = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.001}
 
 #gamma is 0.01 for the range in which targeting has some effect
-default_targeting = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.01}
+default_targeting = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.1}
 
 #DEBUG
 # default_net = {'verbose':False, 'targeting_criterion':None, "human_network": None, "n_humans": 10}

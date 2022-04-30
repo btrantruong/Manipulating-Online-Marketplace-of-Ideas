@@ -6,26 +6,29 @@ DATA_PATH = '/N/slate/baotruon/marketplace/data'
 
 print(os.getcwd())
 exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
-EXPS = list(exp_configs['vary_thetaphi'].keys())
+EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
 
+# map available network in `vary_targetgamma` corresponding with the exp
+# networks from `vary_targetgamma` has format: '{targeting}{gamma}'
 GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-THETAPHI_TARGETING = [None, 'hubs', 'partisanship', 'misinformation']
+TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
 
-#get network corresponding with the exp
 EXP_NETWORK = {}
 
-gamma = 0.02 # gamma in the range where targeting has some effect
+gamma = 0.1 # gamma in the range where targeting has some effect
+# need to match with default_targeting
 for exp in EXPS:
     if 'none' in exp:
-        networkname = '%s%s' %(THETAPHI_TARGETING.index(None), GAMMA.index(gamma))
+        networkname = '%s%s' %(TARGETING.index(None), GAMMA.index(gamma))
     else: 
-        networkname = '%s%s' %(THETAPHI_TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
+        networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
     EXP_NETWORK[exp] = networkname
 
 
 sim_num = 1
 mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns' %sim_num)
+TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns' %sim_num)
 
 rule all:
     input: expand(os.path.join(RES_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
@@ -34,9 +37,11 @@ rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_%s.gml" %EXP_NETWORK[wildcards.exp_no])),
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
-    output: os.path.join(RES_DIR, '{exp_no}.json.gz')
+    output: 
+        measurements = os.path.join(RES_DIR, '{exp_no}.json'),
+        # tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
     shell: """
-        python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.driver -i {input.network} -o {output.measurements} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
