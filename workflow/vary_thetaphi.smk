@@ -25,7 +25,7 @@ for exp in EXPS:
     EXP_NETWORK[exp] = networkname
 
 
-sim_num = 1
+sim_num = 2
 mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns' %sim_num)
 TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns' %sim_num)
@@ -39,9 +39,9 @@ rule run_simulation:
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
-        # tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
+        tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
     shell: """
-        python3 -m workflow.driver -i {input.network} -o {output.measurements} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
