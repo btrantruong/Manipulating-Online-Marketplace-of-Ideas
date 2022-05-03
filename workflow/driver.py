@@ -100,7 +100,7 @@ def main(args):
         if verboseout is not None:
             specs = copy.deepcopy(infosys_spec)
             specs.update(verbose_tracking)
-            fout = gzip.open(outfile,'w')
+            fout = gzip.open(verboseout,'w')
             utils.write_json_compressed(fout, specs)
             # force writing out the changes
             fout.flush()
