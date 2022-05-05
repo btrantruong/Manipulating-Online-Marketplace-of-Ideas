@@ -31,7 +31,9 @@ RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns' %sim_num)
 TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns' %sim_num)
 
 rule all:
-    input: expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
+    input: 
+        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
+        tracking = expand(os.path.join(TRACKING_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
 
 rule run_simulation:
     input: 
