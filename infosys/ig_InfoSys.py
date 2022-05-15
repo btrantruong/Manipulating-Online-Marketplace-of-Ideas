@@ -357,7 +357,7 @@ class InfoSystem:
         if meme.id not in self.meme_popularity.keys():
             self.meme_popularity[meme.id] = {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}
         
-        self.meme_popularity[meme.id]["spread_via_agents"] += [agent['id']]
+        self.meme_popularity[meme.id]["spread_via_agents"] += [int(agent['id'])] #index needs to be int
 
         if agent['bot']==0:
             self.meme_popularity[meme.id]["human_shares"] += 1
