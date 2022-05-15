@@ -20,7 +20,7 @@ class InfoSystem:
                 # preferential_targeting=None,
                 # count_forgotten=False,
                 trackmeme=True,
-                tracktimestep=None,
+                tracktimestep=True,
                 verbose=False,
                 epsilon=0.001,
                 mu=0.5,
@@ -355,8 +355,10 @@ class InfoSystem:
         # meme_popularity is a value in a dict: list (is_by_bot, human popularity, bot popularity)
         # (don't use tuple! tuple doesn't support item assignment)
         if meme.id not in self.meme_popularity.keys():
-            self.meme_popularity[meme.id] = {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0}
+            self.meme_popularity[meme.id] = {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}
         
+        self.meme_popularity[meme.id]["spread_via_agents"] += [agent['id']]
+
         if agent['bot']==0:
             self.meme_popularity[meme.id]["human_shares"] += 1
         else:

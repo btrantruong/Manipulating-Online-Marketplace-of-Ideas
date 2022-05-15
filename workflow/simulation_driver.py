@@ -11,7 +11,8 @@ from pathlib import Path
 import pickle as pkl 
 import json
 import os
-
+import copy
+import gzip 
 
 # ABS_PATH = "/N/u/baotruon/Carbonate/marketplace"
 ABS_PATH = ''
@@ -29,7 +30,7 @@ def bao_simulation(mode='igraph'):
         "targeting_criterion": "hubs",
         # "human_network": follower_path,
         "human_network": None, #DEBUG
-        "n_humans": 10,
+        "n_humans": 100,
         "beta": 0.01,
         "gamma": 0.001,
         "verbose": True,
@@ -56,32 +57,35 @@ def bao_simulation(mode='igraph'):
             if utils.make_sure_dir_exists(path, mode):
                 nx.write_gml(G, infosys_path)
 
-    timestep_fname = 'timestep_%s.pkl' %utils.get_now()
     print("Create InfoSystem instance..")
-    print("Time step saved at %s" %timestep_fname)
     follower_sys = InfoSystem(os.path.join(path,mode, "network.gml"), mode=mode, **infosys_specs)
     print("Start simulation (mode: %s).." %mode)
-    measurements = follower_sys.simulation()
+    verbose_results = follower_sys.simulation()
     # b: code if not saving meme and feed info
     # avg_quality, diversity, tau_tuple, quality_timestep= follower_sys.simulation()
      # print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(avg_quality, diversity, tau_tuple[0], tau_tuple[1]))
-    
-    quality_timestep = measurements['quality_timestep']
-    pkl.dump(quality_timestep, open(timestep_fname, 'wb'))
-    
    
-    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(measurements['quality'], measurements['diversity'], 
-    measurements['discriminative_pow'][0], measurements['discriminative_pow'][1]))
+    results = {'quality': verbose_results['quality'],
+               'diversity': verbose_results['diversity'],
+               'discriminative_pow': verbose_results['discriminative_pow']
+    }
+    print("average quality: %s - diversity: %s - tau: %s (p=%s)" %(results['quality'], results['diversity'], 
+    results['discriminative_pow'][0], results['discriminative_pow'][1]))
 
-    allmemes = os.path.join(path, mode, "meme.json")
-    json.dump(measurements['all_memes'], open(allmemes, 'w'))
+    specs = copy.deepcopy(infosys_specs)
 
-    allfeeds = os.path.join(path, mode, "feeds.json")
-    json.dump(measurements['all_feeds'], open(allfeeds, 'w'))
-    # pkl.dump(measurements['all_feeds'], open(timestep_fname, 'wb'))
+    #save only results
+    infosys_specs.update(results)
+    outfile = os.path.join(path, mode, "results.json")
+    fout = open(outfile,'w')
+    json.dump(infosys_specs, fout)
 
-    # final_meme_popularity = os.path.join(path, mode, "meme_popularity.json")
-    # json.dump(meme_popularity, open(final_meme_popularity, 'w'))
+    #save verbose
+    specs.update(verbose_results)
+    verboseout = os.path.join(path, mode, "results.json.gz")
+    fout = open(outfile,'w')
+    fout = gzip.open(verboseout,'w')
+    utils.write_json_compressed(fout, specs)
     
 if __name__ == "__main__":
     bao_simulation(mode='igraph')
