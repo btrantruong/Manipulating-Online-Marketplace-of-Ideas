@@ -9,6 +9,7 @@ import numpy as np
 import pickle as pkl
 
 import seaborn as sns
+logger = utils.get_logger(__name__)
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = '/N/slate/baotruon/marketplace/data'
@@ -46,8 +47,8 @@ def prob_spreading_throughhub(exp_no):
     G = ig.Graph.Read_GML(network)
     verbose = utils.read_json_compressed(fpath)
     deg_mode='in'
-    print(network)
-    print(fpath)
+    logger.info('%s' %network)
+    logger.info('%s' %fpath)
     bot_memes = []
     human_memes = []
     # humans = [agent_id for agent_id in verbose['all_feeds'][0].keys() if any(map(str.isalpha, agent_id)) is False]
@@ -68,15 +69,14 @@ def prob_spreading_throughhub(exp_no):
     return bot_memes, human_memes
 
 if __name__=="__main__":
-    print(os.getcwd())
     nohub = 'none_02'
     hub = 'hubs_02'
     botmeme_fname = 'trackhubs_botmemes_gamma0.005.pkl'
     humanmeme_fname = 'trackhubs_humanmemes_gamma0.005.pkl'
 
-    print('Getting data - %s ... ' %nohub)
+    logger.info('Getting data - %s ... ' %nohub)
     bot_memes, human_memes = prob_spreading_throughhub(nohub)
-    print('Getting data - %s ... ' %hub)
+    logger.info('Getting data - %s ... ' %hub)
     hubs_bot_memes, hubs_human_memes = prob_spreading_throughhub(hub)
 
     
@@ -107,4 +107,4 @@ if __name__=="__main__":
     if utils.make_sure_dir_exists(PLOT_PATH, ''):
         pltname = os.path.join(PLOT_PATH, 'ccdf_hubs_gamma0.05.png')
         plt.savefig(pltname, dpi=300)
-        print('Saved plot at %s' %pltname)
+        logger.info('Saved plot at %s' %pltname)
