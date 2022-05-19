@@ -73,15 +73,18 @@ if __name__=="__main":
     botmeme_fname = 'trackhubs_botmemes_gamma0.005.pkl'
     humanmeme_fname = 'trackhubs_humanmemes_gamma0.005.pkl'
 
+    print('Getting data - %s ... ' %nohub)
     bot_memes, human_memes = prob_spreading_throughhub(nohub)
+    print('Getting data - %s ... ' %hub)
     hubs_bot_memes, hubs_human_memes = prob_spreading_throughhub(hub)
 
+    
     pkl.dump(bot_memes, open('%s_%s' %(nohub, botmeme_fname), 'wb'))
     pkl.dump(human_memes, open('%s_%s' %(nohub, humanmeme_fname), 'wb'))  
 
     pkl.dump(hubs_bot_memes, open('%s_%s' %(hub, botmeme_fname), 'wb'))
     pkl.dump(hubs_human_memes, open('%s_%s' %(hub, humanmeme_fname), 'wb'))  
-
+    print('Plotting..')
     figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True)
 
     sns.ecdfplot(ax=ax1, data = bot_memes, complementary=True, label = 'bot memes')
@@ -99,6 +102,6 @@ if __name__=="__main":
 
     figure.suptitle('CCDF: Largest in-deg of spreading nodes (final state)')
     plt.tight_layout()
-    
+
     if utils.make_sure_dir_exists(PLOT_PATH, ''):
         plt.savefig(os.path.join(PLOT_PATH, 'ccdf_hubs_gamma0.05.png'), dpi=300)
