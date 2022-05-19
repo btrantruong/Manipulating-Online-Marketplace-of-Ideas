@@ -67,7 +67,7 @@ def prob_spreading_throughhub(exp_no):
                 human_memes += [largest_indeg]
     return bot_memes, human_memes
 
-if __name__=="__main":
+if __name__=="__main__":
     print(os.getcwd())
     nohub = 'none_02'
     hub = 'hubs_02'
