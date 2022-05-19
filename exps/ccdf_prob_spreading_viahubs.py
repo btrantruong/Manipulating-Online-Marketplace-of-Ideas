@@ -18,7 +18,7 @@ RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_1runs_gamma0.005')
 TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_1runs_gamma0.005')
 PLOT_PATH = '/N/slate/baotruon/marketplace/plots/vary_thetaphi_1runs_gamma0.005'
 
-print(os.getcwd())
+
 exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
 EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
 
@@ -68,6 +68,7 @@ def prob_spreading_throughhub(exp_no):
     return bot_memes, human_memes
 
 if __name__=="__main":
+    print(os.getcwd())
     nohub = 'none_02'
     hub = 'hubs_02'
     botmeme_fname = 'trackhubs_botmemes_gamma0.005.pkl'
@@ -79,11 +80,11 @@ if __name__=="__main":
     hubs_bot_memes, hubs_human_memes = prob_spreading_throughhub(hub)
 
     
-    pkl.dump(bot_memes, open('%s_%s' %(nohub, botmeme_fname), 'wb'))
-    pkl.dump(human_memes, open('%s_%s' %(nohub, humanmeme_fname), 'wb'))  
+    pkl.dump(bot_memes, open('%s_%s.pkl' %(nohub, botmeme_fname), 'wb'))
+    pkl.dump(human_memes, open('%s_%s.pkl' %(nohub, humanmeme_fname), 'wb'))  
 
-    pkl.dump(hubs_bot_memes, open('%s_%s' %(hub, botmeme_fname), 'wb'))
-    pkl.dump(hubs_human_memes, open('%s_%s' %(hub, humanmeme_fname), 'wb'))  
+    pkl.dump(hubs_bot_memes, open('%s_%s.pkl' %(hub, botmeme_fname), 'wb'))
+    pkl.dump(hubs_human_memes, open('%s_%s.pkl' %(hub, humanmeme_fname), 'wb'))  
     
     figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True)
 
