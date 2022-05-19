@@ -84,7 +84,7 @@ if __name__=="__main":
 
     pkl.dump(hubs_bot_memes, open('%s_%s' %(hub, botmeme_fname), 'wb'))
     pkl.dump(hubs_human_memes, open('%s_%s' %(hub, humanmeme_fname), 'wb'))  
-    print('Plotting..')
+    
     figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True)
 
     sns.ecdfplot(ax=ax1, data = bot_memes, complementary=True, label = 'bot memes')
@@ -104,4 +104,6 @@ if __name__=="__main":
     plt.tight_layout()
 
     if utils.make_sure_dir_exists(PLOT_PATH, ''):
-        plt.savefig(os.path.join(PLOT_PATH, 'ccdf_hubs_gamma0.05.png'), dpi=300)
+        pltname = os.path.join(PLOT_PATH, 'ccdf_hubs_gamma0.05.png')
+        plt.savefig(pltname, dpi=300)
+        print('Saved plot at %s' %pltname)
