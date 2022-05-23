@@ -145,7 +145,7 @@ def ccdf_meme_spreadingnodes_final(nostrag_bot_memes, nostrag_human_memes, strag
     figure.suptitle('CCDF: Largest in-deg of human spreading nodes (final state)')
     figure.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -166,7 +166,7 @@ def plot_numshares_vs_indeg(none_largest_indegs, none_shares, hub_largest_indegs
     fig.suptitle('Number of shares vs. Indeg of spreading channel (Memes by bots)')
     fig.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        fig.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -195,7 +195,7 @@ def ccdf_compare_hubness_between_strategies(none_bot_spread, none_human_spread, 
     figure.suptitle('CCDF: Largest in-deg of spreading nodes (across whole simulation)')
     figure.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -224,7 +224,7 @@ def ccdf_compare_hubness_within_strategies(none_bot_spread, none_human_spread, h
     figure.suptitle('CCDF: Largest in-deg of spreading nodes (across whole simulation)')
     figure.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -245,6 +245,7 @@ def ccdf_compare_viahubshares_within_strategies(spreading_nodes, meme_shares, st
     # CCDF of the shares (of bot memes) - 2 lines (via hubs vs not via hub), 2 panels (no target vs target)
     viahub, not_viahub = separate_shares_viahubs(spreading_nodes, meme_shares, hubsize=hubsize)
     strag_viahub, strag_not_viahub = separate_shares_viahubs(strag_spreading_nodes, strag_meme_shares, hubsize=hubsize)
+    
     figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
 
     sns.ecdfplot(ax=ax1, data = viahub, complementary=True, label = 'via hubs')
@@ -264,7 +265,7 @@ def ccdf_compare_viahubshares_within_strategies(spreading_nodes, meme_shares, st
     figure.suptitle('CCDF: Number of shares of bot memes')
     figure.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -294,7 +295,7 @@ def ccdf_compare_viahubshares_between_strategies(spreading_nodes, meme_shares, s
     figure.suptitle('CCDF: Number of shares of bot memes')
     figure.tight_layout()
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
     else:
         plt.show()
 
@@ -310,7 +311,7 @@ def save_stats(nostrag_info, strag_info, fpath):
     logger.info('Finished saving stats!')
 
 
-if __name__=="__main":
+if __name__=="__main__":
     logger.info('WORKING DIR: %s' %(os.getcwd()))
     ABS_PATH = '/N/slate/baotruon/marketplace'
     DATA_PATH = '/N/slate/baotruon/marketplace/data'
