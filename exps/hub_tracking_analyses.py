@@ -307,7 +307,10 @@ def save_stats(nostrag_info, strag_info, fpath):
             info['human_spread_only_viabot_pct'] = np.round(info['human_spread_only_viabot']/info['num_humans'], 2)
             outfile.write('%s \n' %name)
             for k,v in info.items():
-                outfile.write('%s %s' %(k,v))
+                if isinstance(v,list) is True:
+                    continue
+                else:
+                    outfile.write('%s %s' %(k,v))
     logger.info('Finished saving stats!')
 
 
