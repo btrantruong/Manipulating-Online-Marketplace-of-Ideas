@@ -15,7 +15,7 @@ TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinform
 
 EXP_NETWORK = {}
 
-gamma = 0.005 # gamma in the range where targeting has some effect
+gamma = 0.0005 # gamma in the range where targeting has some effect
 # need to match with default_targeting
 for exp in EXPS:
     if 'none' in exp:
