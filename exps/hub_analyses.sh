@@ -17,7 +17,10 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### Make plots for tracking human hubs ######'
+echo '###### Very low infiltration ######'
+python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.0005 hubs_17 none_17
+
 echo '###### Low infiltration ######'
-python3 exps/hub_tracking_analyses.py vary_thetaphi_1runs_gamma0.005 hubs_13 none_13
+python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.005 hubs_13 none_13
 echo '###### High infiltration ######'
-python3 exps/hub_tracking_analyses.py vary_thetaphi_1runs hubs_13 none_13
+python3 exps/strategy_analyses.py vary_thetaphi_1runs hubs_13 none_13
