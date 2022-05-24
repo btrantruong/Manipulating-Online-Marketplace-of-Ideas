@@ -251,6 +251,32 @@ def ccdf_final_spreadingnodes(nostrag_bot_memes, nostrag_human_memes, strag_bot_
         plt.show()
 
 
+def ccdf_final_spreadingnodes_between_strategies(nostrag_bot_memes, nostrag_human_memes, strag_bot_memes, strag_human_memes, plot_fpath=None, log_log=True):
+    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
+
+    sns.ecdfplot(ax=ax1, data = nostrag_bot_memes, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax1, data = strag_bot_memes, complementary=True, label = 'targeting')
+    ax1.legend()
+    if log_log is True:
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+
+    sns.ecdfplot(ax=ax2, data = nostrag_human_memes, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax2, data = strag_human_memes, complementary=True, label = 'targeting')
+
+    ax1.set_title('Bot memes')
+    ax2.set_title('Human memes')
+    ax1.set_xlabel('Largest in-deg')
+    ax2.set_xlabel('Largest in-deg')
+
+    figure.suptitle('CCDF: Largest in-deg of human spreading nodes (final state)')
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+    else:
+        plt.show()
+
+
 def jointplot_final_shares_spread(final_info, meme_type='bot', plot_fpath=None):
     if meme_type=='bot':
         snsplot = sns.jointplot(data=final_info, x='botmeme_spread', y='botmeme_shares', kind="hist")
@@ -514,7 +540,12 @@ if __name__=="__main__":
 
         ccdf_final_spreadingnodes(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
                                     strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
-                                    plot_fpath=os.path.join(PLOT_DIR, 'spreading_final_%s%s_log.png' %(none_expname, hub_expname)), 
+                                    plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_%s%s.png' %(none_expname, hub_expname)), 
+                                    log_log=True)
+
+        ccdf_final_spreadingnodes_between_strategies(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
+                                    strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
+                                    plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_between_strategies%s%s.png' %(none_expname, hub_expname)), 
                                     log_log=True)
 
         jointplot_final_shares_spread(nostrag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname))
