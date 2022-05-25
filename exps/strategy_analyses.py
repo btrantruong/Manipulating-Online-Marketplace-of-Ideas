@@ -466,11 +466,12 @@ if __name__=="__main__":
     exp=sys.argv[1]
     hub_expname = sys.argv[2]
     none_expname = sys.argv[3]
+    plot_folder=sys.argv[4]
 
     RES_DIR = os.path.join(ABS_PATH,'results', exp)
     TRACKING_DIR = os.path.join(ABS_PATH,'long_results',exp)
     NETWORK_PATH = os.path.join(DATA_PATH, 'igraph/vary_targetgamma')
-    PLOT_DIR = os.path.join(ABS_PATH,'analysis_plots',exp)
+    PLOT_DIR = os.path.join(ABS_PATH,plot_folder,exp)
     utils.make_sure_dir_exists(PLOT_DIR, '')
 
 
