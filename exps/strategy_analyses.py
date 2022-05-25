@@ -1,4 +1,5 @@
 import json
+from re import A
 import infosys.utils as utils 
 import igraph as ig
 import os
@@ -60,7 +61,7 @@ def plot_degree_dist(graph, plot_fpath=None, mode='in'):
         fig.show()
 
 
-def compare_quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
+def plot_quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
     fig,ax = plt.subplots()
 
     ax.scatter(range(len(strag_quality)), strag_quality, label='targeting')
@@ -69,7 +70,8 @@ def compare_quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
     ax.set_ylabel('quality')
     ax.set_xlabel('t')
     ax.set_title('Quality across timesteps')
-
+    ax.legend()
+    
     if plot_fpath is not None:
         fig.savefig(plot_fpath, dpi=300)
     else:
@@ -491,7 +493,7 @@ if __name__=="__main__":
         plot_degree_dist(none_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %none_expname), mode='in')
         plot_degree_dist(hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %hub_expname), mode='in')
 
-        compare_quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
+        plot_quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
                                 plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
 
         none_bot_spread= nostrag_info['bot_largest_spreading_nodes']
