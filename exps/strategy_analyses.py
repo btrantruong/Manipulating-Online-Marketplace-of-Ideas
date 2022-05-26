@@ -161,11 +161,18 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
         if any(map(str.isalpha, agentid)) is True:
             #skip bots
             continue
-        bot_memes = [meme for meme in verbose_tracking['all_memes'][0] if (((meme['id'] in memeids) and meme['is_by_bot']==1))]
-        assert(len(bot_memes)<len(memeids))
+
+        bot_num=0
+        for memeid in memeids:
+            memeinfo = [meme for meme in verbose_tracking['all_memes'][0] if meme['id']==memeid][0]
+        
+            if memeinfo['is_by_bot']==1:
+                bot_num+=1
+        
+        assert(bot_num<len(memeids))
         
         if len(memeids)>0:
-            bot_probs += [len(bot_memes)/len(memeids)]
+            bot_probs += [bot_num/len(memeids)]
         else:
             zero_len_feed +=1
 
