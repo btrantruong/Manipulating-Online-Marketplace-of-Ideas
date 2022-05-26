@@ -662,95 +662,95 @@ if __name__=="__main__":
     hubstrag_info = info_memeshares_channel_indegs(hub_graph, hub_verbose, deg_mode='in')
     nostrag_info =  info_memeshares_channel_indegs(none_graph, none_verbose, deg_mode='in')
     try:
-        save_stats(nostrag_info, hubstrag_info, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
+        # save_stats(nostrag_info, hubstrag_info, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
 
-        plot_degree_dist(none_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %none_expname), mode='in')
-        plot_degree_dist(hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %hub_expname), mode='in')
+        # plot_degree_dist(none_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %none_expname), mode='in')
+        # plot_degree_dist(hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %hub_expname), mode='in')
 
-        plot_quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
-                                plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
+        # plot_quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
+        #                         plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
 
-        none_bot_spread= nostrag_info['bot_largest_spreading_nodes']
-        none_human_spread= nostrag_info['human_largest_spreading_nodes']
-        hubs_bot_spread= hubstrag_info['bot_largest_spreading_nodes']
-        hubs_human_spread= hubstrag_info['human_largest_spreading_nodes']
+        # none_bot_spread= nostrag_info['bot_largest_spreading_nodes']
+        # none_human_spread= nostrag_info['human_largest_spreading_nodes']
+        # hubs_bot_spread= hubstrag_info['bot_largest_spreading_nodes']
+        # hubs_human_spread= hubstrag_info['human_largest_spreading_nodes']
 
         
-        plot_shares_vs_indeg(none_bot_spread, nostrag_info['botmeme_shares'],
-                                hubs_bot_spread, hubstrag_info['botmeme_shares'], 
-                                plot_fpath=os.path.join(PLOT_DIR, 'shares_indeg_%s%s.png' %(none_expname, hub_expname)))
+        # plot_shares_vs_indeg(none_bot_spread, nostrag_info['botmeme_shares'],
+        #                         hubs_bot_spread, hubstrag_info['botmeme_shares'], 
+        #                         plot_fpath=os.path.join(PLOT_DIR, 'shares_indeg_%s%s.png' %(none_expname, hub_expname)))
         
-        ccdf_quality_between_strategies(nostrag_info['humanmeme_quality'], hubstrag_info['humanmeme_quality'], 
-                                        plot_fpath=os.path.join(PLOT_DIR, 'quality_between_strategies_%s%s.png' %(none_expname, hub_expname)))
+        # ccdf_quality_between_strategies(nostrag_info['humanmeme_quality'], hubstrag_info['humanmeme_quality'], 
+        #                                 plot_fpath=os.path.join(PLOT_DIR, 'quality_between_strategies_%s%s.png' %(none_expname, hub_expname)))
 
-        ccdf_fitness_within_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
-                                            hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
-                                            plot_fpath=os.path.join(PLOT_DIR, 'fitness_within_strategies_%s%s.png' %(none_expname, hub_expname)))
+        # ccdf_fitness_within_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
+        #                                     hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
+        #                                     plot_fpath=os.path.join(PLOT_DIR, 'fitness_within_strategies_%s%s.png' %(none_expname, hub_expname)))
 
-        ccdf_fitness_between_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
-                                            hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
-                                            plot_fpath=os.path.join(PLOT_DIR, 'fitness_between_strategies_%s%s.png' %(none_expname, hub_expname)))
+        # ccdf_fitness_between_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
+        #                                     hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
+        #                                     plot_fpath=os.path.join(PLOT_DIR, 'fitness_between_strategies_%s%s.png' %(none_expname, hub_expname)))
 
-        fitness_dict={
-            'bot_notargeting': (none_bot_spread, nostrag_info['botmeme_fitness']),
-            'bot_targeting': (hubs_bot_spread, hubstrag_info['botmeme_fitness']),
-            'human_notargeting': (none_human_spread, nostrag_info['humanmeme_fitness']),
-            'human_targeting': (hubs_human_spread, hubstrag_info['humanmeme_fitness'])
-        }
+        # fitness_dict={
+        #     'bot_notargeting': (none_bot_spread, nostrag_info['botmeme_fitness']),
+        #     'bot_targeting': (hubs_bot_spread, hubstrag_info['botmeme_fitness']),
+        #     'human_notargeting': (none_human_spread, nostrag_info['humanmeme_fitness']),
+        #     'human_targeting': (hubs_human_spread, hubstrag_info['humanmeme_fitness'])
+        # }
 
-        ccdf_viahubfitness_within_strategies(fitness_dict, hubsize=1000,
-                                             plot_fpath=os.path.join(PLOT_DIR, 'viahubfitness_%s%s.png' %(none_expname, hub_expname)))
+        # ccdf_viahubfitness_within_strategies(fitness_dict, hubsize=1000,
+        #                                      plot_fpath=os.path.join(PLOT_DIR, 'viahubfitness_%s%s.png' %(none_expname, hub_expname)))
 
 
-        ccdf_share_between_strategies(nostrag_info['botmeme_shares'], hubstrag_info['botmeme_shares'], 
-                                    plot_fpath=os.path.join(PLOT_DIR, 'shares_between_strategies_%s%s_single.png' %(none_expname, hub_expname)), 
-                                    log_log=True)
+        # ccdf_share_between_strategies(nostrag_info['botmeme_shares'], hubstrag_info['botmeme_shares'], 
+        #                             plot_fpath=os.path.join(PLOT_DIR, 'shares_between_strategies_%s%s_single.png' %(none_expname, hub_expname)), 
+        #                             log_log=True)
 
-        ccdf_share_between_strategies_panel(nostrag_info['botmeme_shares'], nostrag_info['humanmeme_shares'],  hubstrag_info['botmeme_shares'], hubstrag_info['humanmeme_shares'], 
-                                            plot_fpath=os.path.join(PLOT_DIR, 'shares_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                            log_log=True)
+        # ccdf_share_between_strategies_panel(nostrag_info['botmeme_shares'], nostrag_info['humanmeme_shares'],  hubstrag_info['botmeme_shares'], hubstrag_info['humanmeme_shares'], 
+        #                                     plot_fpath=os.path.join(PLOT_DIR, 'shares_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                     log_log=True)
 
-        ccdf_share_within_strategies_panel(nostrag_info['botmeme_shares'], nostrag_info['humanmeme_shares'],  hubstrag_info['botmeme_shares'], hubstrag_info['humanmeme_shares'], 
-                                            plot_fpath=os.path.join(PLOT_DIR, 'shares_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                            log_log=True)
+        # ccdf_share_within_strategies_panel(nostrag_info['botmeme_shares'], nostrag_info['humanmeme_shares'],  hubstrag_info['botmeme_shares'], hubstrag_info['humanmeme_shares'], 
+        #                                     plot_fpath=os.path.join(PLOT_DIR, 'shares_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                     log_log=True)
 
-        ccdf_hubness_within_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
-                                                plot_fpath=os.path.join(PLOT_DIR, 'hubness_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                                log_log=True)
+        # ccdf_hubness_within_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
+        #                                         plot_fpath=os.path.join(PLOT_DIR, 'hubness_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                         log_log=True)
         
-        ccdf_hubness_within_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
-                                                plot_fpath=os.path.join(PLOT_DIR, 'hubness_within_strategies_%s%s_norm.png' %(none_expname, hub_expname)), 
-                                                log_log=False)
+        # ccdf_hubness_within_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
+        #                                         plot_fpath=os.path.join(PLOT_DIR, 'hubness_within_strategies_%s%s_norm.png' %(none_expname, hub_expname)), 
+        #                                         log_log=False)
         
-        ccdf_hubness_between_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
-                                            plot_fpath=os.path.join(PLOT_DIR, 'hubness_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                            log_log=True)
+        # ccdf_hubness_between_strategies(none_bot_spread, none_human_spread, hubs_bot_spread, hubs_human_spread, 
+        #                                     plot_fpath=os.path.join(PLOT_DIR, 'hubness_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                     log_log=True)
 
-        ccdf_viahubshares_within_strategies(none_bot_spread, nostrag_info['botmeme_shares'], hubs_bot_spread, hubstrag_info['botmeme_shares'], hubsize=1000, 
-                                        plot_fpath=os.path.join(PLOT_DIR, 'shareviahub_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                        log_log=True)
+        # ccdf_viahubshares_within_strategies(none_bot_spread, nostrag_info['botmeme_shares'], hubs_bot_spread, hubstrag_info['botmeme_shares'], hubsize=1000, 
+        #                                 plot_fpath=os.path.join(PLOT_DIR, 'shareviahub_within_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                 log_log=True)
         
-        ccdf_viahubshares_between_strategies(none_bot_spread, nostrag_info['botmeme_shares'], hubs_bot_spread, hubstrag_info['botmeme_shares'], hubsize=1000, 
-                                        plot_fpath=os.path.join(PLOT_DIR, 'shareviahub_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
-                                        log_log=True)
+        # ccdf_viahubshares_between_strategies(none_bot_spread, nostrag_info['botmeme_shares'], hubs_bot_spread, hubstrag_info['botmeme_shares'], hubsize=1000, 
+        #                                 plot_fpath=os.path.join(PLOT_DIR, 'shareviahub_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
+        #                                 log_log=True)
 
-        nostrag_final_info = final_prob_spreading_throughhub(none_graph, none_verbose)
-        strag_final_info = final_prob_spreading_throughhub(hub_graph, hub_verbose)
+        # nostrag_final_info = final_prob_spreading_throughhub(none_graph, none_verbose)
+        # strag_final_info = final_prob_spreading_throughhub(hub_graph, hub_verbose)
 
-        ccdf_final_spreadingnodes(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
-                                    strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
-                                    plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_%s%s.png' %(none_expname, hub_expname)), 
-                                    log_log=True)
+        # ccdf_final_spreadingnodes(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
+        #                             strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
+        #                             plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_%s%s.png' %(none_expname, hub_expname)), 
+        #                             log_log=True)
 
-        ccdf_final_spreadingnodes_between_strategies(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
-                                    strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
-                                    plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_between_strategies%s%s.png' %(none_expname, hub_expname)), 
-                                    log_log=True)
+        # ccdf_final_spreadingnodes_between_strategies(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
+        #                             strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
+        #                             plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_between_strategies%s%s.png' %(none_expname, hub_expname)), 
+        #                             log_log=True)
 
-        jointplot_final_shares_spread(nostrag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname), xlog=True, ylog=True)
-        jointplot_final_shares_spread(nostrag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %none_expname), xlog=True)
-        jointplot_final_shares_spread(strag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %hub_expname), xlog=True, ylog=True)
-        jointplot_final_shares_spread(strag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %hub_expname), xlog=True)
+        # jointplot_final_shares_spread(nostrag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname), xlog=True, ylog=True)
+        # jointplot_final_shares_spread(nostrag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %none_expname), xlog=True)
+        # jointplot_final_shares_spread(strag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %hub_expname), xlog=True, ylog=True)
+        # jointplot_final_shares_spread(strag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %hub_expname), xlog=True)
     
         nostrag_entropy = final_entropy(none_verbose)
         strag_entropy = final_entropy(hub_verbose)
