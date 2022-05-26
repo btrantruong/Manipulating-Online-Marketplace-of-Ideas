@@ -169,7 +169,7 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
             if memeinfo['is_by_bot']==1:
                 bot_num+=1
         
-        assert(bot_num<len(memeids))
+        assert(bot_num<=len(memeids))
         
         if len(memeids)>0:
             bot_probs += [bot_num/len(memeids)]
