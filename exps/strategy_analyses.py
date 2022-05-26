@@ -162,7 +162,7 @@ def final_entropy(verbose, base=2):
             continue
         
         bot_memes = [meme for meme in verbose['all_memes'][0] if ((meme['id'] in memeids) and meme['is_by_bot']==1)]
-        bot_probs += [len(bot_memes)/len(memeids)]
+        bot_probs += [len(bot_memes)/len(memeids) if len(memeids)>0 else 0]
 
     entropy = entropy(bot_probs, base=base)
     return entropy
