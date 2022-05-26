@@ -161,15 +161,14 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
         if any(map(str.isalpha, agentid)) is True:
             #skip bots
             continue
-        
         bot_memes = [meme for meme in verbose_tracking['all_memes'][0] if (((meme['id'] in memeids) and meme['is_by_bot']==1))]
+
         if len(memeids)>0:
             bot_probs += [len(bot_memes)/len(memeids)]
         else:
             zero_len_feed +=1
 
     system_entropy = entropy(bot_probs, base=base)
-
     if verbose is True:
         logger.info('Zero-length feed: %s/%s' %(zero_len_feed, len(verbose_tracking['all_feeds'][0])))
         logger.info('Entropy: %s' %system_entropy)
