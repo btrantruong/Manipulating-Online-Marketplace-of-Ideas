@@ -152,19 +152,28 @@ def final_prob_spreading_throughhub(G, verbose):
     return final_info
 
 
-def final_entropy(verbose, base=2):
+def final_entropy(verbose_tracking, base=2, verbose=True):
     # Get entropy of the system from the distribution of probability that a feed contains a bot meme. 
 
     bot_probs = []
-    for agentid, memeids in verbose['all_feeds'][0].items():
+    zero_len_feed=0
+    for agentid, memeids in verbose_tracking['all_feeds'][0].items():
         if any(map(str.isalpha, agentid)) is True:
             #skip bots
             continue
         
-        bot_memes = [meme for meme in verbose['all_memes'][0] if ((meme['id'] in memeids) and meme['is_by_bot']==1)]
-        bot_probs += [len(bot_memes)/len(memeids) if len(memeids)>0 else 0]
+        bot_memes = [meme for meme in verbose_tracking['all_memes'][0] if (((meme['id'] in memeids) and meme['is_by_bot']==1))]
+        if len(memeids)>0:
+            bot_probs += [len(bot_memes)/len(memeids)]
+        else:
+            zero_len_feed +=1
 
     system_entropy = entropy(bot_probs, base=base)
+
+    if verbose is True:
+        logger.info('Zero-length feed: %s/%s' %(zero_len_feed, len(verbose_tracking['all_feeds'][0])))
+        logger.info('Entropy: %s' %system_entropy)
+
     return system_entropy
 
 
@@ -620,7 +629,7 @@ def save_stats(nostrag_info, strag_info, fpath):
 
 def save_entropy(nostrag_entropy, strag_entropy, fpath):
     with open(fpath, 'a+') as outfile:
-        outfile.write('ENTROPY: \n')
+        outfile.write('**ENTROPY: \n')
         outfile.write('No targeting: %s \n' %np.round(nostrag_entropy,4))
         outfile.write('With targeting: %s \n' %np.round(strag_entropy,4))
     logger.info('Finished saving entropy to existing file!')
