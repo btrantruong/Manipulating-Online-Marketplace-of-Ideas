@@ -1,5 +1,4 @@
 import json
-from re import A
 import infosys.utils as utils 
 import igraph as ig
 import os
@@ -10,7 +9,7 @@ import seaborn as sns
 import pickle as pkl
 import collections
 import sys
-
+from  scipy.stats import entropy
 
 logger = utils.get_logger(__name__)
 
@@ -98,14 +97,18 @@ def info_memeshares_channel_indegs(G, verbose, deg_mode='in'):
         if len(human_channels)>0:
             indegs = G.degree(list(human_channels), mode=deg_mode, loops=False)
             largest_indeg = max(indegs)
+            
             if meme['is_by_bot']==1:
                 info['num_bots']+=1
                 info['bot_largest_spreading_nodes'] += [largest_indeg]  
                 info['botmeme_shares'] += [meme['human_shares']]
+                info['botmeme_fitness'] += [meme['fitness']]
             else:
                 info['num_humans']+=1
                 info['human_largest_spreading_nodes'] += [largest_indeg]
                 info['humanmeme_shares'] += [meme['human_shares']]
+                info['humanmeme_fitness'] += [meme['fitness']]
+                info['humanmeme_quality'] += [meme['quality']]
         else:
             if meme['is_by_bot']==1:
                 info['bot_spread_only_viabot']+=1
@@ -113,6 +116,136 @@ def info_memeshares_channel_indegs(G, verbose, deg_mode='in'):
                 info['human_spread_only_viabot']+=1
         
     return info
+
+
+def final_prob_spreading_throughhub(G, verbose):
+    # Stat final state
+    # Helper  ccdf_final_spreadingnodes
+    final_info = collections.defaultdict(lambda:[])
+    deg_mode='in'
+
+    human_agents = [int(node['id']) for node in G.vs if node['bot']==0]
+
+    for agentid, memeids in verbose['all_feeds'][0].items():
+        if any(map(str.isalpha, agentid)) is True:
+            #skip bots
+            continue
+        
+        memeinfo = (meme for meme in verbose['all_memes'][0] if meme['id'] in memeids)
+        # verbose_memes = [meme for meme in verbose['all_memes'][0] if meme['id'] in memeids]
+        for meme in memeinfo:
+            spread_through= [int(node) for node in meme['spread_via_agents']]
+            human_channels = set(human_agents) & set(spread_through)
+
+            if len(human_channels)>0:
+                indegs = G.degree(list(human_channels), mode=deg_mode, loops=False)
+                largest_indeg = max(indegs)
+
+                if meme['is_by_bot']==1:
+                    final_info['botmeme_spread'] += [largest_indeg]
+                    final_info['botmeme_shares'] += [meme['human_shares']]
+                else:
+                    final_info['humanmeme_spread'] += [largest_indeg]
+                    final_info['humanmeme_shares'] += [meme['human_shares']]
+    return final_info
+
+
+def final_entropy(verbose, base=2):
+    # Get entropy of the system from the distribution of probability that a feed contains a bot meme. 
+
+    bot_probs = []
+    for agentid, memeids in verbose['all_feeds'][0].items():
+        if any(map(str.isalpha, agentid)) is True:
+            #skip bots
+            continue
+        
+        bot_memes = [meme for meme in verbose['all_memes'][0] if ((meme['id'] in memeids) and meme['is_by_bot']==1)]
+        bot_probs += [len(bot_memes)/len(memeids)]
+
+    entropy = entropy(bot_probs, base=base)
+    return entropy
+
+
+def ccdf_quality_between_strategies(nostrag_humanquality, strag_humanquality, plot_fpath=None, log_log=False):
+    # CCDF of quality of only human memes - 2 lines (none & hubs-targeting)
+
+    figure, ax = plt.subplots()
+
+    if log_log is True:
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+    
+    sns.ecdfplot(ax=ax, data = nostrag_humanquality, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax, data = strag_humanquality, complementary=True, label = 'hub targeting')
+    ax.set_xlabel('Quality')
+    ax.legend()
+    ax.set_title('CCDF: Quality of human memes between strategies')
+
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+    else:
+        figure.show()
+
+
+def ccdf_fitness_within_strategies_panel(nostrag_botfitness, nostrag_humanfitness, strag_botfitness, strag_humanfitness, plot_fpath=None, log_log=False):
+    # CCDF of the fitness of memes - 2 lines (bot & human memes), 2 panels (none & hubs-targeting)
+    
+    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
+    
+    if log_log is True:
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+    
+    sns.ecdfplot(ax=ax1, data = nostrag_botfitness, complementary=True, label = 'bot memes')
+    sns.ecdfplot(ax=ax1, data = nostrag_humanfitness, complementary=True, label = 'human memes')
+    ax1.legend()
+
+    sns.ecdfplot(ax=ax2, data = strag_botfitness, complementary=True, label = 'bot memes')
+    sns.ecdfplot(ax=ax2, data = strag_humanfitness, complementary=True, label = 'human memes')
+    ax2.legend()
+
+    ax1.set_title('No targeting')
+    ax2.set_title('Hubs targeting')
+    ax1.set_xlabel('Fitness')
+    ax2.set_xlabel('Fitness')
+
+    figure.suptitle('CCDF: Fitness of memes shared during simulation')
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+    else:
+        figure.show()
+
+
+def ccdf_fitness_between_strategies_panel(nostrag_botfitness, nostrag_humanfitness, strag_botfitness, strag_humanfitness, plot_fpath=None, log_log=False):
+    # CCDF of the fitness ofmemes - 2 lines (none & hubs-targeting), 2 panels (bot & human memes)
+
+    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
+    
+    if log_log is True:
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+    
+    sns.ecdfplot(ax=ax1, data = nostrag_botfitness, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax1, data = strag_botfitness, complementary=True, label = 'targeting')
+    ax1.legend()
+
+    sns.ecdfplot(ax=ax2, data = nostrag_humanfitness, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax2, data = strag_humanfitness, complementary=True, label = 'targeting')
+    ax2.legend()
+
+    ax1.set_title('Bot memes')
+    ax2.set_title('Human memes')
+    ax1.set_xlabel('Fitness')
+    ax2.set_xlabel('Fitness')
+
+    figure.suptitle('CCDF: Fitness of memes shared during simulation')
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+    else:
+        figure.show()
 
 
 def ccdf_share_between_strategies(nostrag_botshares, strag_botshares, plot_fpath=None, log_log=True):
@@ -195,37 +328,6 @@ def ccdf_share_between_strategies_panel(nostrag_botshares, nostrag_humanshares, 
     else:
         figure.show()
 
-def prob_spreading_throughhub(G, verbose):
-    # Stat final state
-    # Helper  ccdf_final_spreadingnodes
-    final_info = collections.defaultdict(lambda:[])
-    deg_mode='in'
-
-    human_agents = [int(node['id']) for node in G.vs if node['bot']==0]
-
-    for agentid, memeids in verbose['all_feeds'][0].items():
-        if any(map(str.isalpha, agentid)) is True:
-            #skip bots
-            continue
-        
-        memeinfo = (meme for meme in verbose['all_memes'][0] if meme['id'] in memeids)
-        # verbose_memes = [meme for meme in verbose['all_memes'][0] if meme['id'] in memeids]
-        for meme in memeinfo:
-            spread_through= [int(node) for node in meme['spread_via_agents']]
-            human_channels = set(human_agents) & set(spread_through)
-
-            if len(human_channels)>0:
-                indegs = G.degree(list(human_channels), mode=deg_mode, loops=False)
-                largest_indeg = max(indegs)
-
-                if meme['is_by_bot']==1:
-                    final_info['botmeme_spread'] += [largest_indeg]
-                    final_info['botmeme_shares'] += [meme['human_shares']]
-                else:
-                    final_info['humanmeme_spread'] += [largest_indeg]
-                    final_info['humanmeme_shares'] += [meme['human_shares']]
-    return final_info
-
 
 def ccdf_final_spreadingnodes(nostrag_bot_memes, nostrag_human_memes, strag_bot_memes, strag_human_memes, plot_fpath=None, log_log=True):
     figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
@@ -279,11 +381,17 @@ def ccdf_final_spreadingnodes_between_strategies(nostrag_bot_memes, nostrag_huma
         plt.show()
 
 
-def jointplot_final_shares_spread(final_info, meme_type='bot', plot_fpath=None):
+def jointplot_final_shares_spread(final_info, meme_type='bot', plot_fpath=None, xlog=False, ylog=False):
     if meme_type=='bot':
         snsplot = sns.jointplot(data=final_info, x='botmeme_spread', y='botmeme_shares', kind="hist")
     elif meme_type=='human':
         snsplot = sns.jointplot(data=final_info, x='humanmeme_spread', y='humanmeme_shares', kind="hist")
+
+    if xlog is True:
+        snsplot.ax_joint.set_xscale('log')
+    if ylog is True:
+        snsplot.ax_joint.set_yscale('log')
+
     if plot_fpath is not None:
         snsplot.figure.savefig(plot_fpath, dpi=300)
 
@@ -368,7 +476,7 @@ def ccdf_hubness_between_strategies(none_bot_spread, none_human_spread, hubs_bot
 
 
 def separate_shares_viahubs(spreading_degs, meme_shares, hubsize=1000):
-    # Helper ccdf_viahubshares
+    # Helper ccdf_viahubshares, ccdf_viahubfitness
     viahub = []
     not_viahub = []
     for deg,share in zip(spreading_degs, meme_shares):
@@ -438,6 +546,47 @@ def ccdf_viahubshares_between_strategies(spreading_nodes, meme_shares, strag_spr
         plt.show()
 
 
+def ccdf_viahubfitness_within_strategies(meme_tuples, hubsize=1000, plot_fpath=None, log_log=False):
+    # meme_tuples: dict of line name - tuples of (spreading_nodes, meme_fitness)
+    # CCDF of the fitness (of bot memes) - 4 lines (via hubs vs not via hub - for bots and human memes), 2 panels (no target vs target)
+
+    bot_viahub, bot_not_viahub = separate_shares_viahubs(*meme_tuples['bot_notargeting'], hubsize=hubsize) #Reuse the same function as shares
+    botstrag_viahub, botstrag_not_viahub = separate_shares_viahubs(*meme_tuples['bot_targeting'], hubsize=hubsize)
+    
+    human_viahub, human_not_viahub = separate_shares_viahubs(*meme_tuples['human_notargeting'], hubsize=hubsize) #Reuse the same function as shares
+    humanstrag_viahub, humanstrag_not_viahub = separate_shares_viahubs(*meme_tuples['human_targeting'], hubsize=hubsize)
+
+    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
+
+    sns.ecdfplot(ax=ax1, data = bot_viahub, complementary=True, label = 'Bot via hubs')
+    sns.ecdfplot(ax=ax1, data = bot_not_viahub, complementary=True, label = 'Bot not via hub')
+    sns.ecdfplot(ax=ax1, data = human_viahub, complementary=True, label = 'Human via hubs')
+    sns.ecdfplot(ax=ax1, data = human_not_viahub, complementary=True, label = 'Human not via hub')
+
+    ax1.legend()
+
+    if log_log is True:
+        ax1.set_xscale('log')
+        ax1.set_yscale('log')
+    
+    sns.ecdfplot(ax=ax2, data = botstrag_viahub, complementary=True, label = 'Bot via hubs')
+    sns.ecdfplot(ax=ax2, data = botstrag_not_viahub, complementary=True, label = 'Bot not via hub')
+    sns.ecdfplot(ax=ax2, data = humanstrag_viahub, complementary=True, label = 'Human via hubs')
+    sns.ecdfplot(ax=ax2, data = humanstrag_not_viahub, complementary=True, label = 'Human not via hub')
+
+    ax1.set_title('No targeting')
+    ax2.set_title('Targeting')
+    ax1.set_xlabel('fitness')
+    ax2.set_xlabel('fitness')
+
+    figure.suptitle('CCDF: Fitness of memes')
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+    else:
+        plt.show()
+
+
 def save_stats(nostrag_info, strag_info, fpath):
     with open(fpath, 'w') as outfile:
         for name,info in {'NO STRATEGY': nostrag_info, 'HUB STRATEGY': strag_info}.items():
@@ -450,6 +599,14 @@ def save_stats(nostrag_info, strag_info, fpath):
                 else:
                     outfile.write('%s %s \n' %(k,v))
     logger.info('Finished saving stats!')
+
+
+def save_entropy(nostrag_entropy, strag_entropy, fpath):
+    with open(fpath, 'a+') as outfile:
+        outfile.write('ENTROPY: \n')
+        outfile.write('No targeting: %s \n' %np.round(nostrag_entropy,4))
+        outfile.write('With targeting: %s \n' %np.round(strag_entropy,4))
+    logger.info('Finished saving entropy to existing file!')
 
 
 if __name__=="__main__":
@@ -506,6 +663,28 @@ if __name__=="__main__":
                                 hubs_bot_spread, hubstrag_info['botmeme_shares'], 
                                 plot_fpath=os.path.join(PLOT_DIR, 'shares_indeg_%s%s.png' %(none_expname, hub_expname)))
         
+        ccdf_quality_between_strategies(nostrag_info['humanmeme_quality'], hubstrag_info['humanmeme_quality'], 
+                                        plot_fpath=os.path.join(PLOT_DIR, 'quality_between_strategies_%s%s.png' %(none_expname, hub_expname)))
+
+        ccdf_fitness_within_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
+                                            hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
+                                            plot_fpath=os.path.join(PLOT_DIR, 'fitness_within_strategies_%s%s.png' %(none_expname, hub_expname)))
+
+        ccdf_fitness_between_strategies_panel(nostrag_info['botmeme_fitness'], nostrag_info['humanmeme_fitness'], 
+                                            hubstrag_info['botmeme_fitness'], hubstrag_info['humanmeme_fitness'],  
+                                            plot_fpath=os.path.join(PLOT_DIR, 'fitness_between_strategies_%s%s.png' %(none_expname, hub_expname)))
+
+        fitness_dict={
+            'bot_notargeting': (none_bot_spread, nostrag_info['botmeme_fitness']),
+            'bot_targeting': (hubs_bot_spread, hubstrag_info['botmeme_fitness']),
+            'human_notargeting': (none_human_spread, nostrag_info['humanmeme_fitness']),
+            'human_targeting': (hubs_human_spread, hubstrag_info['humanmeme_fitness'])
+        }
+
+        ccdf_viahubfitness_within_strategies(fitness_dict, hubsize=1000,
+                                             plot_fpath=os.path.join(PLOT_DIR, 'viahubfitness_%s%s.png' %(none_expname, hub_expname)))
+
+
         ccdf_share_between_strategies(nostrag_info['botmeme_shares'], hubstrag_info['botmeme_shares'], 
                                     plot_fpath=os.path.join(PLOT_DIR, 'shares_between_strategies_%s%s_single.png' %(none_expname, hub_expname)), 
                                     log_log=True)
@@ -538,8 +717,8 @@ if __name__=="__main__":
                                         plot_fpath=os.path.join(PLOT_DIR, 'shareviahub_between_strategies_%s%s.png' %(none_expname, hub_expname)), 
                                         log_log=True)
 
-        nostrag_final_info = prob_spreading_throughhub(none_graph, none_verbose)
-        strag_final_info = prob_spreading_throughhub(hub_graph, hub_verbose)
+        nostrag_final_info = final_prob_spreading_throughhub(none_graph, none_verbose)
+        strag_final_info = final_prob_spreading_throughhub(hub_graph, hub_verbose)
 
         ccdf_final_spreadingnodes(nostrag_final_info['botmeme_spread'], nostrag_final_info['humanmeme_spread'], 
                                     strag_final_info['botmeme_spread'], strag_final_info['humanmeme_spread'], 
@@ -551,11 +730,15 @@ if __name__=="__main__":
                                     plot_fpath=os.path.join(PLOT_DIR, 'finalspreading_between_strategies%s%s.png' %(none_expname, hub_expname)), 
                                     log_log=True)
 
-        jointplot_final_shares_spread(nostrag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname))
-        jointplot_final_shares_spread(nostrag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %none_expname))
-        jointplot_final_shares_spread(strag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname))
-        jointplot_final_shares_spread(strag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %hub_expname))
+        jointplot_final_shares_spread(nostrag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %none_expname), xlog=True, ylog=True)
+        jointplot_final_shares_spread(nostrag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %none_expname), xlog=True)
+        jointplot_final_shares_spread(strag_final_info, meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_bot%s.png' %hub_expname), xlog=True, ylog=True)
+        jointplot_final_shares_spread(strag_final_info, meme_type='human', plot_fpath=os.path.join(PLOT_DIR, 'joint_final_human%s.png' %hub_expname), xlog=True)
     
+        nostrag_entropy = final_entropy(none_verbose)
+        strag_entropy = final_entropy(hub_verbose)
+        save_entropy(nostrag_entropy, strag_entropy, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
+
     
     except Exception as e:
         logger.info('Error: ', e)
