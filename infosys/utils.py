@@ -22,6 +22,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import datetime as dt 
 import inspect 
 import gzip 
+from scipy.stats import ks_2samp
 
 def write_json_compressed(fout, data):
     #write compressed json for hpc - pass file handle instead of filename so we can flush
@@ -422,3 +423,28 @@ def sample_with_prob_without_replacement(elements, sample_size, weights):
     # if we need more, take all the elements with non-zero probability
     # plus a random sample of the elements with zero probability
     return non_zeros + random.sample(zeros, sample_size - len(non_zeros))
+
+
+def ks_test(dist1, dist2, alpha=0.01, verbose=False):
+    # Use Kolmogorov-Smirnov tset, return True if 2 distributions are drawn from the same distribution.
+    # for coefficient - alpha map, see https://sparky.rice.edu//astr360/kstest.pdf
+    
+    c_alphas=[1.22, 1.36, 1.48, 1.63, 1.73, 1.95]
+    alphas=[0.1, 0.05, 0.025, 0.01, 0.005, 0.001]
+    
+    c_alpha = c_alphas[alphas.index(alpha)]
+    
+    ks_res = ks_2samp(dist1, dist2)
+    
+    #get critical value according to sample size
+    
+    critical_val = np.sqrt((len(dist1)+len(dist2))/(len(dist1)*len(dist2))) * c_alpha
+    similar= ks_res.statistic < critical_val # whether 2 distributions are similar 
+    
+    if verbose is True:
+        print(ks_res)
+        print('Statistic is smaller than critical value') if similar is True else print('Statistic is larger than critical value')
+
+        print('The 2 distributions are similar: %s (At alpha %s, D=%s)' %(similar, alpha, np.round(critical_val,3)))
+    
+    return similar
