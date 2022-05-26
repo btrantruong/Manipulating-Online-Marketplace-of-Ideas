@@ -56,6 +56,7 @@ def plot_degree_dist(graph, plot_fpath=None, mode='in'):
 
     if plot_fpath is not None:
         fig.savefig(plot_fpath, dpi=300)
+        plt.close(fig)
     else:
         fig.show()
 
@@ -73,6 +74,7 @@ def plot_quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
     
     if plot_fpath is not None:
         fig.savefig(plot_fpath, dpi=300)
+        plt.close(fig)
     else:
         fig.show()
 
@@ -184,6 +186,7 @@ def ccdf_quality_between_strategies(nostrag_humanquality, strag_humanquality, pl
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -214,6 +217,7 @@ def ccdf_fitness_within_strategies_panel(nostrag_botfitness, nostrag_humanfitnes
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -244,6 +248,7 @@ def ccdf_fitness_between_strategies_panel(nostrag_botfitness, nostrag_humanfitne
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -266,6 +271,7 @@ def ccdf_share_between_strategies(nostrag_botshares, strag_botshares, plot_fpath
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -296,6 +302,7 @@ def ccdf_share_within_strategies_panel(nostrag_botshares, nostrag_humanshares, s
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -325,6 +332,7 @@ def ccdf_share_between_strategies_panel(nostrag_botshares, nostrag_humanshares, 
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         figure.show()
 
@@ -351,6 +359,7 @@ def ccdf_final_spreadingnodes(nostrag_bot_memes, nostrag_human_memes, strag_bot_
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -377,6 +386,7 @@ def ccdf_final_spreadingnodes_between_strategies(nostrag_bot_memes, nostrag_huma
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -394,6 +404,7 @@ def jointplot_final_shares_spread(final_info, meme_type='bot', plot_fpath=None, 
 
     if plot_fpath is not None:
         snsplot.figure.savefig(plot_fpath, dpi=300)
+        # plt.close(snsplot.figure)
 
 def plot_shares_vs_indeg(none_largest_indegs, none_shares, hub_largest_indegs, hub_shares, plot_fpath=None):
     # Scatter plot of number of shares vs indeg of spreading channel (for junk memes)
@@ -413,6 +424,7 @@ def plot_shares_vs_indeg(none_largest_indegs, none_shares, hub_largest_indegs, h
     fig.tight_layout()
     if plot_fpath is not None:
         fig.savefig(plot_fpath, dpi=300)
+        plt.close(fig)
     else:
         plt.show()
 
@@ -442,6 +454,7 @@ def ccdf_hubness_within_strategies(none_bot_spread, none_human_spread, hubs_bot_
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -471,6 +484,7 @@ def ccdf_hubness_between_strategies(none_bot_spread, none_human_spread, hubs_bot
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -512,6 +526,7 @@ def ccdf_viahubshares_within_strategies(spreading_nodes, meme_shares, strag_spre
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -542,6 +557,7 @@ def ccdf_viahubshares_between_strategies(spreading_nodes, meme_shares, strag_spr
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
@@ -583,6 +599,7 @@ def ccdf_viahubfitness_within_strategies(meme_tuples, hubsize=1000, plot_fpath=N
     figure.tight_layout()
     if plot_fpath is not None:
         figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
         plt.show()
 
