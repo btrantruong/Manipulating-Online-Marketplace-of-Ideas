@@ -9,7 +9,8 @@ import seaborn as sns
 import pickle as pkl
 import collections
 import sys
-from  scipy.stats import entropy
+# from  scipy.stats import entropy
+from scipy.special import entr
 
 logger = utils.get_logger(__name__)
 
@@ -158,24 +159,29 @@ def final_botmeme_fraction(G, verbose):
     # Note: feed keys are strings, meme ids and all other keys are ints
     deg_mode='in'
 
-    human_agents = [int(node['id']) for node in G.vs if node['bot']==0]
-    agent_degrees = G.degree(human_agents, mode=deg_mode, loops=False)
-    # agent_outdegs = G.degree(human_agents, mode='out', loops=False) #just in case
+    human_nodes = [int(node['id']) for node in G.vs if node['bot']==0]
+    human_agents = [node['uid'] for node in G.vs if node['bot']==0]
+    hum_degrees = G.degree(human_nodes, mode=deg_mode, loops=False)
 
-    botmeme_ids = [meme for meme in verbose['all_memes'][0] if meme['is_by_bot']==1]
+    botmeme_ids = [meme['id'] for meme in verbose['all_memes'][0] if meme['is_by_bot']==1]
 
-    final_agent_info={}
+    final_agent_info ={}
+    
     for idx, agentid in enumerate(human_agents):
-        memeids = verbose['all_feeds'][0][str(agentid)]
+        memeids = verbose['all_feeds'][0][agentid]
+        
+        if len(memeids)>0:
+            bot_num= len([memeid for memeid in memeids if memeid in botmeme_ids])
+            assert(bot_num<=len(memeids))
 
-        bot_num= len([memeid for memeid in memeids if memeid in botmeme_ids])
-        assert(bot_num<=len(memeids))
+            bot_frac = bot_num/len(memeids)
+            final_agent_info[agentid] = {'in_degree': hum_degrees[idx],
+                                        'botmeme_frac': bot_frac}
 
-        bot_frac = bot_num/len(memeids)
-        final_agent_info[agentid] = {'in_degree': agent_degrees[idx],
-                                    'botmeme_frac': bot_frac}
+    agent_indegs = [info['in_degree'] for info in final_agent_info.values()]
+    botfrac_on_feed=[info['botmeme_frac'] for info in final_agent_info.values()]
 
-    return final_agent_info
+    return agent_indegs, botfrac_on_feed
 
 
 def final_entropy(verbose_tracking, base=2, verbose=True):
@@ -199,8 +205,9 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
 
             bot_frac += [bot_num/len(memeids)]
 
-    system_entropy = entropy(bot_frac, base=base)
-    
+    # system_entropy = entropy(bot_frac, base=base)
+    system_entropy = entr(bot_frac).sum() #use special.entr instead of stats.entropy() because the latter normalize the probs
+
     if verbose is True:
         logger.info('Zero-length feed: %s/%s' %(zero_len_feed, len(verbose_tracking['all_feeds'][0])))
         logger.info('Entropy: %s' %system_entropy)
@@ -208,17 +215,39 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
     return system_entropy
 
 
-def botmeme_frac_vs_degree(nostrag_agentinfo, strag_agentinfo, plot_fpath=None, log_x=True):
+# def botmeme_frac_vs_degree(nostrag_agentinfo, strag_agentinfo, plot_fpath=None, log_x=True):
+#     figure, ax = plt.subplots()
+    
+#     if log_x is True:
+#         ax.set_xscale('log')
+    
+#     ax.plot(nostrag_agentinfo['in_degree'], nostrag_agentinfo['botmeme_frac'], label = 'no targeting')
+#     ax.plot(strag_agentinfo['in_degree'], strag_agentinfo['botmeme_frac'], label = 'hub targeting')
+#     ax.set_xlabel('Node in-degree')
+#     ax.legend()
+#     ax.set_title("Fraction of bot memes in agent's feed vs their in-degree")
+
+#     figure.tight_layout()
+#     if plot_fpath is not None:
+#         figure.savefig(plot_fpath, dpi=300)
+#         plt.close(figure)
+#     else:
+#         figure.show()
+
+def ccdf_botmemefrac_between_strategies(nostrag_junkfrac, strag_junkfrac, plot_fpath=None, log_log=False):
+    # CCDF of fraction of bot memes in human agent's feeds at final state- 2 lines (none & hubs-targeting)
+
     figure, ax = plt.subplots()
-    
-    if log_x is True:
+
+    if log_log is True:
         ax.set_xscale('log')
+        ax.set_yscale('log')
     
-    ax.plot(nostrag_agentinfo['in_degree'], nostrag_agentinfo['botmeme_frac'], label = 'no targeting')
-    ax.plot(strag_agentinfo['in_degree'], strag_agentinfo['botmeme_frac'], label = 'hub targeting')
-    ax.set_xlabel('Node in-degree')
+    sns.ecdfplot(ax=ax, data = nostrag_junkfrac, complementary=True, label = 'no targeting')
+    sns.ecdfplot(ax=ax, data = strag_junkfrac, complementary=True, label = 'hub targeting')
+    ax.set_xlabel("Fraction of bot memes in agent's feed")
     ax.legend()
-    ax.set_title("Fraction of bot memes in agent's feed vs their in-degree")
+    ax.set_title("CCDF: Fraction of bot memes in agent's feed")
 
     figure.tight_layout()
     if plot_fpath is not None:
@@ -226,7 +255,6 @@ def botmeme_frac_vs_degree(nostrag_agentinfo, strag_agentinfo, plot_fpath=None, 
         plt.close(figure)
     else:
         figure.show()
-
 
 
 def ccdf_quality_between_strategies(nostrag_humanquality, strag_humanquality, plot_fpath=None, log_log=False):
@@ -817,9 +845,10 @@ if __name__=="__main__":
         strag_entropy = final_entropy(hub_verbose)
         save_entropy(nostrag_entropy, strag_entropy, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
         
-        nostrag_botfrac=final_botmeme_fraction(none_graph, none_verbose)
-        strag_botfrac=final_botmeme_fraction(hub_graph, hub_verbose)
-        botmeme_frac_vs_degree(nostrag_botfrac, strag_botfrac, plot_fpath=None, log_x=True)
+        nostrag_agentdegs, nostrag_botfrac=final_botmeme_fraction(none_graph, none_verbose)
+        strag_agentdegs, strag_botfrac=final_botmeme_fraction(hub_graph, hub_verbose)
+        ccdf_botmemefrac_between_strategies(nostrag_botfrac, strag_botfrac, 
+                                            plot_fpath=os.path.join(PLOT_DIR, 'junkfrac_between_strategies_%s%s.png' %(none_expname, hub_expname)))
     
     except Exception as e:
         logger.info('Error: ', e)
