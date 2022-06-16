@@ -152,36 +152,81 @@ def final_prob_spreading_throughhub(G, verbose):
     return final_info
 
 
+def final_botmeme_fraction(G, verbose):
+    # Stat final state
+    # Helper for plotting fraction of bot memes vs node in degree
+    # Note: feed keys are strings, meme ids and all other keys are ints
+    deg_mode='in'
+
+    human_agents = [int(node['id']) for node in G.vs if node['bot']==0]
+    agent_degrees = G.degree(human_agents, mode=deg_mode, loops=False)
+    # agent_outdegs = G.degree(human_agents, mode='out', loops=False) #just in case
+
+    botmeme_ids = [meme for meme in verbose['all_memes'][0] if meme['is_by_bot']==1]
+
+    final_agent_info={}
+    for idx, agentid in enumerate(human_agents):
+        memeids = verbose['all_feeds'][0][str(agentid)]
+
+        bot_num= len([memeid for memeid in memeids if memeid in botmeme_ids])
+        assert(bot_num<=len(memeids))
+
+        bot_frac = bot_num/len(memeids)
+        final_agent_info[agentid] = {'in_degree': agent_degrees[idx],
+                                    'botmeme_frac': bot_frac}
+
+    return final_agent_info
+
+
 def final_entropy(verbose_tracking, base=2, verbose=True):
     # Get entropy of the system from the distribution of probability that a feed contains a bot meme. 
 
-    bot_probs = []
+    bot_frac = []
     zero_len_feed=0
+    botmeme_ids = [meme for meme in verbose_tracking['all_memes'][0] if meme['is_by_bot']==1]
+
     for agentid, memeids in verbose_tracking['all_feeds'][0].items():
         if any(map(str.isalpha, agentid)) is True:
             #skip bots
             continue
-
-        bot_num=0
-        for memeid in memeids:
-            memeinfo = [meme for meme in verbose_tracking['all_memes'][0] if meme['id']==memeid][0]
         
-            if memeinfo['is_by_bot']==1:
-                bot_num+=1
-        
-        assert(bot_num<=len(memeids))
-        
-        if len(memeids)>0:
-            bot_probs += [bot_num/len(memeids)]
-        else:
+        if len(memeids)<=0:
             zero_len_feed +=1
 
-    system_entropy = entropy(bot_probs, base=base)
+        else:
+            bot_num= len([memeid for memeid in memeids if memeid in botmeme_ids])
+            assert(bot_num<=len(memeids))
+
+            bot_frac += [bot_num/len(memeids)]
+
+    system_entropy = entropy(bot_frac, base=base)
+    
     if verbose is True:
         logger.info('Zero-length feed: %s/%s' %(zero_len_feed, len(verbose_tracking['all_feeds'][0])))
         logger.info('Entropy: %s' %system_entropy)
 
     return system_entropy
+
+
+def botmeme_frac_vs_degree(nostrag_agentinfo, strag_agentinfo, plot_fpath=None, log_x=True):
+    figure, ax = plt.subplots()
+    
+    if log_x is True:
+        ax.set_xscale('log')
+    
+    ax.plot(nostrag_agentinfo['in_degree'], nostrag_agentinfo['botmeme_frac'], label = 'no targeting')
+    ax.plot(strag_agentinfo['in_degree'], strag_agentinfo['botmeme_frac'], label = 'hub targeting')
+    ax.set_xlabel('Node in-degree')
+    ax.legend()
+    ax.set_title("Fraction of bot memes in agent's feed vs their in-degree")
+
+    figure.tight_layout()
+    if plot_fpath is not None:
+        figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
+    else:
+        figure.show()
+
 
 
 def ccdf_quality_between_strategies(nostrag_humanquality, strag_humanquality, plot_fpath=None, log_log=False):
@@ -771,7 +816,10 @@ if __name__=="__main__":
         nostrag_entropy = final_entropy(none_verbose)
         strag_entropy = final_entropy(hub_verbose)
         save_entropy(nostrag_entropy, strag_entropy, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
-
+        
+        nostrag_botfrac=final_botmeme_fraction(none_graph, none_verbose)
+        strag_botfrac=final_botmeme_fraction(hub_graph, hub_verbose)
+        botmeme_frac_vs_degree(nostrag_botfrac, strag_botfrac, plot_fpath=None, log_x=True)
     
     except Exception as e:
         logger.info('Error: ', e)
