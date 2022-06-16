@@ -189,7 +189,7 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
 
     bot_frac = []
     zero_len_feed=0
-    botmeme_ids = [meme for meme in verbose_tracking['all_memes'][0] if meme['is_by_bot']==1]
+    botmeme_ids = [meme['id'] for meme in verbose_tracking['all_memes'][0] if meme['is_by_bot']==1]
 
     for agentid, memeids in verbose_tracking['all_feeds'][0].items():
         if any(map(str.isalpha, agentid)) is True:
