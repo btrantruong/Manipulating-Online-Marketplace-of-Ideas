@@ -9,7 +9,7 @@ import seaborn as sns
 import pickle as pkl
 import collections
 import sys
-# from  scipy.stats import entropy
+from  scipy.stats import entropy
 from scipy.special import entr
 
 logger = utils.get_logger(__name__)
@@ -205,12 +205,13 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
 
             bot_frac += [bot_num/len(memeids)]
 
-    # system_entropy = entropy(bot_frac, base=base)
+    system_entropy_norm = entropy(bot_frac, base=base)
     system_entropy = entr(bot_frac).sum() #use special.entr instead of stats.entropy() because the latter normalize the probs
 
     if verbose is True:
         logger.info('Zero-length feed: %s/%s' %(zero_len_feed, len(verbose_tracking['all_feeds'][0])))
         logger.info('Entropy: %s' %system_entropy)
+        logger.info('Entropy (norm): %s' %system_entropy_norm)
 
     return system_entropy
 
