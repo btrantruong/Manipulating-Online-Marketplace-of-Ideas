@@ -52,9 +52,9 @@ class InfoSystem:
         
         #Keep track of number of memes globally
         self.all_memes = [] # list of dicts, contains of {"meme_id": meme.__dict__ and popularity information updated from self.meme_popularity}
-        self.num_memes=0
-        self.num_meme_unique=0
-        self.memes_human_feed = 0
+        self.num_memes=0 # for verbose debug
+        self.num_meme_unique=0 # for verbose debug
+        self.memes_human_feed = 0 # for verbose debug
         self.quality_diff = 1
         self.quality = 1
         self.time_step=0
@@ -75,8 +75,6 @@ class InfoSystem:
             in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
             print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
 
-
-    #TODO: Remove seed
     
     # @profile
     def simulation(self):
@@ -91,7 +89,7 @@ class InfoSystem:
 
             for _ in range(self.n_agents):
                 self.num_memes = sum([len(f) for f in self.agent_feeds.values() if len(f)>0])
-                self.ig_simulation_step(seed=self.num_meme_unique)
+                self.ig_simulation_step()
             self.update_quality()
 
             #TODO: track meme
@@ -120,16 +118,9 @@ class InfoSystem:
         }
 
         return measurements
-        #b: If not saving agent feed into & all memes info
-        # self.all_memes = self._return_all_meme_info()
-        # tau, p_val = self.measure_kendall_tau()
-        # diversity = self.measure_diversity()
-        # return self.quality, diversity, (tau, p_val), self.quality_timestep
-
-
 
     # @profile
-    def ig_simulation_step(self, seed=100):
+    def ig_simulation_step(self):
         # random.seed(seed)
         agent = random.choice(self.network.vs)
         agent_id = agent['uid']

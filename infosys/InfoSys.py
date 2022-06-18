@@ -108,8 +108,6 @@ class InfoSystem:
                 agent.set_follower_list(follower_list)
         print('Finish populating followers')
 
-
-    #TODO: Remove seed
     
     # @profile
     def simulation(self):
@@ -124,7 +122,7 @@ class InfoSystem:
 
             for _ in range(self.n_agents):
                 if self.network is None: 
-                    self.simulation_step(seed=self.num_meme_unique)
+                    self.simulation_step()
             self.update_quality()
 
             #TODO: track meme
@@ -153,52 +151,10 @@ class InfoSystem:
         }
 
         return measurements
-        #b: If not saving agent feed into & all memes info
-        # self.all_memes = self._return_all_meme_info()
-        # tau, p_val = self.measure_kendall_tau()
-        # diversity = self.measure_diversity()
-        # return self.quality, diversity, (tau, p_val), self.quality_timestep
 
-
-
-    # @profile
-    def ig_simulation_step(self, seed=100):
-        # random.seed(seed)
-        agent = random.choice(self.network.vs)
-        agent_id = agent['uid']
-        feed = self.agent_feeds[agent_id]
-
-        if len(feed) and random.random() > self.mu:
-            # retweet a meme from feed selected on basis of its fitness
-            meme = random.choices(feed, weights=[m.fitness for m in feed], k=1)[0] #random choices return a list
-        else:
-            # new meme
-            self.num_meme_unique+=1
-            meme = Meme(self.num_meme_unique, is_by_bot=agent['bot'], phi=self.phi)
-            self.all_memes += [meme]
-
-        #book keeping
-        # TODO: add forgotten memes per degree
-        if self.trackmeme is True:
-            self._update_meme_popularity(meme, agent)
-
-        # spread (truncate feeds at max len alpha)
-        follower_idxs = self.network.predecessors(agent) #return list of int
-        follower_uids = [n['uid'] for n in self.network.vs if n.index in follower_idxs]
-        for follower in follower_uids:
-            #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
-            # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
         
-            if agent['bot']==1:
-                self._add_meme_to_feed(follower, meme, n_copies = self.theta)
-            else:
-                self._add_meme_to_feed(follower, meme)
-
-            assert(len(self.agent_feeds[follower]) <= self.alpha)
-
-
     # @profile
-    def simulation_step(self, seed=100):
+    def simulation_step(self):
         # random.seed(seed)
         id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable
         agent = self.tracking_agents[id]
