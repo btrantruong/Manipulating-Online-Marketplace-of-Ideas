@@ -1,22 +1,19 @@
 
 """ 
 Code to (re)produce results in the paper 
-"Manipulating the Online Marketplace of Ideas" (Lou et allaallallaallaallaallaallaallallaallaaallaallallaallaallaallaallaallaallaallaallallaallaaallaallallaal
+"Manipulating the Online Marketplace of Ideas" (Lou et al.)
 https://arxiv.org/abs/1907.06130
 
 Requirements: python>=3.6 
 link direction is following (follower -> friend), opposite of info spread!
 
-Input: igraph .graphml file
-Implementation using igraph library
+Input: networkx .graphml file 
+Implement with our own data structure
 """
 
 from infosys.User import User
 from infosys.Meme import Meme
-from infosys.profileit import profile
 import infosys.utils as utils
-import infosys.ig_utils as ig_utils
-import igraph as ig
 
 import networkx as nx
 import random
@@ -63,17 +60,53 @@ class InfoSystem:
             self.meme_popularity = {} 
             # dict of popularity (all memes), structure: {"meme_id": {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}}
         
-        try:
-            self.network = ig.Graph.Read_GML(graph_gml)
-            print(self.network.summary())
-        except Exception as e:
-            print(e)
-        self.n_agents = self.network.vcount()
-        self.agent_feeds = {agent['uid']:[] for agent in self.network.vs} #init an empty feed for all agents
 
-        if verbose:
-            in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
-            print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
+        #Use our own data struct
+        # dict of agent ids & list of their follower ids 
+        self.follower_info = {}
+        # only create a User object if that node is chosen during simulation
+        # dict of agent ID - User obj for that agent
+        self.tracking_agents = {}
+        self._init_agents(graph_gml)
+        self._init_followers()
+
+    # @profile
+    def _init_agents(self, graph_file):
+        G = nx.read_gml(graph_file)
+        
+        # Try making 
+        # bots = [n for n in G.nodes if G.nodes[n]['bot']==True]
+        # humans = [n for n in G.nodes if G.nodes[n]['bot']==False]
+
+        #debug
+        bao_indeg = []
+
+        for agent in G.nodes:
+            id = G.nodes[agent]['uid']
+            friend_ids= [G.nodes[n]['uid'] for n in G.successors(agent)]
+            self.tracking_agents[id] = User(id, friend_ids, feed_size=self.alpha, is_bot=G.nodes[agent]['bot'])
+
+            follower_ids = [G.nodes[n]['uid'] for n in G.predecessors(agent)]
+            self.follower_info[id] = follower_ids
+            if self.verbose:
+                bao_indeg+=[len(follower_ids)]
+
+        self.n_agents = nx.number_of_nodes(G)
+        print('Initialized agents, total in original graph: {}, in Infosystem: {}'.format(self.n_agents, len(self.tracking_agents)))
+        print('Number of edges: %s' %nx.number_of_edges(G))
+
+        if self.verbose:
+            print('Info Sys in deg: ', round(sum(bao_indeg)/len(bao_indeg),2))
+
+    def _init_followers(self):
+        for aidx, agent in self.tracking_agents.items():
+            # if follower list hasn't been realized into Users(), do it
+            if agent.followers is None:
+                follower_list = []
+                for fid in self.follower_info[aidx]:
+                    follower_list += [self.tracking_agents[fid]] # add all User object based on ids from follower list
+                agent.set_follower_list(follower_list)
+        print('Finish populating followers')
 
 
     #TODO: Remove seed
@@ -90,13 +123,13 @@ class InfoSystem:
                 self.quality_timestep+= [self.quality]
 
             for _ in range(self.n_agents):
-                self.num_memes = sum([len(f) for f in self.agent_feeds.values() if len(f)>0])
-                self.ig_simulation_step(seed=self.num_meme_unique)
+                if self.network is None: 
+                    self.simulation_step(seed=self.num_meme_unique)
             self.update_quality()
 
             #TODO: track meme
 
-        all_feeds = self.agent_feeds # dict of {agent['uid']:[Meme()] } each value is a list of Meme obj in the agent's feed
+        all_feeds = self.tracking_agents
 
         # b: Save feed info of agent & meme popularity
         # convert self.agent_feed into dict of agent_uid - [meme_id]
@@ -164,6 +197,37 @@ class InfoSystem:
             assert(len(self.agent_feeds[follower]) <= self.alpha)
 
 
+    # @profile
+    def simulation_step(self, seed=100):
+        # random.seed(seed)
+        id = random.choice(list(self.tracking_agents.keys())) # convert to list so that it's subscriptable
+        agent = self.tracking_agents[id]
+            
+        # tweet or retweet
+        if len(agent.feed) and random.random() > self.mu:
+            # retweet a meme from feed selected on basis of its fitness
+            meme = random.choices(agent.feed, weights=[m.fitness for m in agent.feed], k=1)[0] #random choices return a list
+        else:
+            # new meme
+            self.num_meme_unique+=1
+            meme = Meme(self.num_meme_unique, is_by_bot=agent.is_bot, phi=self.phi)
+
+        #TODO: bookkeeping
+
+        # spread (truncate feeds at max len alpha)
+        
+        for follower in agent.followers:
+            #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
+            # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
+            
+            if agent.is_bot==1:
+                follower.add_meme_to_feed(meme, n_copies = self.theta)
+                self.num_memes+=self.theta
+            else:
+                follower.add_meme_to_feed(meme)
+                self.num_memes+=1
+            assert(len(follower.feed)<=self.alpha)
+
     def update_quality(self):
         # use exponential moving average for convergence
         new_quality = 0.8 * self.quality + 0.2 * self.measure_average_quality()
@@ -195,13 +259,13 @@ class InfoSystem:
         total=0
         count=0
 
-        human_uids = [n['uid'] for n in self.network.vs if n['bot']==0]
-        for u in human_uids:
-            for meme in self.agent_feeds[u]:
-                total+= meme.quality
-                count+=1
-
+        humans = [user for user in self.tracking_agents.values() if user.is_bot==0] 
+        for user in humans:
+            for meme in user.feed:
+                total += meme.quality
+                count +=1
         self.memes_human_feed = count
+        
         return total / count if count >0 else 0
 
     #TODO: implement diversity 
@@ -232,10 +296,10 @@ class InfoSystem:
         count = 0
         zero_memes = 0 
 
-        human_uids = [n['uid'] for n in self.network.vs if n['bot']==0]
-        for u in human_uids:
-            zero_memes += sum([1 for meme in self.agent_feeds[u] if meme.quality==0])
-            count += len(self.agent_feeds[u])
+        human_agents = [agent for agent in self.tracking_agents.values() if agent.is_bot==0]
+        for agent in human_agents:
+            zero_memes += sum([1 for meme in agent.feed if meme.quality==0])
+            count += len(agent.feed)
     
         return zero_memes / count
 

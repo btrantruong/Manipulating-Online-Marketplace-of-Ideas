@@ -3,7 +3,7 @@ import infosys.utils as utils
 import igraph as ig
 import random 
 import string 
-import numpy as np 
+import numpy as np
 
 def read_empirical_network(file):
     print('File: ', file)
