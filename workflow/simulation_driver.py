@@ -1,4 +1,5 @@
 """ Script for running simulation - Use for debugging"""
+
 from infosys.ig_InfoSys import InfoSystem
 import infosys.utils as utils
 import infosys.ig_utils as ig_utils
@@ -39,6 +40,7 @@ def bao_simulation(mode='igraph'):
     infosys_specs = {
         "trackmeme": True,
         "tracktimestep": True,
+        "track_forgotten": True,
         "verbose": True,
         "epsilon": 0.1, #TODO: change back to 0.001
         "mu": 0.5,
@@ -58,7 +60,7 @@ def bao_simulation(mode='igraph'):
                 nx.write_gml(G, infosys_path)
 
     print("Create InfoSystem instance..")
-    follower_sys = InfoSystem(os.path.join(path,mode, "network.gml"), mode=mode, **infosys_specs)
+    follower_sys = InfoSystem(os.path.join(path,mode, "network.gml"), **infosys_specs)
     print("Start simulation (mode: %s).." %mode)
     verbose_results = follower_sys.simulation()
     # b: code if not saving meme and feed info
