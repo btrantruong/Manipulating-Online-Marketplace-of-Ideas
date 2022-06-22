@@ -15,7 +15,8 @@ TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinform
 
 EXP_NETWORK = {}
 
-gamma = 0.1 # gamma in the range where targeting has some effect
+gamma = 0.005 # gamma in the range where targeting has some effect
+#default=0.1
 # need to match with default_targeting
 for exp in EXPS:
     if 'none' in exp:
@@ -27,8 +28,8 @@ for exp in EXPS:
 
 sim_num = 2
 mode='igraph'
-RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns' %sim_num)
-TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns' %sim_num)
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%s1runs_gamma0.005' %sim_num)
+TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%s1runs_gamma0.005' %sim_num)
 
 rule all:
     input: 
