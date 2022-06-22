@@ -28,8 +28,8 @@ for exp in EXPS:
 
 sim_num = 2
 mode='igraph'
-RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%s1runs_gamma0.005' %sim_num)
-TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%s1runs_gamma0.005' %sim_num)
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
+TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
 
 rule all:
     input: 
