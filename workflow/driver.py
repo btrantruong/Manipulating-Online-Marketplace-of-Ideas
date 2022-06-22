@@ -20,7 +20,7 @@ def multiple_simulations(infosys_specs, times=20):
     for _ in range(times):
         print("Create InfoSystem instance..")
         follower_sys = InfoSystem(**infosys_specs)
-        print("Start simulation (mode: %s).." %infosys_specs['mode'])
+        print("Start simulation ..")
         measurements = follower_sys.simulation()
 
         #Update results over multiple simulations
