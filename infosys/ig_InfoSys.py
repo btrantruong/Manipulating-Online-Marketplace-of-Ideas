@@ -40,6 +40,8 @@ class InfoSystem:
         self.network = None
         self.verbose = verbose
         self.track_forgotten = track_forgotten
+        if self.track_forgotten is True: #aggregate in and outflux caused by all agents
+            print('Tracking forgotten memes')
         self.trackmeme = trackmeme
         self.tracktimestep = tracktimestep
         self.quality_timestep=[]
@@ -102,8 +104,6 @@ class InfoSystem:
                 influx_by_agent = self.ig_simulation_step() # meme in outflux per agent {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
                 
                 if self.track_forgotten is True: #aggregate in and outflux caused by all agents
-                    if self.time_step==1:
-                        print('Tracking forgotten memes')
                     for key in influx_by_agent.keys():
                         self.timestep_memeinflux[key] += influx_by_agent[key]
 

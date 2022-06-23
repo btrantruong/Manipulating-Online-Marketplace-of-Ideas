@@ -7,6 +7,7 @@ DATA_PATH = '/N/slate/baotruon/marketplace/data'
 print(os.getcwd())
 exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
 EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
+EXPS = [exp for exp in EXPS if 'none' in exp or 'hubs' in exp]
 
 # map available network in `vary_targetgamma` corresponding with the exp
 # networks from `vary_targetgamma` has format: '{targeting}{gamma}'
@@ -26,7 +27,7 @@ for exp in EXPS:
     EXP_NETWORK[exp] = networkname
 
 
-sim_num = 2
+sim_num = 1
 mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
 TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
