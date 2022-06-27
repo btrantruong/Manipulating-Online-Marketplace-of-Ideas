@@ -27,7 +27,7 @@ for exp in EXPS:
     EXP_NETWORK[exp] = networkname
 
 
-sim_num = 1
+sim_num = 2
 mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
 TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)

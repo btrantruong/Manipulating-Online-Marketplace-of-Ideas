@@ -19,28 +19,6 @@ logger = utils.get_logger(__name__)
     Run with this command: python3 exps/memeinflux_analysis.py vary_thetaphi_1runs_trackmeme_gamma0.005 hubs_22 none_22 influx_analyses 
 """
 
-def get_exp_network_map(config_fname):
-    exp_configs = json.load(open(config_fname,'r'))
-    EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
-
-    # map available network in `vary_targetgamma` corresponding with the exp
-    # networks from `vary_targetgamma` has format: '{targeting}{gamma}'
-    GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-    TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
-
-    EXP_NETWORK = {}
-
-    gamma = 0.1 # gamma in the range where targeting has some effect
-    # need to match with default_targeting
-    for exp in EXPS:
-        if 'none' in exp:
-            networkname = '%s%s' %(TARGETING.index(None), GAMMA.index(gamma))
-        else: 
-            networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
-        EXP_NETWORK[exp] = networkname
-
-    return EXP_NETWORK
-
 
 def quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
     fig,ax = plt.subplots()
@@ -99,11 +77,11 @@ def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, com
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
     # flow_type: 'bot' or 'human'
     # common timestep: one strategy can take longer to converge than the other. Only plot the timestep they have in common on x axis.
-    # markers = list('.s*o^v<>+x')
+
     fig,ax = plt.subplots()
 
     if ylog is True:
-        ax.set_yscale('log')
+        ax.set_yscale('symlog') #use symlog because there are negative values
 
     inflow='%s_in' %flow_type
     outflow='%s_out' %flow_type
@@ -115,8 +93,8 @@ def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, com
         nostrag_delta = nostrag_delta[:common+1]
         strag_delta = strag_delta[:common+1]
 
-    ax.plot(range(len(strag_delta)), strag_delta, marker='o',label='targeting')
-    ax.plot(range(len(nostrag_delta)), nostrag_delta, marker='v',label='no targeting')
+    ax.plot(range(len(strag_delta)), strag_delta, '-',label='targeting')
+    ax.plot(range(len(nostrag_delta)), nostrag_delta, '--',label='no targeting')
 
     ax.set_ylabel('memes')
     ax.set_xlabel('t')
@@ -367,7 +345,6 @@ if __name__=="__main__":
     DATA_PATH = '/N/slate/baotruon/marketplace/data'
     
     config_fname= os.path.join(DATA_PATH, 'all_configs.json')
-    exp2network = get_exp_network_map(config_fname)
     
     # CHANGE THESE VARS FOR OTHER INFILTRATION VALUES
     # exp = 'vary_thetaphi_1runs_gamma0.005'
