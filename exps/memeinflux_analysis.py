@@ -75,7 +75,7 @@ def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=True,
     nostrag = nostrag_influx[flow_type]
 
     if common_timestep is True:
-        common = max(len(strag), len(nostrag)) 
+        common = min(len(strag), len(nostrag)) 
         nostrag = nostrag[:common+1]
         strag = strag[:common+1]
 
@@ -111,7 +111,7 @@ def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, com
     strag_delta = np.subtract(strag_flux[inflow], strag_flux[outflow])
 
     if common_timestep is True:
-        common = max(len(strag_delta), len(nostrag_delta)) 
+        common = min(len(strag_delta), len(nostrag_delta)) 
         nostrag_delta = nostrag_delta[:common+1]
         strag_delta = strag_delta[:common+1]
 
@@ -358,7 +358,7 @@ def save_entropy(nostrag_entropy, strag_entropy, fpath):
         outfile.write('**ENTROPY: \n')
         outfile.write('No targeting: %s \n' %np.round(nostrag_entropy,4))
         outfile.write('With targeting: %s \n' %np.round(strag_entropy,4))
-    logger.info('Finished saving entropy to existing file!')
+    logger.info('Finished saving entropy to file!')
 
 
 if __name__=="__main__":
