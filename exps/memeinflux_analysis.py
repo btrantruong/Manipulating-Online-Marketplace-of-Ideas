@@ -86,7 +86,7 @@ def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=False
         fig.show()
 
 
-def influx_timestep_withinstrategy(flux, flow_type='bot', ylog=False, plot_fpath=None):
+def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=False, plot_fpath=None):
     # nostrag_influx, strag_influx: dictionary containing number of meme in or out flux (for no targeting and targeting)
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
     # flow_type: 'bot' or 'human'
@@ -96,15 +96,18 @@ def influx_timestep_withinstrategy(flux, flow_type='bot', ylog=False, plot_fpath
     ax.set_yscale('log')
     inflow='%s_in' %flow_type
     outflow='%s_out' %flow_type
+    nostrag_delta = np.subtract(nostrag_flux[inflow], nostrag_flux[outflow])
+    strag_delta = np.subtract(strag_flux[inflow], strag_flux[outflow])
 
-    ax.scatter(range(len(flux[inflow])), flux[inflow],
-                label='in')
-    ax.scatter(range(len(flux[outflow])), flux[outflow],
-                label='out')
+    ax.scatter(range(len(nostrag_delta)), nostrag_delta,
+                label='no targeting')
 
-    ax.set_ylabel('num_memes')
+    ax.scatter(range(len(strag_delta)), strag_delta,
+                label='targeting')
+
+    ax.set_ylabel('memes')
     ax.set_xlabel('t')
-    ax.set_title('%s meme fluctuation across timesteps' %flow_type)
+    ax.set_title('Delta %s memes across timesteps' %flow_type)
     ax.legend()
     
     if plot_fpath is not None:
@@ -388,10 +391,8 @@ if __name__=="__main__":
                             plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
         
         for flowtype in ['bot','human']:
-            influx_timestep_withinstrategy(none_verbose['meme_influx'][0], flow_type=flowtype, 
-                                            plot_fpath=os.path.join(PLOT_DIR, 'withinstrag_influx_%s_%s.png' %(flowtype, none_expname)))
-            influx_timestep_withinstrategy(hub_verbose['meme_influx'][0], flow_type=flowtype, 
-                                            plot_fpath=os.path.join(PLOT_DIR, 'withinstrag_influx_%s_%s.png' %(flowtype, none_expname)))
+            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, 
+                                            plot_fpath=os.path.join(PLOT_DIR, 'delta_%s_%s%s.png' %(flowtype, none_expname, hub_expname)))
 
     except Exception as e:
         logger.info('Error: ', e)
