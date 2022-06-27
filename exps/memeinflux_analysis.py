@@ -60,19 +60,27 @@ def quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
         fig.show()
 
 
-def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=False, plot_fpath=None):
+def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=True, common_timestep=True, plot_fpath=None):
     # nostrag_influx, strag_influx: dictionary containing number of meme in or out flux (for no targeting and targeting)
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
     # flow_type: 'bot_in', 'bot_out', 'human_in', 'human_out'
+     # common timestep: one strategy can take longer to converge than the other. Only plot the timestep they have in common on x axis.
+
     fig,ax = plt.subplots()
 
     if ylog is True:
         ax.set_yscale('log')
 
-    ax.scatter(range(len(strag_influx[flow_type])), strag_influx[flow_type],
-                label='targeting')
-    ax.scatter(range(len(nostrag_influx[flow_type])), nostrag_influx[flow_type],
-                label='no targeting')
+    strag = strag_influx[flow_type]
+    nostrag = nostrag_influx[flow_type]
+
+    if common_timestep is True:
+        common = max(len(strag), len(nostrag)) 
+        nostrag = nostrag[:common+1]
+        strag = strag[:common+1]
+
+    ax.plot(range(len(strag)), strag, marker='o', label='targeting')
+    ax.plot(range(len(nostrag)), nostrag, marker='v', label='no targeting')
     
     ax.set_ylabel('%s' %flow_type)
     ax.set_xlabel('t')
@@ -86,28 +94,33 @@ def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=False
         fig.show()
 
 
-def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=False, plot_fpath=None):
+def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, common_timestep=True, plot_fpath=None):
     # nostrag_influx, strag_influx: dictionary containing number of meme in or out flux (for no targeting and targeting)
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
     # flow_type: 'bot' or 'human'
-
+    # common timestep: one strategy can take longer to converge than the other. Only plot the timestep they have in common on x axis.
+    # markers = list('.s*o^v<>+x')
     fig,ax = plt.subplots()
 
-    ax.set_yscale('log')
+    if ylog is True:
+        ax.set_yscale('log')
+
     inflow='%s_in' %flow_type
     outflow='%s_out' %flow_type
     nostrag_delta = np.subtract(nostrag_flux[inflow], nostrag_flux[outflow])
     strag_delta = np.subtract(strag_flux[inflow], strag_flux[outflow])
 
-    ax.scatter(range(len(nostrag_delta)), nostrag_delta,
-                label='no targeting')
+    if common_timestep is True:
+        common = max(len(strag_delta), len(nostrag_delta)) 
+        nostrag_delta = nostrag_delta[:common+1]
+        strag_delta = strag_delta[:common+1]
 
-    ax.scatter(range(len(strag_delta)), strag_delta,
-                label='targeting')
+    ax.plot(range(len(strag_delta)), strag_delta, marker='o',label='targeting')
+    ax.plot(range(len(nostrag_delta)), nostrag_delta, marker='v',label='no targeting')
 
     ax.set_ylabel('memes')
     ax.set_xlabel('t')
-    ax.set_title('Delta %s memes across timesteps' %flow_type)
+    ax.set_title('Delta (in-out) %s memes across timesteps' %flow_type)
     ax.legend()
     
     if plot_fpath is not None:
@@ -383,16 +396,18 @@ if __name__=="__main__":
                         plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
         
         for flowtype in ['bot_in', 'bot_out', 'human_in', 'human_out']:
-            # influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype,
-            #                 plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
-
-            # log yscale
-            influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, ylog=True,
+            influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=False,
                             plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
+
+            influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=True,
+                            plot_fpath=os.path.join(PLOT_DIR, 'influx_common_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
         
         for flowtype in ['bot','human']:
-            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, 
+            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=False,
                                             plot_fpath=os.path.join(PLOT_DIR, 'delta_%s_%s%s.png' %(flowtype, none_expname, hub_expname)))
+
+            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=True,
+                                            plot_fpath=os.path.join(PLOT_DIR, 'delta_common_%s_%s%s.png' %(flowtype, none_expname, hub_expname)))
 
     except Exception as e:
         logger.info('Error: ', e)
