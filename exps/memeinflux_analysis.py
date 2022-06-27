@@ -16,6 +16,7 @@ logger = utils.get_logger(__name__)
 
 """ Input: verbose simulation results
     Output: plot of quality or bot meme influx vs timestep
+    Run with this command: python3 exps/memeinflux_analysis.py vary_thetaphi_1runs_trackmeme_gamma0.005 hubs_22 none_22 influx_analyses 
 """
 
 def get_exp_network_map(config_fname):
@@ -68,9 +69,10 @@ def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=False
     if ylog is True:
         ax.set_yscale('log')
 
-    duration = len(strag_influx['bot_in']) #all lists in dict have the same length
-    ax.scatter(range(duration), strag_influx[flow_type], label='targeting')
-    ax.scatter(range(duration), nostrag_influx[flow_type], label='no targeting')
+    ax.scatter(range(len(strag_influx[flow_type])), strag_influx[flow_type],
+                label='targeting')
+    ax.scatter(range(len(nostrag_influx[flow_type])), nostrag_influx[flow_type],
+                label='no targeting')
     
     ax.set_ylabel('%s' %flow_type)
     ax.set_xlabel('t')
