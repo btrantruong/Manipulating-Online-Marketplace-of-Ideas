@@ -337,12 +337,12 @@ if __name__=="__main__":
 
     RES_DIR = os.path.join(ABS_PATH,'results', exp)
     TRACKING_DIR = os.path.join(ABS_PATH,'long_results',exp)
-    NETWORK_PATH = os.path.join(DATA_PATH, 'igraph/vary_targetgamma')
     PLOT_DIR = os.path.join(ABS_PATH,plot_folder,exp)
     utils.make_sure_dir_exists(PLOT_DIR, '')
 
     hub_verbose = utils.read_json_compressed(os.path.join(TRACKING_DIR,'%s.json.gz' %hub_expname))
     none_verbose = utils.read_json_compressed(os.path.join(TRACKING_DIR,'%s.json.gz' %none_expname))
+
     try:
         nostrag_entropy = final_entropy(none_verbose)
         strag_entropy = final_entropy(hub_verbose)
@@ -357,7 +357,7 @@ if __name__=="__main__":
 
             # log yscale
             influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, ylog=True,
-                            plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
+                            plot_fpath=os.path.join(PLOT_DIR, 'influx_log_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
 
     except Exception as e:
         logger.info('Error: ', e)
