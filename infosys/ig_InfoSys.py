@@ -75,16 +75,18 @@ class InfoSystem:
         try:
             self.network = ig.Graph.Read_GML(graph_gml)
             print(self.network.summary())
+
+            self.n_agents = self.network.vcount()
+            self.agent_feeds = {agent['uid']:[] for agent in self.network.vs} #init an empty feed for all agents
+
+            if verbose:
+                in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
+                print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
+
         except Exception as e:
             print(e)
-        self.n_agents = self.network.vcount()
-        self.agent_feeds = {agent['uid']:[] for agent in self.network.vs} #init an empty feed for all agents
-
-        if verbose:
-            in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
-            print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
-
-    
+        
+        
     # @profile
     def simulation(self):
         while self.quality_diff > self.epsilon: 
