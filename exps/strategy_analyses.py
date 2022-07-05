@@ -16,7 +16,7 @@ logger = utils.get_logger(__name__)
 
 """ Only consider human spreading channels!"""
 
-def get_exp_network_map(config_fname):
+def get_exp_network_map(config_fname, gamma=0.005):
     exp_configs = json.load(open(config_fname,'r'))
     EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
 
@@ -27,7 +27,6 @@ def get_exp_network_map(config_fname):
 
     EXP_NETWORK = {}
 
-    gamma = 0.1 # gamma in the range where targeting has some effect
     # need to match with default_targeting
     for exp in EXPS:
         if 'none' in exp:
@@ -721,7 +720,6 @@ if __name__=="__main__":
     DATA_PATH = '/N/slate/baotruon/marketplace/data'
     
     config_fname= os.path.join(DATA_PATH, 'all_configs.json')
-    exp2network = get_exp_network_map(config_fname)
     
     # CHANGE THESE VARS FOR OTHER INFILTRATION VALUES
     # exp = 'vary_thetaphi_1runs_gamma0.005'
@@ -729,10 +727,12 @@ if __name__=="__main__":
     # none_expname='none_04'
 
     exp=sys.argv[1]
-    hub_expname = sys.argv[2]
-    none_expname = sys.argv[3]
-    plot_folder=sys.argv[4]
+    gamma=sys.argv[2]
+    hub_expname = sys.argv[3]
+    none_expname = sys.argv[4]
+    plot_folder=sys.argv[5]
 
+    exp2network = get_exp_network_map(config_fname, float(gamma))
     RES_DIR = os.path.join(ABS_PATH,'results', exp)
     TRACKING_DIR = os.path.join(ABS_PATH,'long_results',exp)
     NETWORK_PATH = os.path.join(DATA_PATH, 'igraph/vary_targetgamma')

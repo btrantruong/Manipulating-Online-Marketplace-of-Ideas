@@ -18,9 +18,10 @@ conda activate graph
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### Make plots for tracking human hubs ######'
 echo '###### Very low infiltration ######'
-python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.0005 hubs_22 none_22 strategy_analyses
+### Make sure gamma value (2nd arg) matches with name of exp directory (1st arg) ###
+python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.0005 0.0005 hubs_22 none_22 strategy_analyses
 
 echo '###### Low infiltration ######'
-python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.005 hubs_22 none_22 strategy_analyses
+python3 exps/strategy_analyses.py vary_thetaphi_1runs_gamma0.005 0.005 hubs_22 none_22 strategy_analyses
 echo '###### High infiltration ######'
-python3 exps/strategy_analyses.py vary_thetaphi_1runs hubs_22 none_22 strategy_analyses
+python3 exps/strategy_analyses.py vary_thetaphi_1runs 0.1 hubs_22 none_22 strategy_analyses
