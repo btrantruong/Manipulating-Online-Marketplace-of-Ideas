@@ -169,6 +169,9 @@ class InfoSystem:
         # spread (truncate feeds at max len alpha)
         follower_idxs = self.network.predecessors(agent) #return list of int
         follower_uids = [n['uid'] for n in self.network.vs if n.index in follower_idxs]
+        
+        humfollower_uids = [n['uid'] for n in self.network.vs if (n.index in follower_idxs) and (n['bot']==0)]
+        
         for follower in follower_uids:
             #print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])   
             # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
@@ -180,7 +183,7 @@ class InfoSystem:
 
             assert(len(self.agent_feeds[follower]) <= self.alpha)
             
-            if self.track_forgotten is True:
+            if (self.track_forgotten is True) and (follower in humfollower_uids):
                 for key in follower_influx.keys():
                     influx_by_agent[key] += follower_influx[key]
         
