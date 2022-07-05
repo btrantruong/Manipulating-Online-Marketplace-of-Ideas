@@ -2,7 +2,7 @@
 # ABS_PATH=''
 # DATA_PATH = 'data'
 ABS_PATH = '/N/slate/baotruon/marketplace'
-DATA_PATH = '/N/slate/baotruon/marketplace/data'
+DATA_PATH = os.path.join(ABS_PATH, 'data')
 
 print(os.getcwd())
 exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))

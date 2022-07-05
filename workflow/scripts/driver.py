@@ -26,12 +26,7 @@ def multiple_simulations(infosys_specs, times=20):
         #Update results over multiple simulations
         for k,val in measurements.items():
             n_measures[k] += [val]
-        # n_measures['quality'] += [measurements['quality']]
-        # n_measures['diversity'] += [measurements['diversity']]
-        # n_measures['discriminative_pow'] += [measurements['discriminative_pow']] 
-        # n_measures['quality_timestep'] += [measurements['quality_timestep']] #feeds: dict of list
-        # n_measures['memes'] += [measurements['all_memes']] #memes: list of dict
-        # n_measures['feeds'] += [measurements['all_feeds']] #feeds: dict of list
+            
     print("average quality for follower network: %s pm %s" %(np.mean(np.array(n_measures['quality'])), np.std(np.array(n_measures['quality']))))
     
     results = {'quality': n_measures['quality'],

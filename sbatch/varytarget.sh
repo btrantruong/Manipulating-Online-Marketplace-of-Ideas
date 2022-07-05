@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=20
-#SBATCH --time=3-23:59:00
+#SBATCH --time=1-6:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --job-name=varytarget
 
@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary target gamma ######'
-snakemake --nolock --snakefile workflow/vary_targetgamma.smk --cores 20
+snakemake --snakefile workflow/rules/vary_targetgamma.smk --cores 20

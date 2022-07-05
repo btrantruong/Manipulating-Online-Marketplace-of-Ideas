@@ -2,7 +2,7 @@
     to check if bot memes always go through hubs to start with """
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
-DATA_PATH = '/N/slate/baotruon/marketplace/data'
+DATA_PATH = os.path.join(ABS_PATH, 'data')
 
 exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
 EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
