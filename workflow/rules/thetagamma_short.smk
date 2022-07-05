@@ -4,7 +4,7 @@ ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 print(os.getcwd())
-exp_configs = json.load(open('data/all_configs.json','r'))
+exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
 anchor_gamma = 0.001 #change to 0.001
 RES_DIR = os.path.join(ABS_PATH, "results", "vary_thetagamma", "gamma%s" %str(anchor_gamma))
 EXPS = list([name for name in exp_configs['vary_thetagamma'].keys() if 'gamma%s' %anchor_gamma in name])
