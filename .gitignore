@@ -5,3 +5,7 @@ data/*
 results/
 infosys.egg-info/
 synthetic_results/*
+strategy_analyses/*
+long_results/*
+test/*
+influx_analyses/*
