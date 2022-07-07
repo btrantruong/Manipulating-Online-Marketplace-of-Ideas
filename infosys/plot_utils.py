@@ -15,18 +15,20 @@ def plot_degree_dist(graph, mode='in', plot_fpath=None):
     degs = dict(collections.Counter(degs))
     k_per_deg = dict(sorted(degs.items()))
     p_k = {deg: num/len(vertices) for deg,num in k_per_deg.items()}
-    plt.scatter(p_k.keys(),p_k.values())
     
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.ylabel('p_k')
-    plt.xlabel('k')
-    plt.title('Degree distribution (%s degree)' %mode)
+    figure, ax = plt.subplots()
+    ax.scatter(p_k.keys(),p_k.values())
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_ylabel('p_k')
+    ax.set_xlabel('k')
+    ax.set_title('Degree distribution (%s degree)' %mode)
     
     if plot_fpath is not None:
-        plt.savefig(plot_fpath, dpi=300)
+        figure.savefig(plot_fpath, dpi=300)
+        plt.close(figure)
     else:
-        plt.show()
+        figure.show()
 
 
 def plot_agent_degree_dist(graph, mode='in', plot_fpath=None):
