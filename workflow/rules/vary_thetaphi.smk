@@ -27,10 +27,11 @@ for exp in EXPS:
     EXP_NETWORK[exp] = networkname
 
 #TODOL Replace 14-27 with get_exp_network_map()
-sim_num = 2
+sim_num = 1
 mode='igraph'
-RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
-TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)
+#TODO: remove mode
+RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_humaninflux_gamma0.005' %sim_num)
+TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_humaninflux_gamma0.005' %sim_num)
 
 rule all:
     input: 
@@ -45,7 +46,7 @@ rule run_simulation:
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
     shell: """
-        python3 -m workflow.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
@@ -56,5 +57,5 @@ rule init_net:
     output: os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{net_no}.gml")
 
     shell: """
-            python3 -m workflow.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
+            python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 

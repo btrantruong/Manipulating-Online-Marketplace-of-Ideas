@@ -12,6 +12,7 @@ import sys
 from  scipy.stats import entropy
 from scipy.special import entr
 
+
 logger = utils.get_logger(__name__)
 
 """ Only consider human spreading channels!"""
@@ -32,7 +33,7 @@ def get_exp_network_map(config_fname, gamma=0.005):
         if 'none' in exp:
             networkname = '%s%s' %(TARGETING.index(None), GAMMA.index(gamma))
         else: 
-            networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
+            networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma))
         EXP_NETWORK[exp] = networkname
 
     return EXP_NETWORK

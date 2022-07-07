@@ -48,6 +48,7 @@ def run_simulation(infosys_specs):
 
 
 def main(args):
+    #TODO: remove mode
     parser = argparse.ArgumentParser(
         description='run simulation on an igraph instance of InfoSystem',
     )

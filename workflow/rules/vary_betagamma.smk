@@ -23,7 +23,7 @@ rule run_simulation:
         configfile = os.path.join(DATA_PATH, "vary_betagamma", "default_infosys.json")
     output: os.path.join(RES_DIR, '{exp_no}.json')
     shell: """
-        python3 -m workflow.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
@@ -34,5 +34,5 @@ rule init_net:
     output: os.path.join(DATA_PATH, mode, 'vary_betagamma', "network_{exp_no}.gml")
 
     shell: """
-            python3 -m workflow.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
+            python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 
