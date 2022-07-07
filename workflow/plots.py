@@ -11,7 +11,7 @@ from matplotlib import cm
 import infosys.utils as utils 
 from collections import defaultdict
 from make_exp_config import THETA, GAMMA, PHI_LIN, BETA
-cmap = cm.get_cmap('inferno', 10)
+
 
 pprint = {'gamma':'$\\gamma$','theta': '$\\theta$', 'beta':'$\\beta$', 'phi': '$\phi$', 
         'quality': 'Relative Average Quality', 'discriminative_pow': 'Discriminative Power', 'diversity': 'Diversity'}
@@ -71,7 +71,7 @@ def lineplot_data(all_results, all_configs, exp_type='vary_thetagamma', line_nam
 
     #TODO: Relative data compared to targeting 
     for line_val in line_values:
-        data = val2expname(all_results, all_configs, value = (line_name, line_val), exp_paramstype=exp_type)
+        data = val2expname(all_results, all_configs, value = (line_name, line_val), exp_type=exp_type)
         
         x = [results[x_name] for results in data] #array of 
         if y_name =='discriminative_pow':
@@ -95,6 +95,8 @@ def draw_lines(ax, data, line_values, line_name='beta',x_name='beta', y_name='qu
     # Data: list of zip objects 
     assert len(data)==len(line_values)
 
+    # plt.gca().set_prop_cycle(plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list('.s*o^v<>+x')))
+   
     markers=list('.s*o^v<>+x')
     if log_x is True: ax.set_xscale('log')
 
@@ -111,21 +113,23 @@ def draw_lines(ax, data, line_values, line_name='beta',x_name='beta', y_name='qu
     return 
 
 
-def plot_scatter(data_path, result_path, plot_specs):
-    folders = plot_specs['folders']
+def plot_scatter(ax, exp_name, data_path, result_path, folders, y_name='quality'):
+
+    lineplot_config = {
+        'vary_thetagamma': {'line_name':'theta', 'line_values':[1,6,14], 'x_name':'gamma', 'y_name': y_name},
+        'vary_phigamma': {'line_name':'phi', 'line_values':[1,5,10], 'x_name':'gamma', 'y_name': y_name},
+        'vary_betagamma': {'line_name':'beta', 'line_values':[0.001,0.05,0.1], 'x_name':'gamma', 'y_name': y_name}
+    }
+    config = lineplot_config[exp_name]
+
     all_configs = json.load(open(os.path.join(data_path,'all_configs.json'),'r'))
     all_results = combine_results(result_path, folders)
 
-    params = {'axes.labelsize': 10,'axes.titlesize':10,'legend.fontsize': 10, 'xtick.labelsize': 10, 'ytick.labelsize': 10}
+    multiline_data = lineplot_data(all_results, all_configs, exp_type=exp_name, **utils.remove_illegal_kwargs(config, lineplot_data))
 
-    plt.rcParams.update(params)
-    plt.gca().set_prop_cycle(plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list('.s*o^v<>+x')))
-    figure, ax = plt.subplots(figsize=(10, 10), facecolor='w')
-
-    multiline_data = lineplot_data(all_results, all_configs, **utils.remove_illegal_kwargs(plot_specs, lineplot_data))
-
-    draw_lines(ax, multiline_data, **utils.remove_illegal_kwargs(plot_specs, draw_lines))
-
+    draw_lines(ax, multiline_data, **utils.remove_illegal_kwargs(config, draw_lines))
+    # plt.tight_layout()
+    return
 
 def heatmap_data(result_path, folders, cell_type='quality', x_name='theta', y_name='gamma', xvals =THETA, yvals=GAMMA):
     # all_results: a dict {exp_name: {dict of measurement}}
@@ -150,6 +154,7 @@ def heatmap_data(result_path, folders, cell_type='quality', x_name='theta', y_na
 
 
 def plot_heatmap(ax, exp_name, result_path, folders, cell_type='quality'):
+    cmap = cm.get_cmap('inferno', 10)
     heatmap_config = {'vary_thetagamma': {'x_name':'theta', 'y_name':'gamma', 'xvals':THETA, 'yvals':GAMMA},
                         'vary_phigamma': {'x_name':'phi', 'y_name':'gamma', 'xvals':PHI_LIN, 'yvals':GAMMA},
                         'vary_betagamma': {'x_name':'beta', 'y_name':'gamma', 'xvals':BETA, 'yvals':GAMMA}
@@ -164,40 +169,55 @@ def plot_heatmap(ax, exp_name, result_path, folders, cell_type='quality'):
     ylabel = pprint[heatmap_config[exp_name]['y_name']]
     title = pprint[cell_type]
     utils.draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=None, vmin=None)
+    # plt.tight_layout()
     return
 
+def plot_panel(exp_name, data_path, results_path, folders, measurements  = ['quality', 'diversity', 'discriminative_pow'], plot_fpath=None):
+    # line plot (left) and heatmap (right) for 3 up to measurements 'quality', 'diversity', 'discriminative_pow'
+    # resulting plot has 3 rows, 2 cols
+    params = {'axes.labelsize': 10,'axes.titlesize':10,'legend.fontsize': 10, 'xtick.labelsize': 10, 'ytick.labelsize': 10}
 
-ABS_PATH = ''
-DATA_PATH = os.path.join(ABS_PATH, "data")
-RES_PATH = os.path.join(ABS_PATH, "results")
+    plt.rcParams.update(params)
 
-lineplot_config = {
-    'vary_thetagamma': 
-    {   'folders':['vary_thetagamma_2runs', 'vary_thetagamma_3runs'],
-        'exp_type':'vary_thetagamma', 'line_name':'theta', 'line_values':[1,6,14], 'x_name':'gamma', 'y_name':'quality' }
-}
+    nrows = len(measurements)
+    ncols = 2 #2 plots on each row
 
+    figure = plt.figure(figsize=(nrows*6, ncols*4), facecolor='w')
 
+    left = range(1,nrows*ncols, ncols) # left=[1,3,5]
+    right = range(2,nrows*ncols+1, ncols) # right=[2,4,6]
+    laxs = [figure.add_subplot(nrows, ncols, i) for i in left]
+    
+    for measure, ax in zip(measurements, laxs):
+        plot_scatter(ax, exp_name, data_path, results_path, folders, y_name=measure)
 
-# heatmap_config = {'vary_thetagamma': {'x_name':'theta', 'y_name':'gamma', 'xvals':THETA, 'yvals':GAMMA},
-# 'vary_phigamma': {'x_name':'phi', 'y_name':'gamma', 'xvals':PHI_LIN, 'yvals':GAMMA},
-# 'vary_betagamma': {'x_name':'beta', 'y_name':'gamma', 'xvals':BETA, 'yvals':GAMMA}
-# }
+    raxs = [figure.add_subplot(nrows, ncols, i) for i in right]
+    
+    for measure, ax in zip(measurements, raxs):
+        plot_heatmap(ax, exp_name, RES_PATH, folders, cell_type=measure)
 
-# figure, ax = plt.subplots(figsize=(10, 10), facecolor='w')
+    figure.tight_layout()
+    if plot_fpath is not None:
+        plt.savefig(os.path.join(plot_fpath), dpi=200)
+    else:
+        figure.show()
+    return 
 
-# xticks = {
-#         'vary_thetagamma': {'vals': THETA, 'label': pprint['theta']},
-#         'vary_phigamma': {'vals': PHI_LIN, 'label': pprint['phi']},
-#         'vary_betagamma': {'vals': BETA, 'label': pprint['beta']},
-#     }
+if __name__=="__main__":
+    
+    params = {'axes.labelsize': 10,'axes.titlesize':10,'legend.fontsize': 10, 'xtick.labelsize': 10, 'ytick.labelsize': 10}
 
-# data = heatmap_data(RES_PATH, folders= ['vary_thetagamma_2runs', 'vary_thetagamma_3runs'], cell_type='quality', x_name='theta', y_name='gamma', xvals =THETA, yvals=GAMMA)
-# xticks = heatmap_config['vary_thetagamma']['xvals']
-# yticks = heatmap_config['vary_thetagamma']['yvals']
-# xlabel = pprint['theta'] #pprint xname
-# ylabel = pprint['gamma'] #pprint xname
-# utils.draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, 'quality', vmax=None, vmin=None)
+    plt.rcParams.update(params)
+    
+    ABS_PATH = ''
+    DATA_PATH = os.path.join(ABS_PATH, "data")
+    RES_PATH = os.path.join(ABS_PATH, "results")
 
-
-# print('')
+    folders = ['vary_thetagamma_2runs', 'vary_thetagamma_3runs']
+    exp_name = 'vary_thetagamma'
+    plot_panel(exp_name, DATA_PATH, RES_PATH, folders, measurements  = ['quality', 'diversity'])
+    # plot_panel(exp_name, DATA_PATH, RES_PATH, folders, measurements  = ['quality', 'diversity', 'discriminative_pow'])
+    # figure, axs = plt.subplots(1,2,figsize=(10, 6), facecolor='w')
+    # plot_scatter(axs[0], exp_name, DATA_PATH, RES_PATH, folders)
+    # plot_heatmap(axs[1], exp_name, RES_PATH, folders, cell_type='quality')
+    print('')

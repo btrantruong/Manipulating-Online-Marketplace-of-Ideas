@@ -65,75 +65,10 @@ def remove_illegal_kwargs(adict, amethod):
     return new_dict
 
 
-pprint = {'gamma':'$\gamma$','theta': '$\theta$', 'beta':'$\beta$', 'phi': '$phi$', 
-        'quality': 'Relative Average Quality', 'discriminative_pow': 'Discriminative Power', 'diversity': 'Diversity'}
-
-
-def plotmulti_infosys(result_dir, config_fpath=None, exp_type='vary_betagamma', anchors=[('gamma', 0.01), ('gamma', 0.02)], 
-                        x='beta', y='quality', log_flag=False, relative=False):
-    
-    respath = glob.glob('%s/*.json' %result_dir)
-    resfiles = [i.split('%s/' %result_dir)[1].replace('.json','') for i in respath]
-
-    if config_fpath is not None:
-      all_configs = json.load(open(config_fpath,'r'))
-      #fill in other config
-      params = {}
-      for file in resfiles: 
-          params[file] = all_configs[exp_type][file]
-    
-
-    for i,anchor in enumerate(anchors):
-        results = {}
-        for file in resfiles: 
-            res = json.load(open(os.path.join(result_dir,'%s.json' %file),'r'))
-            results[file] = update_dict(res, params[file])
-        data = []
-        for info in results.values():
-            if info[anchor[0]]==anchor[1]:
-                # if x in info.keys() and y in info.keys():
-                if y=='discriminative_pow':
-                    data += [(info[x], info[y][0])] #since discrinminative_pow is a tuple of (tau,p_val)
-                else:
-                    data += [(info[x], info[y])] 
-#         data = [(info[x], info[y]) for info in results.values() if info[anchor[0]]==anchor[1]]
-        
-
-        avg_data = []
-        y_err = []
-        for xval,yval in data:
-            if relative is True:
-                baseline = 0.5
-                avg_data += [(xval, np.mean(yval)/baseline)]
-            else:
-                avg_data += [(xval, np.mean(yval))]
-            y_err += [np.std(yval)]
-
-        colormap = cm.get_cmap('inferno', 10)
-        colors = [colormap(i) for i in range(10)]
-        plt.gca().set_prop_cycle(plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list('.s*o^v<>+x')))
-        if log_flag: plt.xscale('log')
-        # plt.errorbar(*zip(*sorted(avg_data)), yerr=y_err, fmt='v', color=colors(i),
-        #          ecolor='lightgray', elinewidth=3, capsize=0, label=anchor[1])
-        # plt.errorbar(*zip(*sorted(avg_data)), yerr=y_err, elinewidth=3, capsize=0, label=anchor[1] if anchor[1] is not None else 'None')
-        plt.plot(*zip(*sorted(avg_data)),label=anchor[1] if anchor[1] is not None else 'None')
-                 
-    plt.xlabel(pprint[x], fontsize=16)
-    plt.ylabel(pprint[y], fontsize=16)
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    plt.ylim(bottom=0)
-    plt.legend()
-    plt.savefig(os.path.join(result_dir, '%s%s.png' %(x,y)), dpi=300)
-    # plt.show()
-    plt.clf()
-
-
-# def heatmap_infosys(result_dir, exp_type='vary_thetagamma', data, xticks, yticks, '$\\theta$', '$\gamma$', cmap, 'TEST', vmax=None, vmin=None)
-
 def get_now():
     #return timestamp
     return int(dt.datetime.now().timestamp())
+    
     
 def get_logger(name):
     # Create a custom logger
