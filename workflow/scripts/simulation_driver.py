@@ -31,7 +31,7 @@ def bao_simulation(mode='igraph'):
         "targeting_criterion": "hubs",
         # "human_network": follower_path,
         "human_network": None, #DEBUG
-        "n_humans": 100,
+        "n_humans": 1000,
         "beta": 0.01,
         "gamma": 0.001,
         "verbose": True,

@@ -26,7 +26,7 @@ for exp in EXPS:
         networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
     EXP_NETWORK[exp] = networkname
 
-
+#TODOL Replace 14-27 with get_exp_network_map()
 sim_num = 2
 mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_trackmeme_gamma0.005' %sim_num)

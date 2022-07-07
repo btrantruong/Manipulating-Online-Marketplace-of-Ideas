@@ -183,6 +183,7 @@ class InfoSystem:
 
             assert(len(self.agent_feeds[follower]) <= self.alpha)
             
+            # only track in-outflux for human agents 
             if (self.track_forgotten is True) and (follower in humfollower_uids):
                 for key in follower_influx.keys():
                     influx_by_agent[key] += follower_influx[key]
