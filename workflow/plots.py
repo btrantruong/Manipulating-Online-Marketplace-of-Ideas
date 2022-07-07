@@ -2,11 +2,11 @@
 from matplotlib import cm 
 
 import matplotlib.pyplot as plt
-import csv
 import numpy as np 
 import glob 
 import json
 import os
+import sys
 from matplotlib import cm
 import infosys.utils as utils 
 from collections import defaultdict
@@ -204,20 +204,29 @@ def plot_panel(exp_name, data_path, results_path, folders, measurements  = ['qua
     return 
 
 if __name__=="__main__":
+    logger = utils.get_logger(__name__)
+    logger.info('WORKING DIR: %s' %(os.getcwd()))
+   
+    # LOCAL 
+    # ABS_PATH = ''
+    # exp_name=sys.argv[1]
+    # plot_folder=sys.argv[4]
     
-    params = {'axes.labelsize': 10,'axes.titlesize':10,'legend.fontsize': 10, 'xtick.labelsize': 10, 'ytick.labelsize': 10}
-
-    plt.rcParams.update(params)
-    
-    ABS_PATH = ''
+    ABS_PATH = '/N/slate/baotruon/marketplace'
     DATA_PATH = os.path.join(ABS_PATH, "data")
     RES_PATH = os.path.join(ABS_PATH, "results")
 
     folders = ['vary_thetagamma_2runs', 'vary_thetagamma_3runs']
     exp_name = 'vary_thetagamma'
-    plot_panel(exp_name, DATA_PATH, RES_PATH, folders, measurements  = ['quality', 'diversity'])
-    # plot_panel(exp_name, DATA_PATH, RES_PATH, folders, measurements  = ['quality', 'diversity', 'discriminative_pow'])
-    # figure, axs = plt.subplots(1,2,figsize=(10, 6), facecolor='w')
-    # plot_scatter(axs[0], exp_name, DATA_PATH, RES_PATH, folders)
-    # plot_heatmap(axs[1], exp_name, RES_PATH, folders, cell_type='quality')
-    print('')
+
+    PLOT_DIR = os.path.join(ABS_PATH,'plots',exp_name)
+    utils.make_sure_dir_exists(PLOT_DIR, '')
+    plot_fpath = os.path.join(PLOT_DIR, 'panel.png')
+
+    plot_panel(exp_name, DATA_PATH, RES_PATH, folders, measurements  = ['quality', 'diversity'], plot_fpath=plot_fpath)
+
+    
+    # Single plot:
+    # figure, ax = plt.subplots(figsize=(10, 6), facecolor='w')
+    # plot_scatter(ax, exp_name, DATA_PATH, RES_PATH, folders)
+    # plot_heatmap(ax, exp_name, RES_PATH, folders, cell_type='quality')
