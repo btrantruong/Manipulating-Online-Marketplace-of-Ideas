@@ -8,7 +8,7 @@ import collections
 import matplotlib.pyplot as plt
 import seaborn as sns 
 
-def plot_degree_dist(graph, mode='in'):
+def plot_degree_dist(graph, mode='in', plot_fpath=None):
     # Plot degree distribution for a igraph network
     vertices = range(len(graph.vs)) #vertices index
     degs = graph.degree(vertices, mode=mode, loops=False)
@@ -22,7 +22,11 @@ def plot_degree_dist(graph, mode='in'):
     plt.ylabel('p_k')
     plt.xlabel('k')
     plt.title('Degree distribution (%s degree)' %mode)
-    plt.show()
+    
+    if plot_fpath is not None:
+        plt.savefig(plot_fpath, dpi=300)
+    else:
+        plt.show()
 
 
 def plot_agent_degree_dist(graph, mode='in', plot_fpath=None):

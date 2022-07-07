@@ -1,5 +1,6 @@
 import json
 import infosys.utils as utils 
+import infosys.plot_utils as plot_utils 
 import igraph as ig
 import os
 import collections
@@ -37,29 +38,6 @@ def get_exp_network_map(config_fname, gamma=0.005):
         EXP_NETWORK[exp] = networkname
 
     return EXP_NETWORK
-
-
-def plot_degree_dist(graph, plot_fpath=None, mode='in'):
-    vertices = range(len(graph.vs)) #vertices index
-    degs = graph.degree(vertices, mode=mode, loops=False)
-    degs = dict(collections.Counter(degs))
-    k_per_deg = dict(sorted(degs.items()))
-    p_k = {deg: num/len(vertices) for deg,num in k_per_deg.items()}
-    
-    fig,ax = plt.subplots()
-    ax.scatter(p_k.keys(),p_k.values())
-    
-    ax.set_yscale('log')
-    ax.set_xscale('log')
-    ax.set_ylabel('p_k')
-    ax.set_xlabel('k')
-    ax.set_title('Degree distribution (%s degree)' %mode)
-
-    if plot_fpath is not None:
-        fig.savefig(plot_fpath, dpi=300)
-        plt.close(fig)
-    else:
-        fig.show()
 
 
 def plot_quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
@@ -754,8 +732,11 @@ if __name__=="__main__":
     try:
         save_stats(nostrag_info, hubstrag_info, os.path.join(PLOT_DIR, 'stats_%s%s.txt' %(none_expname, hub_expname)))
 
-        plot_degree_dist(none_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %none_expname), mode='in')
-        plot_degree_dist(hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %hub_expname), mode='in')
+        plot_utils.plot_degree_dist(none_graph, mode='in', plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %none_expname))
+        plot_utils.plot_degree_dist(hub_graph, mode='in', plot_fpath=os.path.join(PLOT_DIR, 'degree_dist_%s.png' %hub_expname))
+        
+        plot_utils.plot_agent_degree_dist(none_graph, mode='in', plot_fpath=os.path.join(PLOT_DIR, 'agentdeg_%s.png' %none_expname))
+        plot_utils.plot_agent_degree_dist(hub_graph, mode='in', plot_fpath=os.path.join(PLOT_DIR, 'agentdeg_%s.png' %hub_expname))
 
         plot_quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
                                 plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
