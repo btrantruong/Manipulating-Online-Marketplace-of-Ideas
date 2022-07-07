@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary phi gamma ######'
-snakemake --nolock --snakefile workflow/vary_phigamma.smk --cores 15
+snakemake --nolock --snakefile workflow/rules/vary_phigamma.smk --cores 15

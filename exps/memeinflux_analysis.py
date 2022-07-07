@@ -344,8 +344,6 @@ if __name__=="__main__":
     ABS_PATH = '/N/slate/baotruon/marketplace'
     DATA_PATH = '/N/slate/baotruon/marketplace/data'
     
-    config_fname= os.path.join(DATA_PATH, 'all_configs.json')
-    
     # CHANGE THESE VARS FOR OTHER INFILTRATION VALUES
     # exp = 'vary_thetaphi_1runs_gamma0.005'
     # hub_expname='hubs_04'

@@ -27,7 +27,7 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
     
     G = ig.Graph.Full(k_out, directed=True)
 
-    random.seed(seed)
+    # random.seed(seed)
   
     for n in range(k_out, net_size):
         target = random.choice(G.vs)
@@ -69,7 +69,7 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
     # bots
     if verbose: print('Generating bot network...')
     n_bots = int(n_humans * beta) 
-    B = random_walk_network(n_bots, seed=101)
+    B = random_walk_network(n_bots)
     B.vs['bot'] = [True] * B.vcount()
 
     # merge and add feed
