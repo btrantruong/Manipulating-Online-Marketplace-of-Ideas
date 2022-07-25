@@ -3,7 +3,6 @@ import infosys.utils as utils
 
 # ABS_PATH = ''
 # DATA_PATH = os.path.join(ABS_PATH, "data_")
-# TRACKING_DIR = os.path.join(ABS_PATH, "verbose")
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
@@ -17,23 +16,20 @@ EXPS = list(EXP2NET.keys())
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline_results', '%s_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH, "newpipeine_verbose")
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
 
 rule all:
     input: 
-        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
-        tracking = expand(os.path.join(TRACKING_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
+        expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
 
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
     output: 
-        measurements = os.path.join(RES_DIR, '{exp_no}.json'),
-        tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
+        os.path.join(RES_DIR, '{exp_no}.json')
     shell: """
-        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:

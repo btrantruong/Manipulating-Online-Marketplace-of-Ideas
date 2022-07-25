@@ -21,8 +21,8 @@ EXPS = json.load(open(config_fname,'r'))[vary_params].keys()
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline_results', '%s_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH, "newpipeline_verbose")
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose')
 
 rule all:
     input:

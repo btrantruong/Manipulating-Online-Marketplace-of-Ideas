@@ -20,8 +20,9 @@ EXPS = list(EXP2NET.keys())
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline_results', '%s_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH, "newpipeine_verbose")
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose')
+
 rule all:
     input: 
         results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
