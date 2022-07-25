@@ -18,12 +18,12 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary thetaphi ######'
-snakemake --nolock --snakefile workflow/rules/compare_strategies.smk --cores 20
+snakemake --nolock --rerun-incomplete --snakefile workflow/rules/compare_strategies.smk --cores 20
 echo '###### vary theta phi ######'
-snakemake --nolock --snakefile workflow/rules/vary_thetaphi.smk --cores 20
+snakemake --nolock --rerun-incomplete --snakefile workflow/rules/vary_thetaphi.smk --cores 20
 echo '###### vary theta gamma ######'
-snakemake --nolock --snakefile workflow/rules/vary_thetagamma.smk --cores 20
+snakemake --nolock --rerun-incomplete --snakefile workflow/rules/vary_thetagamma.smk --cores 20
 echo '###### vary phi gamma ######'
-snakemake --nolock --snakefile workflow/rules/vary_phigamma.smk --cores 20
+snakemake --nolock --rerun-incomplete --snakefile workflow/rules/vary_phigamma.smk --cores 20
 echo '###### vary beta gamma ######'
-snakemake --nolock --snakefile workflow/rules/vary_betagamma.smk --cores 20
+snakemake --nolock --rerun-incomplete --snakefile workflow/rules/vary_betagamma.smk --cores 20
