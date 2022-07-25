@@ -28,13 +28,9 @@ def make_exps():
                 
                 config_name = '%s%s%s' %(idx,jdx, kdx)
                 all_exps["vary_network"][config_name] = config
-                if config_name=='400':
-                    print('')
                 if utils.make_sure_dir_exists(DATA_PATH, 'vary_network'):
                     fp = os.path.join(DATA_PATH, 'vary_network','%s.json' %config_name)
                     json.dump(config,open(fp,'w'))
-    a = len(configs.BETA) * len(configs.GAMMA)*len(configs.TARGETING)
-    b= len(all_exps["vary_network"])
     assert len(all_exps["vary_network"]) == len(configs.BETA) * len(configs.GAMMA)*len(configs.TARGETING)
 
 
