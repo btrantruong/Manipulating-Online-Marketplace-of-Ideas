@@ -1,37 +1,24 @@
+import infosys.utils as utils
 
-# ABS_PATH=''
-# DATA_PATH = 'data'
+
+# ABS_PATH = ''
+# DATA_PATH = os.path.join(ABS_PATH, "data_")
+# TRACKING_DIR = os.path.join(ABS_PATH, "verbose")
+
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
 
-print(os.getcwd())
-exp_configs = json.load(open(os.path.join(DATA_PATH, 'all_configs.json'),'r'))
-EXPS = list(exp_configs['vary_thetaphi'].keys()) #keys are name of exp, format: '{targeting}_{thetaidx}{phiidx}' 
-EXPS = [exp for exp in EXPS if 'none' in exp or 'hubs' in exp]
+config_fname = os.path.join(DATA_PATH, 'all_configs.json')
+exp_type = 'vary_thetaphi'
+# get names for exp_config and network
+EXP2NET = utils.expconfig2netname(config_fname, exp_type)
+EXPS = list(EXP2NET.keys())
 
-# map available network in `vary_targetgamma` corresponding with the exp
-# networks from `vary_targetgamma` has format: '{targeting}{gamma}'
-GAMMA = [0.0001, 0.0002, 0.0005, 0.001, 0.002, 0.005, 0.02, 0.05, 0.1, 0.2, 0.5]
-TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
-
-EXP_NETWORK = {}
-
-gamma = 0.005 # gamma in the range where targeting has some effect
-#default=0.1
-# need to match with default_targeting
-for exp in EXPS:
-    if 'none' in exp:
-        networkname = '%s%s' %(TARGETING.index(None), GAMMA.index(gamma))
-    else: 
-        networkname = '%s%s' %(TARGETING.index(exp.split('_')[0]), GAMMA.index(gamma) )
-    EXP_NETWORK[exp] = networkname
-
-#TODOL Replace 14-27 with get_exp_network_map()
-sim_num = 1
+sim_num = 2
 mode='igraph'
-#TODO: remove mode
-RES_DIR = os.path.join(ABS_PATH,'results', 'vary_thetaphi_%sruns_humaninflux_gamma0.005' %sim_num)
-TRACKING_DIR = os.path.join(ABS_PATH,'long_results', 'vary_thetaphi_%sruns_humaninflux_gamma0.005' %sim_num)
+
+RES_DIR = os.path.join(ABS_PATH,'newpipeline_results', '%s_%sruns' %(exp_type, sim_num))
+TRACKING_DIR = os.path.join(ABS_PATH, "newpipeine_verbose")
 
 rule all:
     input: 
@@ -40,7 +27,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_%s.gml" %EXP_NETWORK[wildcards.exp_no])),
+        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
         configfile = os.path.join(DATA_PATH, "vary_thetaphi", "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
@@ -52,9 +39,9 @@ rule run_simulation:
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(DATA_PATH, 'vary_targetgamma', "{net_no}.json")
+        configfile = os.path.join(DATA_PATH, 'vary_network', "{net_no}.json")
         
-    output: os.path.join(DATA_PATH, mode, 'vary_targetgamma', "network_{net_no}.gml")
+    output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}

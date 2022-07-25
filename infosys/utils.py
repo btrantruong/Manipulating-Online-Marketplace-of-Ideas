@@ -5,7 +5,7 @@ import numpy as np
 import math
 import statistics
 import csv
-import matplotlib.pyplot as plt
+
 from operator import itemgetter
 import sys
 import fcntl
@@ -14,16 +14,22 @@ import logging
 import pathlib 
 import io 
 import os 
-import scipy.stats as stats
-import glob
-from matplotlib import cm 
 import json 
+import gzip 
+import glob
+
+import matplotlib.pyplot as plt
+from matplotlib import cm 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 import datetime as dt 
 import inspect 
-import gzip 
+import scipy.stats as stats
 from scipy.stats import ks_2samp
 
+import infosys.config_values as configs
+
+### I/O
 def write_json_compressed(fout, data):
     #write compressed json for hpc - pass file handle instead of filename so we can flush
     try:
@@ -42,16 +48,72 @@ def read_json_compressed(fpath):
         print(e)
     return data
 
+
+### EXP CONFIGS
 def update_dict(adict, default_dict,fill_na=True):
-    #only update the dictionary if key doesn't exist
+    # only update the dictionary if key doesn't exist
     # use to fill out the rest of the params we're not interested in
     # Fill NaN value if it exists in another dict
+
     for k,v in default_dict.items():
         if k not in adict.keys():
             adict.update({k:v})
         if fill_na is True and adict[k] is None:
             adict.update({k:v})
     return adict
+
+
+def netconfig2netname(config_fname, network_config):
+    # Map specific args to pre-constructed network name 
+    # network_config is a dict of {'beta', 'gamma', 'strategy'}
+    # structure: network_config = {'beta': 0.001, 'gamma':0.005, 'targeting_criterion': 'partisanship'}
+
+    exp_configs = json.load(open(config_fname,'r'))
+    EXPS = exp_configs['vary_network'] #keys are name of network, format: '{betaidx}{gammaidx}{targetingidx}' 
+
+    BETA = configs.BETA
+    GAMMA = configs.GAMMA
+    TARGETING = configs.TARGETING
+
+    network_fname = '%s%s%s' %(BETA.index(network_config['beta']), GAMMA.index(network_config['gamma']), TARGETING.index(network_config['targeting_criterion']))
+
+    for arg_name in network_config.keys():
+        assert EXPS[network_fname][arg_name] == network_config[arg_name]
+   
+    return network_fname
+
+def expconfig2netname(config_fname, exp_type):
+    ## Return a dict of the network name corresponding to an infosys config:
+    
+    exp_configs = json.load(open(config_fname,'r'))
+    # Get the network name from the exp config
+    EXP2NET = {}
+    
+    if exp_type=='vary_betagamma':
+        for exp, exp_config in exp_configs[exp_type].items():
+            cf =  {'beta': exp_config['beta'], 'gamma': exp_config['gamma'], 'targeting_criterion': configs.DEFAULT_STRATEGY}
+            EXP2NET[exp] = netconfig2netname(config_fname, cf)
+        assert len(EXP2NET) ==len(configs.BETA)*len(configs.GAMMA)
+
+    elif exp_type=='vary_phigamma' or exp_type=='vary_thetagamma':
+        for exp, exp_config in exp_configs[exp_type].items():
+            cf =  {'beta': configs.DEFAULT_BETA, 'gamma': exp_config['gamma'], 'targeting_criterion': configs.DEFAULT_STRATEGY}
+            EXP2NET[exp] = netconfig2netname(config_fname, cf)
+        if exp_type=='vary_phigamma':
+            assert len(EXP2NET) ==len(configs.PHI_LIN)*len(configs.GAMMA)
+        else:
+            assert len(EXP2NET) ==len(configs.THETA)*len(configs.GAMMA)
+
+    elif exp_type=='vary_thetaphi':
+        for exp, exp_config in exp_configs[exp_type].items():
+            cf =  {'beta': configs.DEFAULT_BETA, 'gamma': configs.DEFAULT_GAMMA, 'targeting_criterion': configs.DEFAULT_STRATEGY}
+            EXP2NET[exp] = netconfig2netname(config_fname, cf)
+        assert len(EXP2NET) ==len(configs.THETA)*len(configs.PHI_LIN)
+
+    for netname in EXP2NET.values():
+        assert netname in exp_configs['vary_network']
+
+    return EXP2NET
 
 
 def remove_illegal_kwargs(adict, amethod):
