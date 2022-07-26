@@ -22,7 +22,7 @@ sim_num = 2
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', '%s_%sruns' %(exp_type, sim_num))
 
 rule all:
     input:
