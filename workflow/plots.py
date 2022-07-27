@@ -10,7 +10,11 @@ import sys
 from matplotlib import cm
 import infosys.utils as utils 
 from collections import defaultdict
-from make_exp_config import THETA, GAMMA, PHI_LIN, BETA
+from infosys.config_values import THETA, GAMMA, PHI_LIN, BETA
+
+""" make a panel - resulting plot has 3 rows, 2 cols
+    line plot (left) and heatmap (right) for 3 up to measurements 'quality', 'diversity', 'discriminative_pow' 
+"""
 
 
 pprint = {'gamma':'$\\gamma$','theta': '$\\theta$', 'beta':'$\\beta$', 'phi': '$\phi$', 
@@ -23,10 +27,11 @@ def update_results(adict, newres_dict):
         adict[m].extend(newres_dict[m])
     return adict
 
-def combine_results(res_dir, res_folders):
+def combine_results(res_dir, res_folders, prefix=None):
     # Input: result folder where each .json file contains the results & parameters for an experiment.
     # Structure: dict: {'param': param_val, "quality": [0.11], "diversity": [5.77], "discriminative_pow": [[0.83, 0.0]]}
     # Each measurement is a list of results over multiple runs. 
+    # Prefix filters out the exp of interest, e.g: 'None' or 'hubs' exps
     # Output: a dict {exp_name: {dict of measurement}}
 
     res_paths = [os.path.join(res_dir, f) for f in res_folders]
@@ -34,8 +39,10 @@ def combine_results(res_dir, res_folders):
     run1 = res_paths[0]
     file_paths =  glob.glob('%s/*.json' %run1)
     file_names = [i.split('%s/' %run1)[1].replace('.json','') for i in file_paths]
-    res = [json.load(open(respath,'r')) for respath in file_paths]
-    all_results = { expname: res for expname, res in zip(file_names, res)}
+    if prefix is not None:
+        file_names = [f for f in file_names if prefix in f]
+    
+    all_results = { fname: json.load(open(os.path.join(run1, '%s.json' %fname), 'r')) for fname in file_names}
     
     for expname, results in all_results.items():
         for dir_path in res_paths[1:]:
@@ -131,43 +138,47 @@ def plot_scatter(ax, exp_name, data_path, result_path, folders, y_name='quality'
     # plt.tight_layout()
     return
 
-def heatmap_data(result_path, folders, cell_type='quality', x_name='theta', y_name='gamma', xvals =THETA, yvals=GAMMA):
+def heatmap_data(result_path, folders, exp_prefix=None, cell_type='quality', x_name='theta', y_name='gamma', xvals =THETA, yvals=GAMMA):
     # all_results: a dict {exp_name: {dict of measurement}}
 
-    all_results = combine_results(result_path, folders)
+    all_results = combine_results(result_path, folders, prefix=exp_prefix)
 
     results = defaultdict(lambda: []) #each key is a row of yvals. to be converted to a 2-D array later
     
     for idx, yval in enumerate(yvals):  
         for xval in xvals:
-            exp_res  = [res for res in all_results.values() if res[x_name]==xval and res[y_name]==yval][0] #result for one exp
-            
-            if cell_type=='discriminative_pow':
-                vals = exp_res[cell_type][0] #list of results over multiple runs
+            cell_res = [res for res in all_results.values() if res[x_name]==xval and res[y_name]==yval] #result for one exp
+            # Handle the cells (param combo) for which we don't have results yet
+            if len(cell_res)==1:
+                exp_res, = cell_res
+                #vals is list of results over multiple runs
+                vals = exp_res[cell_type] if cell_type!='discriminative_pow' else exp_res[cell_type][0] 
             else:
-                vals = exp_res[cell_type]
-            
+                vals =[0] #if we don't have results yet
+
             results[yval] += [np.mean(vals) if len(vals)>0 else 0] #Fill 0 for exps that haven't finished running yet
 
     data = np.array([row for row in results.values()])
     return data
 
 
-def plot_heatmap(ax, exp_name, result_path, folders, cell_type='quality'):
+def plot_heatmap(ax, exp_name, result_path, folders, exp_prefix=None, title=None, cell_type='quality'):
     cmap = cm.get_cmap('inferno', 10)
     heatmap_config = {'vary_thetagamma': {'x_name':'theta', 'y_name':'gamma', 'xvals':THETA, 'yvals':GAMMA},
                         'vary_phigamma': {'x_name':'phi', 'y_name':'gamma', 'xvals':PHI_LIN, 'yvals':GAMMA},
-                        'vary_betagamma': {'x_name':'beta', 'y_name':'gamma', 'xvals':BETA, 'yvals':GAMMA}
+                        'vary_betagamma': {'x_name':'beta', 'y_name':'gamma', 'xvals':BETA, 'yvals':GAMMA},
+                        'vary_thetaphi': {'x_name':'theta', 'y_name':'phi', 'xvals':THETA, 'yvals':PHI_LIN}
                         }
     config = heatmap_config[exp_name]
-    data = heatmap_data(result_path, folders= folders, cell_type=cell_type, **config)
+    data = heatmap_data(result_path, folders= folders, exp_prefix=exp_prefix, cell_type=cell_type, **config)
     
     
     xticks = heatmap_config[exp_name]['xvals']
     yticks = heatmap_config[exp_name]['yvals']
     xlabel = pprint[heatmap_config[exp_name]['x_name']] #pretty print
     ylabel = pprint[heatmap_config[exp_name]['y_name']]
-    title = pprint[cell_type]
+    if title is None:
+        title = pprint[cell_type]
     utils.draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=None, vmin=None)
     # plt.tight_layout()
     return
