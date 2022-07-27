@@ -82,8 +82,9 @@ def netconfig2netname(config_fname, network_config):
    
     return network_fname
 
+
 def expconfig2netname(config_fname, exp_type):
-    ## Return a dict of the network name corresponding to an infosys config:
+    ## Return a dict of {network name: infosys config}
     
     exp_configs = json.load(open(config_fname,'r'))
     # Get the network name from the exp config

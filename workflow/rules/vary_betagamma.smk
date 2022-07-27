@@ -13,7 +13,7 @@ exp_type = 'vary_betagamma'
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
 
-sim_num = 2
+sim_num = 1
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
