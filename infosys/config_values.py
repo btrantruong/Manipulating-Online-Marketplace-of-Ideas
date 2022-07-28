@@ -45,5 +45,6 @@ default_infosys = {
 # default_net = {'verbose':False, 'human_network': follower_network, 'beta':DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':DEFAULT_STRATEGY}
 default_net = {'verbose':False, 'human_network': follower_network, 'targeting_criterion':None}
 compare_strategies_net = {strategy: {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion': strategy} for strategy in COMPARE_TARGETING}
+compare_strategies_hiinfiltration = {strategy: {'beta': 0.1, 'gamma': 0.01, 'targeting_criterion': strategy} for strategy in COMPARE_TARGETING}
 #gamma is 0.01 for the range in which targeting has some effect
 # default_targeting = {'verbose':False, 'targeting_criterion':None, 'human_network': follower_network, 'beta': 0.01, 'gamma': 0.1}

@@ -15,5 +15,7 @@ conda activate graph
 
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
-echo '###### compare strategies vary thetaphi ######'
-snakemake --nolock --snakefile workflow/rules/compare_strategies.smk --cores 20
+# echo '###### compare strategies vary thetaphi ######'
+# snakemake --nolock --snakefile workflow/rules/compare_strategies.smk --cores 20
+echo '###### compare strategies vary thetaphi (beta 0.1 gamma 0.01) ######'
+snakemake --nolock --snakefile workflow/rules/compare_hiinfiltration.smk --cores 20
