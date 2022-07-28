@@ -159,7 +159,8 @@ if __name__=="__main__":
     hub_graph = ig.Graph.Read_GML(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %hubnet))
     none_graph = ig.Graph.Read_GML(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %nonenet))
 
-    PLOT_DIR = utils.make_sure_dir_exists('', 'beta%s_gammma%s' %(beta, gamma))
+    PLOT_DIR = os.path.join('', 'beta%s_gammma%s' %(beta, gamma))
+    utils.make_sure_dir_exists('', 'beta%s_gammma%s' %(beta, gamma))
     deg_dist_human_following_bots(none_graph, hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'deg_dist.png'))
 
     plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=PLOT_DIR)
