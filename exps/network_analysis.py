@@ -55,12 +55,12 @@ def numbot_humanfollowers(graph):
         num_humfollowings += [len(hum_followings)]
         num_botfollowings += [len(bot_followings)]
         ratios +=[len(bot_followings)/len(following_idxs) if len(following_idxs)>0 else 0]
-    return num_humfollowings, num_botfollowings, ratios
+    return (num_humfollowings, num_botfollowings, ratios)
 
 
-def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
-    hums, bots, ratios = numbot_humanfollowers(none_graph)
-    hhums, hbots, hratios = numbot_humanfollowers(hub_graph)
+def plot_num_bots_humans_humanfollowers1(none_stats, hub_stats, plot_fpath=None):
+    hums, bots, ratios = none_stats
+    hhums, hbots, hratios = hub_stats
     
     figure, ax = plt.subplots()
     ax.set_xscale('log')
@@ -76,9 +76,14 @@ def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
         plt.close(figure)
     else:
         figure.show()
-    plt.clf()
 
-
+def plot_num_bots_humans_humanfollowers2(none_stats, hub_stats, plot_fpath=None):
+    hums, bots, ratios = none_stats
+    hhums, hbots, hratios = hub_stats
+    
+    figure, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.set_yscale('log')
     sns.ecdfplot(ax=ax, data = hhums, complementary=True, label = 'humans')
     sns.ecdfplot(ax=ax, data = hbots, complementary=True, label = 'bots')
     ax.set_xlabel("Number")
@@ -89,8 +94,14 @@ def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
         plt.close(figure)
     else:
         figure.show()
-    plt.clf()
 
+def plot_num_bots_humans_humanfollowers3(none_stats, hub_stats, plot_fpath=None):
+    hums, bots, ratios = none_stats
+    hhums, hbots, hratios = hub_stats
+    
+    figure, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.set_yscale('log')
 
     sns.ecdfplot(ax=ax, data = bots, complementary=True, label = 'no targeting')
     sns.ecdfplot(ax=ax, data = hbots, complementary=True, label = 'hubs-targeting')
@@ -102,8 +113,15 @@ def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
         plt.close(figure)
     else:
         figure.show()
-    plt.clf()
 
+
+def plot_num_bots_humans_humanfollowers4(none_stats, hub_stats, plot_fpath=None):
+    hums, bots, ratios = none_stats
+    hhums, hbots, hratios = hub_stats
+    
+    figure, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.set_yscale('log')
 
     sns.ecdfplot(ax=ax, data = hums, complementary=True, label = 'no targeting')
     sns.ecdfplot(ax=ax, data = hhums, complementary=True, label = 'hubs-targeting')
@@ -115,7 +133,14 @@ def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
         plt.close(figure)
     else:
         figure.show()
-    plt.clf()
+
+def plot_num_bots_humans_humanfollowers5(none_stats, hub_stats, plot_fpath=None):
+    hums, bots, ratios = none_stats
+    hhums, hbots, hratios = hub_stats
+    
+    figure, ax = plt.subplots()
+    ax.set_xscale('log')
+    ax.set_yscale('log')
 
     sns.ecdfplot(ax=ax, data = ratios, complementary=True, label = 'no targeting')
     sns.ecdfplot(ax=ax, data = hratios, complementary=True, label = 'hubs-targeting')
@@ -127,7 +152,6 @@ def plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=None):
         plt.close(figure)
     else:
         figure.show()
-    plt.clf()
 
 if __name__=="__main__":
     logger.info('WORKING DIR: %s' %(os.getcwd()))
@@ -157,8 +181,13 @@ if __name__=="__main__":
     PLOT_DIR = os.path.join('', 'beta%s_gammma%s' %(beta, gamma))
     utils.make_sure_dir_exists('', 'beta%s_gammma%s' %(beta, gamma))
     deg_dist_human_following_bots(none_graph, hub_graph, plot_fpath=os.path.join(PLOT_DIR, 'deg_dist.png'))
-
-    plot_num_bots_humans_humanfollowers(none_graph, hub_graph, plot_fpath=PLOT_DIR)
+    none_stats = numbot_humanfollowers(none_graph)
+    hub_stats = numbot_humanfollowers(hub_graph)
+    plot_num_bots_humans_humanfollowers1(none_stats,hub_stats, plot_fpath=PLOT_DIR)
+    plot_num_bots_humans_humanfollowers2(none_stats,hub_stats, plot_fpath=PLOT_DIR)
+    plot_num_bots_humans_humanfollowers3(none_stats,hub_stats, plot_fpath=PLOT_DIR)
+    plot_num_bots_humans_humanfollowers4(none_stats,hub_stats, plot_fpath=PLOT_DIR)
+    plot_num_bots_humans_humanfollowers5(none_stats,hub_stats, plot_fpath=PLOT_DIR)
     print('FINISH PLOTTING')
     # nonenet=sys.argv[1]
     # hubnet=sys.argv[2]
