@@ -144,7 +144,8 @@ class InfoSystem:
 
     # @profile
     def ig_simulation_step(self):
-        # random.seed(seed)
+        # returns dict: influx_by_agent: the number of memes changed in this cycle by all human agents
+
         agent = random.choice(self.network.vs)
         agent_id = agent['uid']
         feed = self.agent_feeds[agent_id]
@@ -164,7 +165,7 @@ class InfoSystem:
             self._update_meme_popularity(meme, agent)
 
         
-        influx_by_agent = defaultdict(lambda: 0) 
+        influx_by_agent = {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
 
         # spread (truncate feeds at max len alpha)
         follower_idxs = self.network.predecessors(agent) #return list of int
@@ -188,7 +189,7 @@ class InfoSystem:
                 for key in follower_influx.keys():
                     influx_by_agent[key] += follower_influx[key]
         
-        return dict(influx_by_agent)
+        return influx_by_agent
 
     def update_quality(self):
         # use exponential moving average for convergence
@@ -266,6 +267,7 @@ class InfoSystem:
         return zero_memes / count
 
     def _add_meme_to_feed(self, agent_id, meme, n_copies=1):
+        # Insert meme to feed. Forget if feed size exceeds alpha (Last in last out)
         feed = self.agent_feeds[agent_id]
         feed[0:0] = [meme] * n_copies
 
