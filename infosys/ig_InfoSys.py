@@ -45,12 +45,11 @@ class InfoSystem:
         self.trackmeme = trackmeme
         self.tracktimestep = tracktimestep
         self.quality_timestep=[]
-        self.meme_replacement = defaultdict(lambda:[]) #track the influx and outflux of memes in each feed globally. 
+        self.meme_all_changes = defaultdict(lambda:[]) 
+        # track the influx and outflux of memes globally. #TODO: Might not need this later
+        # All changes happening in simulation: max num_memes= alpha * num_agents * num_followers (avg)
         # structure: {"bot_in":[], "bot_out": [], "human_in":[], "human_out":[]} - items in list correspond to each timestep
-        
-        # self.meme_replacement =[]
-        # A dictionary stands for each timestep, structure: [{"bot_in":0, "bot_out": 1, "human_in", "human_out"}, {}]
-        
+
         self.meme_popularity = None
 
         self.epsilon=epsilon
@@ -79,6 +78,11 @@ class InfoSystem:
             self.n_agents = self.network.vcount()
             self.agent_feeds = {agent['uid']:[] for agent in self.network.vs} #init an empty feed for all agents
 
+            self.meme_net_change_timestep = {"bot_in":[], "bot_out": [], "human_in":[], "human_out":[]}
+            # track the influx and outflux of memes globally. 
+            # All changes happening in simulation: max num_memes= alpha * num_agents
+            # structure: {"bot_in":[], "bot_out": [], "human_in":[], "human_out":[]} - items in list correspond to each timestep
+            
             if verbose:
                 in_deg = [self.network.degree(n, mode='in') for n in self.network.vs]#number of followers
                 print('Graph Avg in deg', round(sum(in_deg)/len(in_deg),2))
@@ -98,23 +102,30 @@ class InfoSystem:
             if self.tracktimestep is True:
                 self.quality_timestep+= [self.quality]
 
-            self.timestep_memeinflux = defaultdict(lambda: 0) 
+            self.meme_all_changes_timestep = defaultdict(lambda: 0) 
             # structure: {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
 
-            for _ in range(self.n_agents):
-                self.num_memes = sum([len(f) for f in self.agent_feeds.values() if len(f)>0])
-                influx_by_agent = self.ig_simulation_step() # meme in outflux per agent {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
-                
-                if self.track_forgotten is True: #aggregate in and outflux caused by all agents
-                    for key in influx_by_agent.keys():
-                        self.timestep_memeinflux[key] += influx_by_agent[key]
+            self.meme_replacement = {agent['uid']: {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0} for agent in self.network.vs if agent['bot']==0}
 
-            for key in dict(self.timestep_memeinflux).keys():
-                self.meme_replacement[key] +=[ self.timestep_memeinflux[key] ]
+            for _ in range(self.n_agents):
+                # simulation
+                self.num_memes = sum([len(f) for f in self.agent_feeds.values() if len(f)>0])
+                influx_by_agent_all = self.ig_simulation_step() # meme in outflux per agent {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
+                # ^ self.meme_replacement is modified at this step 
+
+                if self.track_forgotten is True: #aggregate in and outflux caused by all agents
+                    for key in influx_by_agent_all.keys():
+                        self.meme_all_changes_timestep[key] += influx_by_agent_all[key]
+            # book keeping
+            for key in dict(self.meme_all_changes_timestep).keys():
+                self.meme_all_changes[key] +=[ self.meme_all_changes_timestep[key] ]
+
+            for flow_type in self.meme_net_change_timestep.keys():
+                a = [self.meme_replacement[agent][flow_type] for agent in self.meme_replacement.keys()]
+                total_flow = sum([self.meme_replacement[agent][flow_type] for agent in self.meme_replacement.keys()])
+                self.meme_net_change_timestep[flow_type] += [total_flow]
 
             self.update_quality()
-
-            #TODO: track meme
 
         all_feeds = self.agent_feeds # dict of {agent['uid']:[Meme()] } each value is a list of Meme obj in the agent's feed
 
@@ -137,14 +148,15 @@ class InfoSystem:
             'quality_timestep': self.quality_timestep,
             'all_memes': self.all_memes, 
             'all_feeds': feeds,
-            'meme_influx': self.meme_replacement
+            'meme_influx': self.meme_all_changes,
+            'meme_netchange': self.meme_net_change_timestep
         }
 
         return measurements
 
     # @profile
     def ig_simulation_step(self):
-        # returns dict: influx_by_agent: the number of memes changed in this cycle by all human agents
+        # returns dict: influx_by_agent_all: the number of memes changed in this cycle by all human agents
 
         agent = random.choice(self.network.vs)
         agent_id = agent['uid']
@@ -159,13 +171,13 @@ class InfoSystem:
             meme = Meme(self.num_meme_unique, is_by_bot=agent['bot'], phi=self.phi)
             self.all_memes += [meme]
 
-        #book keeping
+        # book keeping
         # TODO: add forgotten memes per degree
         if self.trackmeme is True:
             self._update_meme_popularity(meme, agent)
 
         
-        influx_by_agent = {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0}
+        influx_by_agent_all = {"bot_in":0, "bot_out": 0, "human_in":0, "human_out":0} # update meme_all_changes_timestep
 
         # spread (truncate feeds at max len alpha)
         follower_idxs = self.network.predecessors(agent) #return list of int
@@ -186,16 +198,21 @@ class InfoSystem:
             
             # only track in-outflux for human agents 
             if (self.track_forgotten is True) and (follower in humfollower_uids):
-                for key in follower_influx.keys():
-                    influx_by_agent[key] += follower_influx[key]
-        
-        return influx_by_agent
+                for flowtype in follower_influx.keys():
+                    influx_by_agent_all[flowtype] += follower_influx[flowtype]
+                
+                for flowtype in follower_influx.keys():
+                    self.meme_replacement[follower][flowtype] = follower_influx[flowtype]
+
+        return influx_by_agent_all
+
 
     def update_quality(self):
         # use exponential moving average for convergence
         new_quality = 0.8 * self.quality + 0.2 * self.measure_average_quality()
         self.quality_diff = abs(new_quality - self.quality) / self.quality if self.quality > 0 else 0
         self.quality = new_quality
+
 
     def measure_kendall_tau(self):
         # calculate discriminative power of system
@@ -231,7 +248,7 @@ class InfoSystem:
         self.memes_human_feed = count
         return total / count if count >0 else 0
 
-    #TODO: implement diversity 
+
     def measure_diversity(self):
         # calculate diversity of the system using entropy (in terms of unique memes)
         # Call only after self._return_all_meme_info() is called 
@@ -296,6 +313,7 @@ class InfoSystem:
         else:
             return dict(meme_influx)
     
+
     def _return_all_meme_info(self):
         #Be careful 
         memes = [meme.__dict__ for meme in self.all_memes] #convert to dict to avoid infinite recursion

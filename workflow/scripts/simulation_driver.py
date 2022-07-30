@@ -31,9 +31,9 @@ def bao_simulation(mode='igraph'):
         "targeting_criterion": "hubs",
         # "human_network": follower_path,
         "human_network": None, #DEBUG
-        "n_humans": 1000,
-        "beta": 0.01,
-        "gamma": 0.001,
+        "n_humans": 100,
+        "beta": 0.1,
+        "gamma": 0.01,
         "verbose": True,
     }
 
@@ -42,7 +42,7 @@ def bao_simulation(mode='igraph'):
         "tracktimestep": True,
         "track_forgotten": True,
         "verbose": True,
-        "epsilon": 0.1, #TODO: change back to 0.001
+        "epsilon": 0.001, #TODO: change back to 0.001
         "mu": 0.5,
         "phi": 1,
         "alpha": 15,
