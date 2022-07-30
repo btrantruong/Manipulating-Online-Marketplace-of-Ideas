@@ -42,6 +42,16 @@ default_infosys = {
     'theta': 1
 }
 
+infosys_hiepsilon_hiphi = {
+    'trackmeme': True,
+    'verbose': False,
+    'epsilon': 0.0001,
+    'mu': 0.5,
+    'phi': 3,
+    'alpha': 15,
+    'theta': 1
+}
+
 # default_net = {'verbose':False, 'human_network': follower_network, 'beta':DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':DEFAULT_STRATEGY}
 default_net = {'verbose':False, 'human_network': follower_network, 'targeting_criterion':None}
 compare_strategies_net = {strategy: {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion': strategy} for strategy in COMPARE_TARGETING}
