@@ -1,7 +1,6 @@
 import infosys.utils as utils
 import infosys.config_values as configs
 
-### Varying thetaphi on networks of different targeting strategy
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "data_hiepsilon")
@@ -12,14 +11,14 @@ vary_params = "vary_thetaphi"
 STRATEGIES = configs.COMPARE_TARGETING
 # STRATEGIES = [str(strategy) for strategy in configs.COMPARE_TARGETING]
 # get network names corresponding to the strategy
-STRAG2NET = {str(strag): utils.netconfig2netname(config_fname, configs.compare_strategies_hiinfiltration[strag]) for strag in STRATEGIES}
-print(STRAG2NET)
+STRAG2NET = {str(strag): utils.netconfig2netname(config_fname, configs.compare_strategies_net[strag]) for strag in STRATEGIES}
+
 EXPS = json.load(open(config_fname,'r'))[vary_params].keys()
 sim_num = 1
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_epsilon0.0001_beta0.1gamma0.01_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', '%s_epsilon0.0001_beta0.1gamma0.01_%sruns' %(exp_type, sim_num))
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_epsilon0.0001_beta0.05gamma0.005_%sruns' %(exp_type, sim_num))
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', '%s_epsilon0.0001_beta0.05gamma0.005_%sruns' %(exp_type, sim_num))
 
 rule all:
     input:

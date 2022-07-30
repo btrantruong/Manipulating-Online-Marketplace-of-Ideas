@@ -17,5 +17,5 @@ conda activate graph
 cd /N/u/baotruon/Carbonate/marketplace
 # echo '###### compare strategies vary thetaphi ######'
 # snakemake --nolock --snakefile workflow/rules/compare_strategies.smk --cores 20
-echo '###### compare strategies vary thetaphi high infiltration(epsilon 0.0001 - beta 0.1 gamma 0.01) ######'
-snakemake --nolock --snakefile workflow/rules/compare_hiepsilon.smk --cores 20
+echo '###### compare strategies vary thetaphi low infiltration(epsilon 0.0001 - beta 0.05 gamma 0.005) ######'
+snakemake --nolock --snakefile workflow/rules/compare_hiep_loinfiltration.smk --cores 20
