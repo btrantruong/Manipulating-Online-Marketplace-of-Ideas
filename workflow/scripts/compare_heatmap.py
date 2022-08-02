@@ -15,8 +15,6 @@ import workflow.plots as infosysplot
 ABS_PATH=''
 DATA_PATH = os.path.join(ABS_PATH, "data")
 RES_PATH = os.path.join(ABS_PATH, "newpipeline")
-# folders1 = ['compare_strategies_2runs/None']
-# folders2 = ['compare_strategies_2runs/hubs']
 folders=['compare_strategies_2runs']
 exp = 'vary_thetaphi'
 
@@ -28,7 +26,7 @@ def plot_compare(exp_name, folders,strategies=['None','hubs'], measure='quality'
     figure, axs = plt.subplots(1,2, figsize=(10,5), facecolor='w')
     
     for ax,strategy in zip(axs,strategies):
-        infosysplot.plot_heatmap(ax, exp_name, RES_PATH, folders, exp_prefix=strategy, title='%s strategy' %strategy, cell_type=measure)
+        infosysplot.plot_heatmap(ax, exp_name, RES_PATH, folders, exp_prefix=strategy, title='%s strategy' %strategy, cell_type=measure, cbar_max=0.5, cbar_min=0)
     # infosysplot.plot_heatmap(ax2, exp_name, RES_PATH, folders, title='Hubs strategy', cell_type=measure)
     figure.tight_layout()
 

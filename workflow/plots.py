@@ -119,8 +119,8 @@ def draw_lines(ax, data, line_values, line_name='beta',x_name='beta', y_name='qu
     
     return 
 
-
-def plot_scatter(ax, exp_name, data_path, result_path, folders, y_name='quality'):
+#TODO: update combine_results() for scatter
+def plot_scatter(ax, exp_name, data_path, result_path, folders, exp_prefix=None, y_name='quality'):
 
     lineplot_config = {
         'vary_thetagamma': {'line_name':'theta', 'line_values':[1,6,14], 'x_name':'gamma', 'y_name': y_name},
@@ -130,7 +130,7 @@ def plot_scatter(ax, exp_name, data_path, result_path, folders, y_name='quality'
     config = lineplot_config[exp_name]
 
     all_configs = json.load(open(os.path.join(data_path,'all_configs.json'),'r'))
-    all_results = combine_results(result_path, folders)
+    all_results = combine_results(result_path, folders, prefix=exp_prefix)
 
     multiline_data = lineplot_data(all_results, all_configs, exp_type=exp_name, **utils.remove_illegal_kwargs(config, lineplot_data))
 
@@ -162,7 +162,7 @@ def heatmap_data(result_path, folders, exp_prefix=None, cell_type='quality', x_n
     return data
 
 
-def plot_heatmap(ax, exp_name, result_path, folders, exp_prefix=None, title=None, cell_type='quality'):
+def plot_heatmap(ax, exp_name, result_path, folders, exp_prefix=None, title=None, cell_type='quality', cbar_max=1, cbar_min=0):
     cmap = cm.get_cmap('inferno', 10)
     heatmap_config = {'vary_thetagamma': {'x_name':'theta', 'y_name':'gamma', 'xvals':THETA, 'yvals':GAMMA},
                         'vary_phigamma': {'x_name':'phi', 'y_name':'gamma', 'xvals':PHI_LIN, 'yvals':GAMMA},
@@ -179,7 +179,7 @@ def plot_heatmap(ax, exp_name, result_path, folders, exp_prefix=None, title=None
     ylabel = pprint[heatmap_config[exp_name]['y_name']]
     if title is None:
         title = pprint[cell_type]
-    utils.draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=None, vmin=None)
+    utils.draw_heatmap(ax, data, xticks, yticks, xlabel, ylabel, cmap, title, vmax=cbar_max, vmin=cbar_min)
     # plt.tight_layout()
     return
 
