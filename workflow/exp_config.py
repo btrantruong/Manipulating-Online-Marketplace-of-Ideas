@@ -115,5 +115,9 @@ if __name__=='__main__':
     # make_exps(saving_dir, configs.default_net, configs.default_infosys)
     
     # exps in hiepsilon
-    saving_dir = os.path.join(ABS_PATH, "data_hiepsilon")
-    make_exps(saving_dir, configs.default_net, configs.infosys_hiepsilon)
+    # saving_dir = os.path.join(ABS_PATH, "data_hiepsilon")
+    # make_exps(saving_dir, configs.default_net, configs.infosys_hiepsilon)
+
+    # exps low epsilon
+    saving_dir = os.path.join(ABS_PATH, "data_lowepsilon")
+    make_exps(saving_dir, configs.default_net, configs.infosys_lowepsilon)
