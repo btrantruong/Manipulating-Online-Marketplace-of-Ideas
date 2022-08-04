@@ -99,6 +99,21 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 json.dump(config,open(fp,'w'))
 
 
+    # Convergence criteria: rho and epsilon
+    all_exps["convergence_rhoepsilon"] = {}
+    for idx, rho in enumerate(configs.RHO):
+        for jdx,epsilon in enumerate(configs.EPSILON):
+            cf = {'rho':rho, 'epsilon':epsilon}
+            config = utils.update_dict(cf, default_infosys_config)
+            
+            config_name = '%s%s' %(idx,jdx)
+            all_exps["convergence_rhoepsilon"][config_name] = config
+            
+            if utils.make_sure_dir_exists(saving_dir, "convergence_rhoepsilon"):
+                fp = os.path.join(saving_dir, "convergence_rhoepsilon",'%s.json' %config_name)
+                json.dump(config,open(fp,'w'))
+
+
     fp = os.path.join(saving_dir, 'all_configs.json')
     json.dump(all_exps,open(fp,'w'))
     print('Finish saving config to %s' %fp)
@@ -119,5 +134,9 @@ if __name__=='__main__':
     # make_exps(saving_dir, configs.default_net, configs.infosys_hiepsilon)
 
     # exps low epsilon
-    saving_dir = os.path.join(ABS_PATH, "data_lowepsilon")
-    make_exps(saving_dir, configs.default_net, configs.infosys_lowepsilon)
+    # saving_dir = os.path.join(ABS_PATH, "data_lowepsilon")
+    # make_exps(saving_dir, configs.default_net, configs.infosys_lowepsilon)
+
+    # exps in convergence_rhoepsilon
+    saving_dir = os.path.join(ABS_PATH, "data_convergence")
+    make_exps(saving_dir, configs.default_net, configs.default_infosys)

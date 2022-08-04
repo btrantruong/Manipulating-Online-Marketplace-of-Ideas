@@ -111,6 +111,12 @@ def expconfig2netname(config_fname, exp_type):
             EXP2NET[exp] = netconfig2netname(config_fname, cf)
         assert len(EXP2NET) ==len(configs.THETA)*len(configs.PHI_LIN)
 
+    elif exp_type=='convergence_rhoepsilon':
+        for exp, exp_config in exp_configs[exp_type].items():
+            cf =  {'beta': configs.DEFAULT_BETA, 'gamma': configs.DEFAULT_GAMMA, 'targeting_criterion': configs.DEFAULT_STRATEGY}
+            EXP2NET[exp] = netconfig2netname(config_fname, cf)
+        assert len(EXP2NET) ==len(configs.RHO)*len(configs.EPSILON)
+
     for netname in EXP2NET.values():
         assert netname in exp_configs['vary_network']
 

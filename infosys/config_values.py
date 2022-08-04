@@ -11,6 +11,12 @@ BETA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))
 GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
 #[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
 
+# Convergence criteria
+oneminusrho = sorted(list(10.0**(np.arange(-5, 0))))
+# [1e-05, 0.0001, 0.001, 0.01, 0.1]
+RHO = [1-val for val in oneminusrho]
+EPSILON = sorted(list(10.0**(np.arange(-5, 0))))
+
 TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
 COMPARE_TARGETING = [None, 'hubs']
 PHI_LIN = list(range(1,11))

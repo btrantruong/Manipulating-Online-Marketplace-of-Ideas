@@ -32,6 +32,7 @@ class InfoSystem:
                 tracktimestep=True,
                 verbose=False,
                 epsilon=0.001,
+                rho=0.999,
                 mu=0.5,
                 phi=1,
                 alpha=15,
@@ -53,6 +54,7 @@ class InfoSystem:
         self.meme_popularity = None
 
         self.epsilon=epsilon
+        self.rho=rho
         self.mu=mu
         self.phi=phi
         self.alpha=alpha
@@ -219,7 +221,8 @@ class InfoSystem:
 
     def update_quality(self):
         # use exponential moving average for convergence
-        new_quality = 0.8 * self.quality + 0.2 * self.measure_average_quality()
+        # new_quality = 0.8 * self.quality + 0.2 * self.measure_average_quality() 
+        new_quality = self.rho * self.quality + (1-self.rho) * self.measure_average_quality()  #b: forget the past slowly 
         self.quality_diff = abs(new_quality - self.quality) / self.quality if self.quality > 0 else 0
         self.quality = new_quality
 
