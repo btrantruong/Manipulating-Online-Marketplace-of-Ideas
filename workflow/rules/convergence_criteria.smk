@@ -28,7 +28,7 @@ TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', 'convergence_crit
 rule all:
     input:
         measurements = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
-        tracking = expand(os.path.join(RES_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
+        tracking = expand(os.path.join(TRACKING_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
 
 
 rule run_simulation:
