@@ -13,6 +13,7 @@ CONFIG_PATH = os.path.join(ABS_PATH, "data_convergence")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'convergence_rhoepsilon'
 
+mode='igraph'
 sim_num = 1
 # network_config = {'beta': configs.DEFAULT_BETA, 'gamma': configs.DEFAULT_GAMMA, 'targeting_criterion': configs.DEFAULT_STRATEGY}
 # network = utils.netconfig2netname(config_fname, network_config)
@@ -33,7 +34,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, 'igraph', 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
+        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
         configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
