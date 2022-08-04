@@ -25,9 +25,10 @@ EXPS = list(EXP2NET.keys())
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', 'convergence_criteria')
 TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', 'convergence_criteria')
 
-input:
-    measurements = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
-    tracking = expand(os.path.join(RES_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
+rule all:
+    input:
+        measurements = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
+        tracking = expand(os.path.join(RES_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
 
 
 rule run_simulation:
