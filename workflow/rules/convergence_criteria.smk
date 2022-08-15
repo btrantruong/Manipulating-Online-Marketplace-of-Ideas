@@ -23,8 +23,8 @@ sim_num = 1
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', 'convergence_criteria')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', 'convergence_criteria')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', 'convergence_largerho')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', 'convergence_largerho')
 
 rule all:
     input:
