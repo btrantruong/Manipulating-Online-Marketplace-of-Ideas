@@ -11,7 +11,7 @@ DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "data_convergence_largerho")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = 'convergence_largerho'
+exp_type = 'convergence_rhoepsilon'
 
 mode='igraph'
 sim_num = 1
