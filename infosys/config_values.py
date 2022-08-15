@@ -12,10 +12,17 @@ GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0))
 #[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
 
 # Convergence criteria
+""" Values used for first exploration of rho epsilon
+/N/slate/baotruon/marketplace/newpipeline/results/convergence_criteria
 oneminusrho = sorted(list(10.0**(np.arange(-5, 0))))
 # [1e-05, 0.0001, 0.001, 0.01, 0.1]
 RHO = [1-val for val in oneminusrho]
 EPSILON = sorted(list(10.0**(np.arange(-5, 0))))
+"""
+
+RHO = [0.125, 0.25, 0.5, 0.8]
+EPSILON = sorted(list(10.0**(np.arange(-5, -2))))
+# [1e-05, 0.0001, 0.001]
 
 TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
 COMPARE_TARGETING = [None, 'hubs']

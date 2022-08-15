@@ -137,6 +137,11 @@ if __name__=='__main__':
     # saving_dir = os.path.join(ABS_PATH, "data_lowepsilon")
     # make_exps(saving_dir, configs.default_net, configs.infosys_lowepsilon)
 
-    # exps in convergence_rhoepsilon
-    saving_dir = os.path.join(ABS_PATH, "data_convergence")
+    # exp_type: convergence_rhoepsilon
+    # Results stored in /N/slate/baotruon/marketplace/newpipeline/results/convergence_criteria
+    # saving_dir = os.path.join(ABS_PATH, "data_convergence")
+    # make_exps(saving_dir, configs.default_net, configs.default_infosys)
+
+    # exps in convergence_largerho
+    saving_dir = os.path.join(ABS_PATH, "data_convergence_largerho")
     make_exps(saving_dir, configs.default_net, configs.default_infosys)

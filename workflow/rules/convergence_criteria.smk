@@ -8,10 +8,10 @@ import infosys.config_values as configs
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "data_convergence")
+CONFIG_PATH = os.path.join(ABS_PATH, "data_convergence_largerho")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = 'convergence_rhoepsilon'
+exp_type = 'convergence_largerho'
 
 mode='igraph'
 sim_num = 1
