@@ -4,6 +4,7 @@ import infosys.config_values as configs
 ### Varying thetaphi on networks of different targeting strategies
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
+DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "data_rhoepsilon")
 
 config_fname = os.path.join(ABS_PATH, "data_rhoepsilon", 'all_configs.json')
