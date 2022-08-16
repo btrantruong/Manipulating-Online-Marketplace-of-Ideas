@@ -143,5 +143,9 @@ if __name__=='__main__':
     # make_exps(saving_dir, configs.default_net, configs.default_infosys)
 
     # exps in convergence_largerho
-    saving_dir = os.path.join(ABS_PATH, "data_convergence_largerho")
-    make_exps(saving_dir, configs.default_net, configs.default_infosys)
+    # saving_dir = os.path.join(ABS_PATH, "data_convergence_largerho")
+    # make_exps(saving_dir, configs.default_net, configs.default_infosys)
+
+    #exps results in 08152022_compare_strategies
+    saving_dir = os.path.join(ABS_PATH, "data_rhoepsilon")
+    make_exps(saving_dir, configs.default_net, configs.infosys_rhoepsilon)

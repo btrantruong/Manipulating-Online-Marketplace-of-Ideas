@@ -55,6 +55,18 @@ default_infosys = {
     'theta': 1
 }
 
+#08152022: rho 0.5, epsilon 0.0001
+infosys_rhoepsilon = {
+    'trackmeme': True,
+    'verbose': False,
+    'epsilon': 0.0001,
+    'rho': 0.5,
+    'mu': 0.5,
+    'phi': 1,
+    'alpha': 15,
+    'theta': 1
+}
+
 infosys_hiepsilon = {
     'trackmeme': True,
     'verbose': False,
