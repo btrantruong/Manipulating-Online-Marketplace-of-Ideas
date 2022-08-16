@@ -2,8 +2,10 @@
 .ipynb_checkpoints/
 __pycache__/
 
-
+exps/*
 data/*
+data_/*
+newpipeline/*
 .snakemake/*
 results/
 infosys.egg-info/
