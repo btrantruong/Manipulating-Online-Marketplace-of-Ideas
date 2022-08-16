@@ -30,7 +30,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_{exp_no}.gml")),
+        network = os.path.join(DATA_PATH, mode, 'vary_network', "network_{exp_no}.gml"),
         configfile = os.path.join(CONFIG_PATH, vary_params, "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
