@@ -5,7 +5,7 @@ import infosys.config_values as configs
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "data_rhoepsilon")
+CONFIG_PATH = os.path.join(ABS_PATH, "08172022_data_rhoepsilon")
 
 config_fname = os.path.join(ABS_PATH, "data_rhoepsilon", 'all_configs.json')
 exp_type = 'compare_strategies'
@@ -19,8 +19,8 @@ EXPS = list(COMPARE_EXPS.keys())
 sim_num = 1
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'08152022_{exp_type}_betagamma_{sim_num}runs' )
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'08152022_{exp_type}_betagamma_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'08172022_{exp_type}_betagamma_{sim_num}runs' )
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'08172022_{exp_type}_betagamma_{sim_num}runs')
 
 rule all:
     input:

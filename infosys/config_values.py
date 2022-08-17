@@ -43,17 +43,17 @@ DEFAULT_STRATEGY = None
 # PHI_LOG = [2,4,8,16,32]
 
 all_exps = {}
-## DEFAULT 
+## OLD DEFAULT SETTINGS (before determining rho epsilon)
 #Default:alpha (15), beta (0.01), gamma (0.001), phi (1), theta (1)
-default_infosys = {
-    'trackmeme': True,
-    'verbose': False,
-    'epsilon': 0.001,
-    'mu': 0.5,
-    'phi': 1,
-    'alpha': 15,
-    'theta': 1
-}
+# default_infosys = {
+#     'trackmeme': True,
+#     'verbose': False,
+#     'epsilon': 0.001,
+#     'mu': 0.5,
+#     'phi': 1,
+#     'alpha': 15,
+#     'theta': 1
+# }
 
 #08152022: rho 0.5, epsilon 0.0001
 infosys_rhoepsilon = {
