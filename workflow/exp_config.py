@@ -148,6 +148,10 @@ if __name__=='__main__':
     # saving_dir = os.path.join(ABS_PATH, "data_convergence_largerho")
     # make_exps(saving_dir, configs.default_net, configs.default_infosys)
 
-    #exps results in 08152022_compare_strategies
-    saving_dir = os.path.join(ABS_PATH, "08172022_data_rhoepsilon")
+    # exps results in 08152022_compare_strategies (rho 0.5)
+    # saving_dir = os.path.join(ABS_PATH, "08172022_data_rhoepsilon")
+    # make_exps(saving_dir, configs.default_net, configs.infosys_rhoepsilon)
+
+    # exps results in 08192022_convergence (check between rho 0.5 and 0.8)
+    saving_dir = os.path.join(ABS_PATH, "config_08192022_convergence")
     make_exps(saving_dir, configs.default_net, configs.infosys_rhoepsilon)

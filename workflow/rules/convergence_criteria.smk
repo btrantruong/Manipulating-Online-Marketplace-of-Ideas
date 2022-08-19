@@ -8,13 +8,13 @@ import infosys.config_values as configs
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "data_convergence_largerho")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_08192022_convergence")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'convergence_rhoepsilon'
 
 mode='igraph'
-sim_num = 1
+sim_num = 3
 # network_config = {'beta': configs.DEFAULT_BETA, 'gamma': configs.DEFAULT_GAMMA, 'targeting_criterion': configs.DEFAULT_STRATEGY}
 # network = utils.netconfig2netname(config_fname, network_config)
 # print('Network name: ' %network)
@@ -23,8 +23,8 @@ sim_num = 1
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', 'convergence_largerho')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', 'convergence_largerho')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '08192022_convergence')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', '08192022_convergence')
 
 rule all:
     input:

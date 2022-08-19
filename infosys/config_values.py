@@ -20,9 +20,15 @@ RHO = [1-val for val in oneminusrho]
 EPSILON = sorted(list(10.0**(np.arange(-5, 0))))
 """
 
+""" Values used for 2nd exploration of rho epsilon
+/N/slate/baotruon/marketplace/newpipeline/results/convergence_largerho
 RHO = [0.125, 0.25, 0.5, 0.8]
 EPSILON = sorted(list(10.0**(np.arange(-5, -2))))
 # [1e-05, 0.0001, 0.001]
+"""
+
+RHO = [0.125, 0.25, 0.5, 0.8]
+EPSILON = [0.0001]
 
 TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinformation']
 COMPARE_TARGETING = [None, 'hubs']
@@ -60,7 +66,7 @@ infosys_rhoepsilon = {
     'trackmeme': True,
     'verbose': False,
     'epsilon': 0.0001,
-    'rho': 0.5,
+    'rho': 0.8,
     'mu': 0.5,
     'phi': 1,
     'alpha': 15,
