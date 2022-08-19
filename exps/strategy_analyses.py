@@ -13,7 +13,15 @@ import sys
 from  scipy.stats import entropy
 from scipy.special import entr
 
-
+#TODO: clean up this script!
+# Move these functions:
+# ccdf_botmemefrac_between_strategies
+# ccdf_share_between_strategies
+# ccdf_quality_between_strategies
+# ccdf_fitness_within_strategies_panel
+# ccdf_fitness_between_strategies_panel
+# ccdf_share_within_strategies_panel
+# ccdf_share_between_strategies_panel
 logger = utils.get_logger(__name__)
 
 """ Only consider human spreading channels!"""

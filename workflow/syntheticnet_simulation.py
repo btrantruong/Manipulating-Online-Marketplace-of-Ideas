@@ -53,15 +53,13 @@ def run_simulation(net_specs, infosys_specs, strategy_name='hub', runs=10):
     network = os.path.join(DATA_PATH, '%s_network_lowinfiltration.gml' %strategy_name)
     G.write_gml(network)
     
-    print("Create InfoSystem instance..")
-    follower_sys = InfoSystem(network, **infosys_specs)
-    
     n_measures = defaultdict(lambda: [])
     
     quality = []
     print("Start simulation ..")
-    for i in range(runs):
-        # print('--%s' %i)
+    for _ in range(runs):
+        print("Create InfoSystem instance..")
+        follower_sys = InfoSystem(network, **infosys_specs)
         verbose_results = follower_sys.simulation()
         
         quality +=[verbose_results['quality']]
@@ -74,34 +72,42 @@ def run_simulation(net_specs, infosys_specs, strategy_name='hub', runs=10):
     print(len(quality))
     return n_measures
 
-# is_verbose= False
 # BETA = 0.04
 # GAMMA=0.1
 # EPSILON=0.0001
-# hub_verbose = run_simulation(hub_specs, infosys_specs, strategy_name='hub', runs=10)
+# none_specs, hub_specs, infosys_specs = make_specs(BETA,GAMMA, EPSILON)
+# hub_verbose = run_simulation(hub_specs, infosys_specs, strategy_name='hub', runs=1)
+
 
 BETAs=[0.02, 0.04, 0.1]
 GAMMAs = [0.02, 0.04, 0.1]
 EPSILONs = [0.01, 0.001, 0.0001]
 
-df = pd.DataFrame(columns=['strategy','beta', 'gamma', 'epsilon', 'avg_qual'])
-for BETA in BETAs:
-    for GAMMA in GAMMAs:
-        for EPSILON in EPSILONs:
-            try: 
-                none_specs, hub_specs, infosys_specs = make_specs(BETA,GAMMA, EPSILON)
+number_of_runs = [1, 10, 20]
 
-                print('*** Beta: %s - gamma: %s - epsilon: %s ***' %(BETA, GAMMA, EPSILON))
-                none_verbose = run_simulation(none_specs, infosys_specs, strategy_name='none', runs=30)
-                none_avg = np.round(np.mean(none_verbose['quality']),3)
-                df.loc[len(df), :] = ['none', BETA, GAMMA, EPSILON, none_avg]
+for NO_RUNS in number_of_runs:
+    cols=['strategy','beta', 'gamma', 'epsilon', 'avg_qual', 'qual_std']
+    cols+= [f'qual{i}' for i in range(NO_RUNS)]
+    df = pd.DataFrame(columns = cols)
+    for BETA in BETAs:
+        for GAMMA in GAMMAs:
+            for EPSILON in EPSILONs:
+                try: 
+                    none_specs, hub_specs, infosys_specs = make_specs(BETA,GAMMA, EPSILON)
 
-                hub_verbose = run_simulation(hub_specs, infosys_specs, strategy_name='hub', runs=30)
-                hub_avg = np.round(np.mean(hub_verbose['quality']),3)
-                df.loc[len(df), :] = ['hub', BETA, GAMMA, EPSILON, hub_avg]
-                
-            except Exception as e:
-                print(e)
+                    print('*** Beta: %s - gamma: %s - epsilon: %s ***' %(BETA, GAMMA, EPSILON))
+                    none_verbose = run_simulation(none_specs, infosys_specs, strategy_name='none', runs=NO_RUNS)
+                    vals = ['none', BETA, GAMMA, EPSILON , np.mean(none_verbose['quality']), np.std(none_verbose['quality'])]
+                    vals += [qual for qual in none_verbose['quality']]
+                    df.loc[len(df), :] = vals
 
-df.to_csv(os.path.join(DATA_PATH, 'syntheticnet_sim_results_30runs.csv'), sep='\t') 
-print('Finish saving')          
+                    hub_verbose = run_simulation(hub_specs, infosys_specs, strategy_name='hub', runs=NO_RUNS)
+                    vals = ['hub', BETA, GAMMA, EPSILON,  np.mean(hub_verbose['quality']), np.std(hub_verbose['quality'])]
+                    vals += [qual for qual in hub_verbose['quality']]
+                    df.loc[len(df), :] = vals
+                    
+                except Exception as e:
+                    print(e)
+
+    df.to_csv(os.path.join(DATA_PATH, '08182022', f'syntheticnet_sim_results_{NO_RUNS}runs.csv'), sep='\t') 
+    print('Finish saving')          
