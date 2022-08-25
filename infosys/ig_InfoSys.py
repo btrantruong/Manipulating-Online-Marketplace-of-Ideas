@@ -26,13 +26,15 @@ from collections import Counter, defaultdict
 
 class InfoSystem:
     #TODO: change default track_forgotten to False
+    ## Epsilon value was tested and fixed. To ensure convergence, epsilon <= 0.0001
+    ## Rho >= 0.5 
     def __init__(self, graph_gml,
                 track_forgotten=True,
                 trackmeme=True,
                 tracktimestep=True,
                 verbose=False,
-                epsilon=0.0001,
-                rho=0.5,
+                epsilon=0.0001, # Don't change this value
+                rho=0.8, 
                 mu=0.5,
                 phi=1,
                 alpha=15,
