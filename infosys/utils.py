@@ -27,7 +27,9 @@ import inspect
 import scipy.stats as stats
 from scipy.stats import ks_2samp
 
-import infosys.config_values as configs
+# import infosys.config_values as configs
+import infosys.final_configs as configs
+
 
 ### I/O
 def write_json_compressed(fout, data):
@@ -104,6 +106,17 @@ def expconfig2netname(config_fname, exp_type):
             assert len(EXP2NET) ==len(configs.PHI_LIN)*len(configs.GAMMA)
         else:
             assert len(EXP2NET) ==len(configs.THETA)*len(configs.GAMMA)
+
+
+    elif exp_type=='vary_phibeta' or exp_type=='vary_thetabeta':
+        for exp, exp_config in exp_configs[exp_type].items():
+            cf =  {'beta': exp_config['beta'], 'gamma': configs.DEFAULT_GAMMA, 'targeting_criterion': configs.DEFAULT_STRATEGY}
+            EXP2NET[exp] = netconfig2netname(config_fname, cf)
+        if exp_type=='vary_phibeta':
+            assert len(EXP2NET) ==len(configs.PHI_LIN)*len(configs.BETA)
+        else:
+            assert len(EXP2NET) ==len(configs.THETA)*len(configs.BETA)
+
 
     elif exp_type=='vary_thetaphi':
         for exp, exp_config in exp_configs[exp_type].items():
