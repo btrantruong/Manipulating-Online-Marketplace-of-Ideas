@@ -38,7 +38,7 @@ def quality_timestep(nostrag_quality, strag_quality, plot_fpath=None):
         fig.show()
 
 
-def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=True, common_timestep=True, plot_fpath=None):
+def influx_timestep_between_strategies(nostrag_influx, strag_influx, flow_type='bot_in', ylog=True, common_timestep=True, plot_fpath=None):
     # nostrag_influx, strag_influx: dictionary containing number of meme in or out flux (for no targeting and targeting)
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
     # flow_type: 'bot_in', 'bot_out', 'human_in', 'human_out'
@@ -72,33 +72,27 @@ def influx_timestep(nostrag_influx, strag_influx, flow_type='bot_in', ylog=True,
         fig.show()
 
 
-def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, common_timestep=True, plot_fpath=None):
-    # nostrag_influx, strag_influx: dictionary containing number of meme in or out flux (for no targeting and targeting)
+def memeflow_timestep(flow_verbose, meme_type='bot', ylog=True, plot_fpath=None):
+    # Plot 2 flows of meme (in & out) across timesteps
+    # flow_verbose: dictionary containing number of memes flowing in or out
     # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
-    # flow_type: 'bot' or 'human'
+    # meme_type: ['bot', 'human'] 
     # common timestep: one strategy can take longer to converge than the other. Only plot the timestep they have in common on x axis.
 
     fig,ax = plt.subplots()
 
     if ylog is True:
-        ax.set_yscale('symlog') #use symlog because there are negative values
+        ax.set_yscale('log') 
 
-    inflow='%s_in' %flow_type
-    outflow='%s_out' %flow_type
-    nostrag_delta = np.subtract(nostrag_flux[inflow], nostrag_flux[outflow])
-    strag_delta = np.subtract(strag_flux[inflow], strag_flux[outflow])
+    inflow='%s_in' %meme_type
+    outflow='%s_out' %meme_type
 
-    if common_timestep is True:
-        common = min(len(strag_delta), len(nostrag_delta)) 
-        nostrag_delta = nostrag_delta[:common+1]
-        strag_delta = strag_delta[:common+1]
+    ax.plot(range(len(flow_verbose[inflow])), flow_verbose[inflow], marker='o',label='inflow')
+    ax.plot(range(len(flow_verbose[outflow])), flow_verbose[outflow], marker='v',label='outflow')
 
-    ax.plot(range(len(strag_delta)), strag_delta, '-',label='targeting')
-    ax.plot(range(len(nostrag_delta)), nostrag_delta, '--',label='no targeting')
-
-    ax.set_ylabel('memes')
+    ax.set_ylabel('num memes')
     ax.set_xlabel('t')
-    ax.set_title('Delta (in-out) %s memes across timesteps' %flow_type)
+    ax.set_title('Meme fluctuation (%s) across timesteps' %meme_type)
     ax.legend()
     
     if plot_fpath is not None:
@@ -107,6 +101,43 @@ def deltaflux_timestep(nostrag_flux, strag_flux, flow_type='bot', ylog=True, com
     else:
         fig.show()
 
+def draw_delta_memeflow_timestep(ax, flow_verbose, meme_type='bot', label=None):
+    # Plot delta flow of memes (in - out) across timesteps
+    # flow_verbose: dictionary containing number of memes flowing in or out
+    # structure: {'bot_in': [], 'bot_out': [], 'human_in': [], 'human_out': []}, each element is a timestep
+    # meme_type: ['bot', 'human'] 
+
+    # DONT USE SYMLOG - it makes the difference seems more extreme than actual
+    # if ylog is True:
+    #     ax.set_yscale('symlog') 
+    delta = np.subtract(flow_verbose['%s_in' %meme_type], flow_verbose['%s_out' %meme_type])
+    ax.scatter(range(len(delta)), delta, label=label)
+
+    ax.set_ylabel('num memes')
+    ax.set_xlabel('t')
+    ax.legend()
+
+
+def delta_flow_timestep(flow_verbose, meme_type='bot', plot_fpath=None):
+    # Single Plot of delta flow of memes (in - out) across timesteps 
+    fig,ax = plt.subplots()
+    
+    draw_delta_memeflow_timestep(ax, flow_verbose, meme_type=meme_type, label=meme_type)
+    ax.set_title('Delta meme (%s in-out) across timesteps' %meme_type)
+    
+    if plot_fpath is not None:
+        fig.savefig(plot_fpath, dpi=300)
+        plt.close(fig)
+    else:
+        fig.show() 
+
+def delta_flow_panel(verbose1, verbose2,  meme_type1='bot', meme_type2='bot', label1='no strategy', label2='hub strategy',  plot_fpath=None):
+    # Single Plot of delta flow of memes (in - out) across timesteps 
+    # verbose1, verbose2: dict of num_memes flowing in or out, for 2 strategies 
+    fig,axs = plt.subplots(1,2, sharey=True)
+    draw_delta_memeflow_timestep(axs[0], verbose1, meme_type=meme_type1, label=label1)
+    draw_delta_memeflow_timestep(axs[1], verbose2, meme_type=meme_type2, label=label2)
+    fig.suptitle('Delta meme (%s in-out) across timesteps' %'bot')
 
 def final_entropy(verbose_tracking, base=2, verbose=True):
     # Get entropy of the system from the distribution of probability that a feed contains a bot meme. 
@@ -137,198 +168,6 @@ def final_entropy(verbose_tracking, base=2, verbose=True):
         logger.info('Entropy: %s' %system_entropy)
 
     return system_entropy
-
-
-def ccdf_botmemefrac_between_strategies(nostrag_junkfrac, strag_junkfrac, plot_fpath=None, log_log=False):
-    # CCDF of fraction of bot memes in human agent's feeds at final state- 2 lines (none & hubs-targeting)
-
-    figure, ax = plt.subplots()
-
-    if log_log is True:
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax, data = nostrag_junkfrac, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax, data = strag_junkfrac, complementary=True, label = 'hub targeting')
-    ax.set_xlabel("Fraction of bot memes in agent's feed")
-    ax.legend()
-    ax.set_title("CCDF: Fraction of bot memes in agent's feed")
-
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-
-def ccdf_quality_between_strategies(nostrag_humanquality, strag_humanquality, plot_fpath=None, log_log=False):
-    # CCDF of quality of only human memes - 2 lines (none & hubs-targeting)
-
-    figure, ax = plt.subplots()
-
-    if log_log is True:
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax, data = nostrag_humanquality, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax, data = strag_humanquality, complementary=True, label = 'hub targeting')
-    ax.set_xlabel('Quality')
-    ax.legend()
-    ax.set_title('CCDF: Quality of human memes between strategies')
-
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-
-def ccdf_fitness_within_strategies_panel(nostrag_botfitness, nostrag_humanfitness, strag_botfitness, strag_humanfitness, plot_fpath=None, log_log=False):
-    # CCDF of the fitness of memes - 2 lines (bot & human memes), 2 panels (none & hubs-targeting)
-    
-    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
-    
-    if log_log is True:
-        ax1.set_xscale('log')
-        ax1.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax1, data = nostrag_botfitness, complementary=True, label = 'bot memes')
-    sns.ecdfplot(ax=ax1, data = nostrag_humanfitness, complementary=True, label = 'human memes')
-    ax1.legend()
-
-    sns.ecdfplot(ax=ax2, data = strag_botfitness, complementary=True, label = 'bot memes')
-    sns.ecdfplot(ax=ax2, data = strag_humanfitness, complementary=True, label = 'human memes')
-    ax2.legend()
-
-    ax1.set_title('No targeting')
-    ax2.set_title('Hubs targeting')
-    ax1.set_xlabel('Fitness')
-    ax2.set_xlabel('Fitness')
-
-    figure.suptitle('CCDF: Fitness of memes shared during simulation')
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-
-def ccdf_fitness_between_strategies_panel(nostrag_botfitness, nostrag_humanfitness, strag_botfitness, strag_humanfitness, plot_fpath=None, log_log=False):
-    # CCDF of the fitness ofmemes - 2 lines (none & hubs-targeting), 2 panels (bot & human memes)
-
-    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
-    
-    if log_log is True:
-        ax1.set_xscale('log')
-        ax1.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax1, data = nostrag_botfitness, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax1, data = strag_botfitness, complementary=True, label = 'targeting')
-    ax1.legend()
-
-    sns.ecdfplot(ax=ax2, data = nostrag_humanfitness, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax2, data = strag_humanfitness, complementary=True, label = 'targeting')
-    ax2.legend()
-
-    ax1.set_title('Bot memes')
-    ax2.set_title('Human memes')
-    ax1.set_xlabel('Fitness')
-    ax2.set_xlabel('Fitness')
-
-    figure.suptitle('CCDF: Fitness of memes shared during simulation')
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-
-def ccdf_share_between_strategies(nostrag_botshares, strag_botshares, plot_fpath=None, log_log=True):
-    # CCDF of shares of bot memes - 2 lines (none & hubs-targeting)
-
-    figure, ax = plt.subplots()
-
-    if log_log is True:
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax, data = nostrag_botshares, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax, data = strag_botshares, complementary=True, label = 'hub targeting')
-    ax.set_xlabel('Number of shares')
-    ax.legend()
-    ax.set_title('CCDF: Number of shares (bot memes) between strategies')
-
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-
-def ccdf_share_within_strategies_panel(nostrag_botshares, nostrag_humanshares, strag_botshares, strag_humanshares, plot_fpath=None, log_log=True):
-    # CCDF of the shares of memes - 2 lines (bot & human memes), 2 panels (none & hubs-targeting)
-    
-    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
-    
-    if log_log is True:
-        ax1.set_xscale('log')
-        ax1.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax1, data = nostrag_botshares, complementary=True, label = 'bot memes')
-    sns.ecdfplot(ax=ax1, data = nostrag_humanshares, complementary=True, label = 'human memes')
-    ax1.legend()
-
-    sns.ecdfplot(ax=ax2, data = strag_botshares, complementary=True, label = 'bot memes')
-    sns.ecdfplot(ax=ax2, data = strag_humanshares, complementary=True, label = 'human memes')
-    ax2.legend()
-
-    ax1.set_title('No targeting')
-    ax2.set_title('Hubs targeting')
-    ax1.set_xlabel('number of shares')
-    ax2.set_xlabel('number of shares')
-
-    figure.suptitle('CCDF: Total number of shares during simulation')
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
-
-def ccdf_share_between_strategies_panel(nostrag_botshares, nostrag_humanshares, strag_botshares, strag_humanshares, plot_fpath=None, log_log=True):
-    # CCDF of shares of bot memes - 2 lines (none & hubs-targeting), 2 panels (bot & human memes)
-
-    figure, (ax1, ax2) = plt.subplots(1,2, figsize=(10, 5), sharex=True, sharey=True)
-    
-    if log_log is True:
-        ax1.set_xscale('log')
-        ax1.set_yscale('log')
-    
-    sns.ecdfplot(ax=ax1, data = nostrag_botshares, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax1, data = strag_botshares, complementary=True, label = 'targeting')
-    ax1.legend()
-
-    sns.ecdfplot(ax=ax2, data = nostrag_humanshares, complementary=True, label = 'no targeting')
-    sns.ecdfplot(ax=ax2, data = strag_humanshares, complementary=True, label = 'targeting')
-    ax2.legend()
-
-    ax1.set_title('Bot memes')
-    ax2.set_title('Human memes')
-    ax1.set_xlabel('number of shares')
-    ax2.set_xlabel('number of shares')
-
-    figure.suptitle('CCDF: Total number of shares during simulation')
-    figure.tight_layout()
-    if plot_fpath is not None:
-        figure.savefig(plot_fpath, dpi=300)
-        plt.close(figure)
-    else:
-        figure.show()
 
 
 def save_entropy(nostrag_entropy, strag_entropy, fpath):
@@ -370,19 +209,13 @@ if __name__=="__main__":
         quality_timestep(none_verbose['quality_timestep'][0], hub_verbose['quality_timestep'][0], 
                         plot_fpath=os.path.join(PLOT_DIR, 'quality_timestep%s%s.png' %(none_expname, hub_expname)))
         
-        for flowtype in ['bot_in', 'bot_out', 'human_in', 'human_out']:
-            influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=False,
-                            plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
+        meme_type='bot'
+        memeflow_timestep(none_verbose['meme_netchange'][0], meme_type=meme_type, plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s.png' %(meme_type, none_expname)))
+        memeflow_timestep(hub_verbose['meme_netchange'][0], meme_type=meme_type, plot_fpath=os.path.join(PLOT_DIR, 'influx_%s_%s.png' %(meme_type, hub_expname)))
 
-            influx_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=True,
-                            plot_fpath=os.path.join(PLOT_DIR, 'influx_common_%s_%s%s.png' %(flowtype,none_expname, hub_expname)))
-        
-        for flowtype in ['bot','human']:
-            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=False,
-                                            plot_fpath=os.path.join(PLOT_DIR, 'delta_%s_%s%s.png' %(flowtype, none_expname, hub_expname)))
+        # delta_flow_timestep(none_verbose['meme_netchange'][0], meme_type='bot', plot_fpath=os.path.join(PLOT_DIR, 'delta_%s_%s.png' %(meme_type, hub_expname)))
 
-            deltaflux_timestep(none_verbose['meme_influx'][0], hub_verbose['meme_influx'][0], flow_type=flowtype, common_timestep=True,
-                                            plot_fpath=os.path.join(PLOT_DIR, 'delta_common_%s_%s%s.png' %(flowtype, none_expname, hub_expname)))
-
+        delta_flow_panel(none_verbose['meme_netchange'][0], hub_verbose['meme_netchange'][0],  meme_type1='bot', meme_type2='bot', label1='no strategy', label2='hub strategy', 
+                         plot_fpath=os.path.join(PLOT_DIR, 'delta_%s_%s%s.png' %(meme_type, none_expname,hub_expname)))
     except Exception as e:
         logger.info('Error: ', e)

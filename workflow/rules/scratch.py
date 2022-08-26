@@ -1,15 +1,18 @@
 import os 
 import json 
+import infosys.utils as utils 
+import infosys.config_values as configs
 ABS_PATH = ''
-# ABS_PATH = '/N/u/baotruon/Carbonate/marketplace'
+CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-print(os.getcwd())
-exp_configs = json.load(open('data/all_configs.json','r'))
-anchor_gamma = 0.001 #change to 0.001
-RES_DIR = os.path.join(ABS_PATH, "results", "vary_thetagamma", "gamma%s" %str(anchor_gamma))
-EXPS = list([name for name in exp_configs['vary_thetagamma'].keys()])
-EXPS = list([name for name in exp_configs['vary_thetagamma'].keys() if 'gamma%s' %anchor_gamma in name])
-NAMES = [tuple(expname.split('_')) for expname in EXPS] # turn "07_gamma0.05" to ('07', 'gamma0.05')
-exp_nos, gs = zip(*NAMES) #example: exp_nos[i]=00, gs[i]=gamma0.01
-print('')
+
+config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
+exp_type = "vary_beta"
+# get network names corresponding to the strategy
+EXPS = json.load(open(config_fname,'r'))[exp_type]
+
+EXP_NOS = list(EXPS.keys())
+EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
+sim_num = 2
+mode='igraph'

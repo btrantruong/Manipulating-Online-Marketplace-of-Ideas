@@ -1,27 +1,24 @@
 import infosys.utils as utils
 
 # ABS_PATH = ''
-# DATA_PATH = os.path.join(ABS_PATH, "data_")
-# TRACKING_DIR = os.path.join(ABS_PATH, "verbose")
+# DATA_PATH = os.path.join(ABS_PATH, "data")
+# CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
-DATA_PATH = os.path.join(ABS_PATH, "data")
+DATA_PATH = os.path.join(ABS_PATH, 'data')
+CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
 
-print(os.getcwd())
-config_fname = os.path.join(DATA_PATH, 'all_configs.json')
-exp_type = 'vary_thetagamma'
+config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
+exp_type = 'vary_thetabeta'
 # get names for exp_config and network
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
-# wildcard_constraints:
-#     # exp_no="\d+"
-#     exp_no="[A-Z]+"
 
-sim_num = 2
+sim_num = 1
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', '%s_%sruns' %(exp_type, sim_num))
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', '%s_%sruns' %(exp_type, sim_num))
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'final_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'final_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
@@ -31,7 +28,7 @@ rule all:
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
-        configfile = os.path.join(DATA_PATH, exp_type, "{exp_no}.json") #data/vary_thetagamma/004.json
+        configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json") #data/vary_thetabeta/004.json
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
@@ -42,7 +39,7 @@ rule run_simulation:
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(DATA_PATH, 'vary_network', "{net_no}.json")
+        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
         
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
