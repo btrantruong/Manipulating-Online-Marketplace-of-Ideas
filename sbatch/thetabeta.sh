@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #####  Constructed by HPC everywhere #####
 #SBATCH --mail-user=baotruon@iu.edu
