@@ -1,6 +1,6 @@
 import infosys.ig_utils as ig_utils
 import infosys.graphutils as graphutils
-
+import infosys.utils as utils 
 import networkx as nx
 import sys
 import argparse
@@ -32,16 +32,22 @@ def main(args):
     configfile = args.config
     mode = args.mode
 
+    
 
     net_spec = json.load(open(configfile,'r'))
     if net_spec['human_network'] is not None:
         net_spec.update({'human_network':infile})
 
-    print(net_spec)
+    # print(net_spec)
+
     if mode=="igraph":
-        G = ig_utils.init_net(**net_spec)
+        legal_specs = utils.remove_illegal_kwargs(net_spec, ig_utils.init_net)
+        print(legal_specs)
+        G = ig_utils.init_net(**legal_specs)
         G.write_gml(outfile)
     else:
+        legal_specs = utils.remove_illegal_kwargs(net_spec, graphutils.init_net)
+        print(legal_specs)
         G = graphutils.init_net(**net_spec)
         nx.write_gml(G, outfile)
 
