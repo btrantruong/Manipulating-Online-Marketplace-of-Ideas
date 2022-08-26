@@ -36,6 +36,7 @@ infosys_default = {
     'theta': 1
 }
 
-default_net = {'verbose':False, 'human_network': follower_network, 'targeting_criterion':None}
+default_net = {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':None,
+                'verbose':False, 'human_network': follower_network}
 
-compare_strategies_net = {strategy: {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion': strategy} for strategy in TARGETING}
+# compare_strategies_net = {strategy: {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion': strategy} for strategy in TARGETING}
