@@ -14,7 +14,7 @@ exp_type = 'vary_thetaphi'
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
 
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'final_{exp_type}_{sim_num}runs')
