@@ -16,7 +16,7 @@ def multiple_simulations(infosys_specs, times=20):
     # baseline:  mu=0.5, alpha=15, beta=0.01, gamma=0.001, phi=1, theta=1
     n_measures = defaultdict(lambda: [])
 
-    print("Run simulation %s times.." %times)
+    print(f"Run simulation {times} times..")
     for _ in range(times):
         print("Create InfoSystem instance..")
         follower_sys = InfoSystem(**infosys_specs)
@@ -27,7 +27,7 @@ def multiple_simulations(infosys_specs, times=20):
         for k,val in measurements.items():
             n_measures[k] += [val]
             
-    print("average quality for follower network: %s pm %s" %(np.mean(np.array(n_measures['quality'])), np.std(np.array(n_measures['quality']))))
+    print(f"average quality for follower network: {np.mean(np.array(n_measures['quality']))} pm {np.std(np.array(n_measures['quality']))}")
     
     results = {'quality': n_measures['quality'],
                'diversity': n_measures['diversity'],
@@ -41,7 +41,7 @@ def run_simulation(infosys_specs):
     # baseline:  mu=0.5, alpha=15, beta=0.01, gamma=0.001, phi=1, theta=1
     print("Create InfoSystem instance..")
     follower_sys = InfoSystem(**infosys_specs)
-    print("Start simulation (mode: %s).." %infosys_specs['mode'])
+    print(f"Start simulation..")
     measurements = follower_sys.simulation()
     print("average quality for follower network:", measurements['quality'])
     return measurements

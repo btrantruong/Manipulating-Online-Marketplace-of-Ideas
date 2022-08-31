@@ -100,7 +100,7 @@ class InfoSystem:
 
         except Exception as e:
             print(e)
-        
+            print(f'Graph file: {graph_gml}')
         
     # @profile
     def simulation(self):
