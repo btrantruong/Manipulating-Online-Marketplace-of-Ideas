@@ -14,25 +14,30 @@ from collections import defaultdict
 
 def multiple_simulations(infosys_specs, times=20):
     # baseline:  mu=0.5, alpha=15, beta=0.01, gamma=0.001, phi=1, theta=1
+    metrics = ['quality', 'diversity','discriminative_pow']
     n_measures = defaultdict(lambda: [])
-
+    
     print(f"Run simulation {times} times..")
     for _ in range(times):
-        print("Create InfoSystem instance..")
-        follower_sys = InfoSystem(**infosys_specs)
-        print("Start simulation ..")
-        measurements = follower_sys.simulation()
 
-        #Update results over multiple simulations
-        for k,val in measurements.items():
-            n_measures[k] += [val]
-            
+        try:
+            print("Create InfoSystem instance..")
+            follower_sys = InfoSystem(**infosys_specs)
+            print("Start simulation ..")
+            measurements = follower_sys.simulation()
+
+            #Update results over multiple simulations
+            for k,val in measurements.items():
+                n_measures[k] += [val]
+
+        except Exception as e:
+            print('Error creating InfoSystem instance of running simulation.')
+            print(e)
+
     print(f"average quality for follower network: {np.mean(np.array(n_measures['quality']))} pm {np.std(np.array(n_measures['quality']))}")
     
-    results = {'quality': n_measures['quality'],
-               'diversity': n_measures['diversity'],
-               'discriminative_pow': n_measures['discriminative_pow']
-    }
+    results = {metric: n_measures[metric] for metric in metrics}
+
     #return a short & long (more details) version of measurements
     return results, dict(n_measures)
 
@@ -91,20 +96,21 @@ def main(args):
     nruns_measurements, verbose_tracking = multiple_simulations(legal_specs, times=int(n_simulations))
     # add infosys configuration
     infosys_spec.update(nruns_measurements)
-    
-    if len(nruns_measurements['quality'])>0:
-        fout = open(outfile,'w')
-        json.dump(infosys_spec, fout)
+
+
+    # save even empty results so smk don't complain
+    fout = open(outfile,'w')
+    json.dump(infosys_spec, fout)
+    fout.flush()
+
+    if verboseout is not None:
+        specs = copy.deepcopy(infosys_spec)
+        specs.update(verbose_tracking)
+        fout = gzip.open(verboseout,'w')
+        utils.write_json_compressed(fout, specs)
+        # force writing out the changes
         fout.flush()
 
-        if verboseout is not None:
-            specs = copy.deepcopy(infosys_spec)
-            specs.update(verbose_tracking)
-            fout = gzip.open(verboseout,'w')
-            utils.write_json_compressed(fout, specs)
-            # force writing out the changes
-            fout.flush()
-        
-        
+
 if __name__ == "__main__": main(sys.argv[1:])
 
