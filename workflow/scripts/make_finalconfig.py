@@ -73,6 +73,22 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 json.dump(config,open(fp,'w'))
 
 
+    # 09102022:
+    # Varying theta gamma: preliminary to decide these values with a more realistic num bots (10% vs 1%)
+    all_exps["vary_thetagamma"] = {}
+    for idx, theta in enumerate(configs.THETA_SHORT):
+        for jdx,gamma in enumerate(configs.GAMMA_SHORT):
+            cf = {'theta':theta, 'gamma':gamma}
+            config = utils.update_dict(cf, default_infosys_config)
+            
+            config_name = f'{idx}{jdx}'
+            all_exps["vary_thetagamma"][config_name] = config
+            
+            if utils.make_sure_dir_exists(saving_dir, 'vary_thetagamma'):
+                fp = os.path.join(saving_dir, 'vary_thetagamma', f'{config_name}.json')
+                json.dump(config,open(fp,'w'))
+
+
     #Varying beta: (for comparing targeting strategies)
     all_exps["vary_beta"] = {}
     for idx,beta in enumerate(configs.BETA):
@@ -128,6 +144,7 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
     json.dump(all_exps,open(fp,'w'))
     print(f'Finish saving config to {fp}')
 
+
 if __name__=='__main__':
     #DEBUG
     # ABS_PATH = ''
@@ -135,6 +152,13 @@ if __name__=='__main__':
 
     ABS_PATH = '/N/slate/baotruon/marketplace'
 
-    # exps results in newpipeline/results/final*
-    saving_dir = os.path.join(ABS_PATH, "config_final")
-    make_exps(saving_dir, configs.default_net, configs.infosys_default)
+    # exps results in newpipeline/results/final* (09052022)
+    # saving_dir = os.path.join(ABS_PATH, "config_final")
+    # make_exps(saving_dir, configs.default_net, configs.infosys_default)
+
+    # 09102022: add vary_thetagamma to decide on realistic value of num bots (beta)
+    saving_dir = os.path.join(ABS_PATH, "config_09102022_onepctbot")
+    make_exps(saving_dir, configs.onepctbot_default_net, configs.infosys_default)
+
+    saving_dir = os.path.join(ABS_PATH, "config_09102022_tenpctbot")
+    make_exps(saving_dir, configs.tenpctbot_default_net, configs.infosys_default)

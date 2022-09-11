@@ -1,4 +1,5 @@
 # Code to plot 1 line
+# TODO: handle when result files are empty
 from matplotlib import cm 
 
 import matplotlib.pyplot as plt
