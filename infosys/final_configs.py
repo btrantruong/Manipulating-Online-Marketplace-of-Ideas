@@ -44,6 +44,16 @@ infosys_default = {
 default_net = {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':None,
                 'verbose':False, 'human_network': follower_network}
 
+infosys_notracking = {
+    'trackmeme': False,
+    'verbose': False,
+    'epsilon': 0.0001,
+    'rho': 0.8,
+    'mu': 0.5,
+    'phi': 1,
+    'alpha': 15,
+    'theta': 1
+}
 
 onepctbot_default_net = {'beta': 0.01, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':None,
                 'verbose':False, 'human_network': follower_network}

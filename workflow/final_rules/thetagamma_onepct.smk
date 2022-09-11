@@ -14,22 +14,19 @@ sim_num = 1
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09102022_onepctbot_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09102022_onepctbot_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
-        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
-        tracking = expand(os.path.join(TRACKING_DIR, '{exp_no}.json.gz'), exp_no=EXPS)
+        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
 
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
         configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json") #data/vary_thetabeta/004.json
     output: 
-        measurements = os.path.join(RES_DIR, '{exp_no}.json'),
-        tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
+        measurements = os.path.join(RES_DIR, '{exp_no}.json')
     shell: """
-        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:

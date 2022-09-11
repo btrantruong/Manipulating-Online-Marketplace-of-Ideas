@@ -158,7 +158,7 @@ if __name__=='__main__':
 
     # 09102022: add vary_thetagamma to decide on realistic value of num bots (beta)
     saving_dir = os.path.join(ABS_PATH, "config_09102022_onepctbot")
-    make_exps(saving_dir, configs.onepctbot_default_net, configs.infosys_default)
+    make_exps(saving_dir, configs.onepctbot_default_net, configs.infosys_notracking)
 
     saving_dir = os.path.join(ABS_PATH, "config_09102022_tenpctbot")
-    make_exps(saving_dir, configs.tenpctbot_default_net, configs.infosys_default)
+    make_exps(saving_dir, configs.tenpctbot_default_net, configs.infosys_notracking)
