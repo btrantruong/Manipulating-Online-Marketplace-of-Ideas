@@ -11,5 +11,6 @@ Our code is based on **Python3.6+**, with **jupyter notebook**.
 The results in the paper are based on averages across multiple simulation runs. To reproduce those results, we suggest running the simulations in parallel, for example on a cluster, since they will need a lot of memory and CPU time.
 
 ## Notes on revised code:
-Activate virtualenv and run `pip install -e .` for the module imports to work correctly
+Activate virtualenv and run `pip install -e .` for the module imports to work correctly.
+
 Run minimal example with `workflow/example/run_simulation.py`
