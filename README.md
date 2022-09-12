@@ -14,3 +14,7 @@ The results in the paper are based on averages across multiple simulation runs. 
 Activate virtualenv and run `pip install -e .` for the module imports to work correctly.
 
 Run minimal example with `workflow/example/run_simulation.py`
+
+How to multiple experiments:
+- run `workflow/scripts/make_finalconfig.py` (this creates config files for different sets of param combination you want to test)
+- run `workflow/final_rules/<exp_type>.smk` (exp_type: [strategies_beta, vary_thetabeta, etc.])
