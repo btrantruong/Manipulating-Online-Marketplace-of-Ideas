@@ -1,4 +1,4 @@
-Creator "igraph version 0.9.6 Mon Sep 12 15:37:27 2022"
+Creator "igraph version 0.9.6 Mon Sep 12 16:59:47 2022"
 Version 1
 graph
 [
@@ -313,7 +313,7 @@ graph
   [
     id 51
     bot 1
-    uid "1q"
+    uid "1z"
   ]
   edge
   [
@@ -572,52 +572,22 @@ graph
   ]
   edge
   [
-    source 7
+    source 32
     target 50
   ]
   edge
   [
-    source 34
-    target 50
+    source 42
+    target 51
   ]
   edge
   [
-    source 38
-    target 50
+    source 30
+    target 51
   ]
   edge
   [
     source 15
-    target 50
-  ]
-  edge
-  [
-    source 40
-    target 50
-  ]
-  edge
-  [
-    source 19
-    target 51
-  ]
-  edge
-  [
-    source 7
-    target 51
-  ]
-  edge
-  [
-    source 24
-    target 51
-  ]
-  edge
-  [
-    source 45
-    target 51
-  ]
-  edge
-  [
-    source 21
     target 51
   ]
   edge

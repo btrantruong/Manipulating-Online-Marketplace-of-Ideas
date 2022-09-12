@@ -45,7 +45,7 @@ default_net = {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterio
                 'verbose':False, 'human_network': follower_network}
 
 infosys_notracking = {
-    'trackmeme': False,
+    'trackmeme': True,
     'track_forgotten':False,
     'verbose': False,
     'epsilon': 0.0001,

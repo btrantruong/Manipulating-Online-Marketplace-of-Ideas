@@ -55,7 +55,7 @@ none_specs = {
 infosys_specs = {
     "trackmeme": True,
     "tracktimestep": True,
-    "track_forgotten": True,
+    "track_forgotten": False,
     "verbose": False,
     "epsilon": EPSILON, 
     "mu": 0.5,

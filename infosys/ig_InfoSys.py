@@ -30,7 +30,7 @@ class InfoSystem:
     ## Rho >= 0.5 
     def __init__(self, graph_gml,
                 track_forgotten=True,
-                trackmeme=True,
+                trackmeme=True, # Cannot be False if we calculate diversity and tau
                 tracktimestep=True,
                 verbose=False,
                 epsilon=0.0001, # Don't change this value
