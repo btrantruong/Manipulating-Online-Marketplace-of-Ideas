@@ -46,6 +46,7 @@ default_net = {'beta': DEFAULT_BETA, 'gamma': DEFAULT_GAMMA, 'targeting_criterio
 
 infosys_notracking = {
     'trackmeme': False,
+    'track_forgotten':False,
     'verbose': False,
     'epsilon': 0.0001,
     'rho': 0.8,

@@ -56,11 +56,11 @@ infosys_specs = {
     "trackmeme": True,
     "tracktimestep": True,
     "track_forgotten": True,
-    "verbose": True,
+    "verbose": False,
     "epsilon": EPSILON, 
     "mu": 0.5,
     "phi": 1,
-    "alpha": 15,
+    "alpha": 15
 }
 
 print(os.getcwd())
