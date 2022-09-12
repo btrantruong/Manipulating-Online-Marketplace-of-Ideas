@@ -7,8 +7,9 @@ CONFIG_PATH = os.path.join(ABS_PATH, "config_09102022_onepctbot")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetagamma'
 # get names for exp_config and network
-EXP2NET = utils.expconfig2netname(config_fname, exp_type)
-EXPS = list(EXP2NET.keys())
+EXPS = json.load(open(config_fname,'r'))[exp_type]
+EXP_NOS = list(EXPS.keys())
+EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
 
 sim_num = 1
 mode='igraph'
@@ -17,7 +18,7 @@ RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09102022_onepctbot_{
 
 rule all:
     input: 
-        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS)
+        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXP_NOS)
 
 rule run_simulation:
     input: 

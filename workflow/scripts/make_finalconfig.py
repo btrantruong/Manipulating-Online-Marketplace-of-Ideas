@@ -63,7 +63,8 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
     for idx, theta in enumerate(configs.THETA):
         for jdx,beta in enumerate(configs.BETA):
             cf = {'theta':theta, 'beta':beta}
-            config = utils.update_dict(cf, default_infosys_config)
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
             
             config_name = f'{idx}{jdx}'
             all_exps["vary_thetabeta"][config_name] = config
@@ -79,7 +80,8 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
     for idx, theta in enumerate(configs.THETA_SHORT):
         for jdx,gamma in enumerate(configs.GAMMA_SHORT):
             cf = {'theta':theta, 'gamma':gamma}
-            config = utils.update_dict(cf, default_infosys_config)
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
             
             config_name = f'{idx}{jdx}'
             all_exps["vary_thetagamma"][config_name] = config

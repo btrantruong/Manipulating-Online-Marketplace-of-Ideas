@@ -11,6 +11,7 @@ CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetabeta'
 # get names for exp_config and network
+# TODO: delete expconfig2netname, change this to netconfig2netname
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
 EXPS = list(EXP2NET.keys())
 
