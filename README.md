@@ -12,3 +12,4 @@ The results in the paper are based on averages across multiple simulation runs. 
 
 ## Notes on revised code:
 Activate virtualenv and run `pip install -e .` for the module imports to work correctly
+Run minimal example with `workflow/example/run_simulation.py`
