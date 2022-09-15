@@ -56,6 +56,9 @@ infosys_notracking = {
     'theta': 1
 }
 
+fivepctbot_default_net = {'beta': 0.05, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':None,
+                'verbose':False, 'human_network': follower_network}
+
 onepctbot_default_net = {'beta': 0.01, 'gamma': DEFAULT_GAMMA, 'targeting_criterion':None,
                 'verbose':False, 'human_network': follower_network}
 
