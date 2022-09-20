@@ -12,7 +12,7 @@ import numpy as np
 import copy
 from collections import defaultdict
 
-def multiple_simulations(infosys_specs, times=20):
+def multiple_simulations(infosys_specs, times=1):
     # baseline:  mu=0.5, alpha=15, beta=0.01, gamma=0.001, phi=1, theta=1
     metrics = ['quality', 'diversity','discriminative_pow']
     n_measures = defaultdict(lambda: [])
@@ -74,7 +74,7 @@ def main(args):
         action="store", dest="mode", type=str, required=True,
         help="mode of implementation ['igraph', 'nx', 'infosys']")
     parser.add_argument('--times',
-        action="store", dest="times", type=str, required=True,
+        action="store", dest="times", type=str, required=False,
         help="Number of times to run simulation")
 
 

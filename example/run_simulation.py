@@ -8,13 +8,13 @@ from collections import defaultdict
 import os
 import pandas as pd 
 
-DATA_PATH = 'workflow/example'
+DATA_PATH = 'example/data'
 
 
 def run_simulation(net_specs, infosys_specs, runs=10):
     G = ig_utils.init_net(**net_specs)
     
-    network = os.path.join(DATA_PATH, 'infosys_net.gml')
+    network = os.path.join(DATA_PATH, 'infosys_network.gml')
     G.write_gml(network)
     
     n_measures = defaultdict(lambda: [])
@@ -37,13 +37,13 @@ def run_simulation(net_specs, infosys_specs, runs=10):
     return n_measures
 
 
-BETA = 0.04
-GAMMA=0.1
+BETA = 0.1
+GAMMA=0.05
 EPSILON=0.0001
 
 none_specs = {
             "targeting_criterion": None,
-            "human_network": os.path.join(DATA_PATH, 'synthetic_humannet.gml'),
+            "human_network": os.path.join(DATA_PATH, 'follower_network.gml'),
             "n_humans": 50,
             # "beta": 0.02,
             # "gamma": 0.04,
