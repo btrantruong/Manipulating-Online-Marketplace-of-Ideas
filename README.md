@@ -2,6 +2,14 @@
 
 This repository contains code to reproduce the results in the paper [*Manipulating the Online Marketplace of Ideas*](https://arxiv.org/abs/1907.06130) by Xiaodan Lou, Alessandro Flammini, and [Filippo Menczer](https://cnets.indiana.edu/fil/).
 
+## Data
+Network is created from the [Replication Data for: Right and left, partisanship predicts vulnerability to misinformation](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/6CZHH5)
+Where: 
+- `measures.tab` contains user information, i.e., one's partisanship and misinformation score. 
+- `anonymized-friends.json` is the adjacency list. 
+
+[Script to create network](workflow/make_network.py)
+
 ## Environment
 
 Our code is based on **Python3.6+**, with **jupyter notebook**.

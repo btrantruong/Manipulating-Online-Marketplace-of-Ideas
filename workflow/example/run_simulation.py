@@ -63,5 +63,7 @@ infosys_specs = {
     "alpha": 15
 }
 
-print(os.getcwd())
-simulation_verbose = run_simulation(none_specs, infosys_specs, runs=1)
+results = run_simulation(none_specs, infosys_specs, runs=1)
+json.dump(results, open('results.json','w'))
+
+print('Finish saving results!')
