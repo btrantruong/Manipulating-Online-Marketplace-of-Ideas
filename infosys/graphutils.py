@@ -20,7 +20,7 @@ def init_net(
     human_network=None,
     n_humans=1000,
     beta=0.1,
-    gamma=0.1,
+    gamma=0.05,
 ):
 
     # humans

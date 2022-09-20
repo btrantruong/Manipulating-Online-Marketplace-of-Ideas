@@ -53,7 +53,7 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
 # default beta=0.1 is bots/humans ratio
 # default gamma=0.1 is infiltration: probability that a human follows each bot
 #
-def init_net(targeting_criterion=None, verbose=False, human_network = None, n_humans=1000, beta=0.1, gamma=0.1, track_bot_followers=False):
+def init_net(targeting_criterion=None, verbose=False, human_network = None, n_humans=1000, beta=0.05, gamma=0.05, track_bot_followers=False):
 
     # humans
     if human_network is None:
