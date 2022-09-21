@@ -125,20 +125,20 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 json.dump(config,open(fp,'w'))
 
 
-    #Varying theta: (for comparing targeting strategies)
-    all_exps["vary_theta"] = {}
-    for idx,theta in enumerate(configs.THETA):
+    #Varying gamma: (for comparing targeting strategies)
+    all_exps["vary_gamma"] = {}
+    for idx,gamma in enumerate(configs.GAMMA):
         for kdx,target in enumerate(configs.TARGETING):
-            cf = {'theta':theta, 'targeting_criterion': target}
+            cf = {'gamma':gamma, 'targeting_criterion': target}
 
             config = utils.update_dict(cf, default_net_config)
             config = utils.update_dict(config, default_infosys_config)
 
             config_name = f'{str(target)}{idx}'
-            all_exps["vary_theta"][config_name] = config
+            all_exps["vary_gamma"][config_name] = config
             
-            if utils.make_sure_dir_exists(saving_dir, 'vary_theta'):
-                fp = os.path.join(saving_dir, 'vary_theta', f'{config_name}.json')
+            if utils.make_sure_dir_exists(saving_dir, 'vary_gamma'):
+                fp = os.path.join(saving_dir, 'vary_gamma', f'{config_name}.json')
                 json.dump(config,open(fp,'w'))
 
 
@@ -165,5 +165,8 @@ if __name__=='__main__':
     # saving_dir = os.path.join(ABS_PATH, "config_09102022_tenpctbot")
     # make_exps(saving_dir, configs.tenpctbot_default_net, configs.infosys_notracking)
 
-    saving_dir = os.path.join(ABS_PATH, "config_09152022_fivepctbot")
-    make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_notracking)
+    # saving_dir = os.path.join(ABS_PATH, "config_09152022_fivepctbot")
+    # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_notracking)
+
+    saving_dir = os.path.join(ABS_PATH, "config_fivefive")
+    make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
