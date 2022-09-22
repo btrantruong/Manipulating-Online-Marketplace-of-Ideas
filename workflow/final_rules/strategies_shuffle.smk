@@ -37,7 +37,7 @@ rule run_simulation:
     """
 
 rule shuffle_net:
-    input:  os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
+    input:  lambda wildcards: os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}_shuffle_{shuffle}.gml")
     shell: """
         python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {shuffle}
