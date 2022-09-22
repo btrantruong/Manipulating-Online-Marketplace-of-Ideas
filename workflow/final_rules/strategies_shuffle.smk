@@ -19,7 +19,7 @@ EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 SHUFFLES = ['community', 'hub']
 
 mode='igraph'
-sim_num=
+sim_num=1
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'shuffled_strategies_{sim_num}runs')
 TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'shuffled_strategies_{sim_num}runs')
 
