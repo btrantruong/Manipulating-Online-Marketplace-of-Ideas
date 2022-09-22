@@ -14,6 +14,8 @@ for exp_name in EXP_NOS:
     net_cf = json.load(open(path,'r'))
     EXP2NET[exp_name] = utils.netconfig2netname(config_fname, net_cf)
 
+print('test exp2net conservative:', EXP2NET['conservative'])
+
 SHUFFLES = ['community', 'hub']
 
 mode='igraph'
@@ -37,10 +39,10 @@ rule run_simulation:
     """
 
 rule shuffle_net:
-    input:  lambda wildcards: os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")
+    input:  lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml"))
     output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_shuffle_{shuffle}.gml")
     shell: """
-        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {shuffle}
+        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle}
     """ 
 
 rule init_net:
