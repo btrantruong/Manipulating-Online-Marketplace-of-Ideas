@@ -28,7 +28,7 @@ rule all:
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}_shuffle_{wildcards.shuffle}.gml")),
-        configfile = os.path.join(CONFIG_PATH, "{exp_no}.json")
+        configfile =os.path.join(CONFIG_PATH, 'shuffle', f'{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
