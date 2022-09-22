@@ -28,7 +28,7 @@ rule all:
 rule run_simulation:
     input: 
         network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}_shuffle_{wildcards.shuffle}.gml")),
-        configfile =os.path.join(CONFIG_PATH, 'shuffle', f'{exp_no}2.json')
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
@@ -40,7 +40,7 @@ rule shuffle_net:
     input:  os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}_shuffle_{shuffle}.gml")
     shell: """
-        python3 -m workflow.scripts.shuffle_net -i {input.follower} -o {output} --mode {shuffle}
+        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {shuffle}
     """ 
 
 rule init_net:
