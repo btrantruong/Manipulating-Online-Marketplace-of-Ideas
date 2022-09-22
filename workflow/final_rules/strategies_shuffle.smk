@@ -8,13 +8,13 @@ CONFIG_PATH = os.path.join(ABS_PATH, "config_fivefive")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 # Note config file is not on slate! Change this later
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
-EXP2NET = {}
-for exp_name in EXP_NOS:
-    path = os.path.join(CONFIG_PATH, 'shuffle', f'{exp_name}2.json') 
-    net_cf = json.load(open(path,'r'))
-    EXP2NET[exp_name] = utils.netconfig2netname(config_fname, net_cf)
+# EXP2NET = {}
+# for exp_name in EXP_NOS:
+#     path = os.path.join(CONFIG_PATH, 'shuffle', f'{exp_name}2.json') 
+#     net_cf = json.load(open(path,'r'))
+#     EXP2NET[exp_name] = utils.netconfig2netname(config_fname, net_cf)
 
-print('test exp2net conservative:', EXP2NET['conservative'])
+# print('test exp2net conservative:', EXP2NET['conservative'])
 
 SHUFFLES = ['community', 'hub']
 
@@ -27,9 +27,10 @@ rule all:
     input: 
         expand(os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'), shuffle=SHUFFLES, exp_no=EXP_NOS),
 
+
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_shuffle_{shuffle}.gml"),
+        network = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_{shuffle}.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
@@ -38,20 +39,22 @@ rule run_simulation:
         python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
-rule shuffle_net:
-    input:  lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml"))
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_shuffle_{shuffle}.gml")
-    shell: """
-        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle}
-    """ 
 
 rule init_net:
     input: 
-        follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
+        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
         
-    output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_{shuffle}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 
+
+
+rule shuffle_net:
+    input:  follower=os.path.join(DATA_PATH, 'follower_network.gml'),
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
+    shell: """
+        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle}
+    """ 
