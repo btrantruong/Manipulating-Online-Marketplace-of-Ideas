@@ -7,7 +7,7 @@ DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "config_fivefive")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 # Note config file is not on slate! Change this later
-EXP_NOS = ['conservative', 'liberal', 'hubs', 'misinformation', 'None', 'partisanship']
+EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 EXP2NET = {}
 for exp_name in EXP_NOS:
     path = os.path.join(CONFIG_PATH, 'shuffle', f'{exp_name}2.json') 
