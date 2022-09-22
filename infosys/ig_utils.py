@@ -4,6 +4,8 @@ import igraph as ig
 import random 
 import string 
 import numpy as np
+from collections import Counter 
+from copy import deepcopy
 
 def read_empirical_network(file):
     # print('File: ', file)
@@ -13,8 +15,8 @@ def read_empirical_network(file):
     net = _delete_unused_attributes(net, desire_attribs=['label', 'party', 'misinfo'])
     return net 
 
-def write_gmlz(G, file):
-    G.Graph.write_graphmlz(file)
+def write_gmlz(graph, file):
+    graph.Graph.write_graphmlz(file)
 
 #TODO: comment out random seed in actual run
 def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
@@ -25,27 +27,27 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
     if net_size <= k_out + 1: # if super small just return a clique
         return ig.Graph.Full(net_size, directed=True)
     
-    G = ig.Graph.Full(k_out, directed=True)
+    graph = ig.Graph.Full(k_out, directed=True)
 
     # random.seed(seed)
   
     for n in range(k_out, net_size):
-        target = random.choice(G.vs)
+        target = random.choice(graph.vs)
         friends = [target]
         n_random_friends = 0
         for _ in range(k_out - 1): #bao: why kout-1 and not kout?
             if random.random() < p:
                 n_random_friends += 1
         
-        friends += random.sample(G.successors(target), n_random_friends) #return a list of vertex id(int)
-        friends += random.sample(range(G.vcount()), k_out - 1 - n_random_friends)
+        friends += random.sample(graph.successors(target), n_random_friends) #return a list of vertex id(int)
+        friends += random.sample(range(graph.vcount()), k_out - 1 - n_random_friends)
         
-        G.add_vertex(n) #n becomes 'name' of vertex
+        graph.add_vertex(n) #n becomes 'name' of vertex
         
         edges = [(n,f) for f in friends]
         
-        G.add_edges(edges)
-    return G
+        graph.add_edges(edges)
+    return graph
 
 # create network of humans and bots
 # preferential_targeting is a flag; if False, random targeting
@@ -54,7 +56,8 @@ def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
 # default gamma=0.1 is infiltration: probability that a human follows each bot
 #
 def init_net(targeting_criterion=None, verbose=False, human_network = None, n_humans=1000, beta=0.05, gamma=0.05, track_bot_followers=False):
-
+#TODO: change the name convention of H, B and G (single char makes it hard to refactor if needed)
+    
     # humans
     if human_network is None:
         if verbose: print('Generating human network...')
@@ -135,6 +138,94 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
         return G, degs
     else:
         return G
+
+
+def shuffle_preserve_community(og_graph):
+    # Return G_shuffle: a new graph w/o the original hub structures
+    # shuffle the links, preseve node's community (party)
+
+    # Rewire links while keeping the same group
+    #conservative >0
+    communities = {} #dict of community - list of idxs
+    communities['conservative']= [node.index for node in og_graph.vs if float(node['party']) > 0]
+    communities['liberal']= [node.index for node in og_graph.vs if float(node['party']) < 0]
+    
+    graph = deepcopy(og_graph)
+
+    for idx,(v1,v2) in enumerate(graph.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
+        if float(graph.vs[v1]['party']) * float(graph.vs[v2]['party']) >0: 
+            #ingroup, population is the same as that of v1
+            population = communities['conservative'] if float(graph.vs[v1]['party'])>0 else communities['liberal']
+        else: #outgroup, population is the same as that of v2
+            population = communities['conservative'] if float(graph.vs[v2]['party'])>0 else communities['liberal']
+        
+        target = random.choice(population)
+        graph.add_edges([(v1,target)])
+        graph.delete_edges(idx) #delete edge by edge index
+    
+    assert (Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))) == False
+
+    return graph
+    
+
+def shuffle_preserve_degree(og_graph):
+    # Return graph: a new graph w/o the original clustering structures
+    # shuffle the links, preseve node's in-degree. 
+    # for each node rewire link a new node with same degree
+
+    degs = og_graph.degree(og_graph.vs, mode='in')
+    deg_dict = {} #dict of degree - list of node idxs
+    for i in set(degs):
+        deg_dict[i] = [idx for idx,deg in enumerate(degs) if deg==i]
+
+    # test that the dict is correct
+    test_idx = random.choices(list(degs), k=100)
+    for deg in test_idx:
+        idx = deg_dict[deg][0] 
+        assert degs[idx] == deg
+
+    # Shuffle links by permutation
+    original=[]
+    mapping = []
+    for degree, nodes in deg_dict.items(): # for each degree
+        permutate = np.random.permutation(nodes)
+        original.extend(nodes)
+        mapping.extend(permutate)
+        
+    assert sorted(original) == list(range(len(og_graph.vs)))
+    assert sorted(mapping) == list(range(len(og_graph.vs)))
+
+    graph = og_graph.permute_vertices(mapping)
+
+    # check that degrees are preserved
+    assert Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))
+    # check that attributes are preserved 
+    shuffled = [i for i in graph.vs]
+    ogv = [i for i in og_graph.vs]
+    for idx in range(len(og_graph.vs)):
+        node, = [n for n in shuffled if int(n['id'])==idx]
+        assert ogv[idx]['party']== node['party']
+
+    return graph
+
+
+def _make_sample_graph(graph):
+    # return a sample network with 'party' attribute to test shuffling
+    sample_vs = random.choices([i for i in graph.vs], k=1000)
+    sample_idx = [i.index for i in sample_vs]
+    attributes = [i['party'] for i in sample_vs]
+    sample_edges = [(v1,v2) for (v1,v2) in graph.get_edgelist() if v1 in sample_idx and v2 in sample_idx]
+    # add vertices and edges 
+    sample_graph = ig.Graph()
+    sample_graph.add_vertices(sample_idx)
+    sample_graph.vs['party'] = attributes
+    for e in sample_edges:
+        try:
+            sample_graph.add_edges([e])
+        except:
+            continue
+    return sample_graph
+
 
 def _delete_unused_attributes(net, desire_attribs=['uid','party', 'misinfo']):
     #delete unused attribs or artifact of igraph to maintain consistency

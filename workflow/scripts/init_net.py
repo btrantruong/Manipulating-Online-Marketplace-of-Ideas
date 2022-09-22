@@ -46,7 +46,6 @@ def main(args):
     configfile = args.config
     mode = args.mode
 
-    
 
     net_spec = json.load(open(configfile,'r'))
     if net_spec['human_network'] is not None:
