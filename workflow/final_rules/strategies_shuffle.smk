@@ -28,7 +28,7 @@ rule all:
 rule run_simulation:
     input: 
         network = os.path.join(DATA_PATH, mode, 'vary_network', "network_{exp_no}_{shuffle}_shuffled.gml"),
-        configfile = expconfig_file
+        configfile = os.path.join(CONFIG_PATH, "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
