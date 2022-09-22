@@ -19,7 +19,7 @@ EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 SHUFFLES = ['community', 'hub']
 
 mode='igraph'
-sim_num=1
+sim_num=
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'shuffled_strategies_{sim_num}runs')
 TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'shuffled_strategies_{sim_num}runs')
 
@@ -30,7 +30,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_{shuffle}.gml"),
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
@@ -45,7 +45,7 @@ rule init_net:
         follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{exp_no}_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
