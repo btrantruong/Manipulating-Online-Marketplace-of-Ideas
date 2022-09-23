@@ -4,7 +4,7 @@ ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 
-CONFIG_PATH = os.path.join(ABS_PATH, "config_fivefive")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_09222022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 # Note config file is not on slate! Change this later
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
@@ -19,9 +19,9 @@ EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 SHUFFLES = ['community', 'hub']
 
 mode='igraph'
-sim_num=1
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'shuffled_strategies_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'shuffled_strategies_{sim_num}runs')
+sim_num=2
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09222022_shuffled_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09222022_shuffled_{sim_num}runs')
 
 rule all:
     input: 
