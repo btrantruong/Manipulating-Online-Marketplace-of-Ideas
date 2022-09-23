@@ -144,25 +144,26 @@ def shuffle_preserve_community(og_graph):
     # Return G_shuffle: a new graph w/o the original hub structures
     # shuffle the links, preseve node's community (party)
 
-    # Rewire links while keeping the same group
-    #conservative >0
-    communities = {} #dict of community - list of idxs
-    communities['conservative']= [node.index for node in og_graph.vs if float(node['party']) > 0]
-    communities['liberal']= [node.index for node in og_graph.vs if float(node['party']) < 0]
-    
     graph = deepcopy(og_graph)
 
-    for idx,(v1,v2) in enumerate(graph.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
-        if float(graph.vs[v1]['party']) * float(graph.vs[v2]['party']) >0: 
-            #ingroup, population is the same as that of v1
-            population = communities['conservative'] if float(graph.vs[v1]['party'])>0 else communities['liberal']
-        else: #outgroup, population is the same as that of v2
-            population = communities['conservative'] if float(graph.vs[v2]['party'])>0 else communities['liberal']
+    for _ in range(5): # Do procedure multiple times to make sure all community structures is destroyed
+        # Rewire links while keeping the same group
+        #conservative >0
+        communities = {} #dict of community - list of idxs
+        communities['conservative']= [node.index for node in graph.vs if float(node['party']) > 0]
+        communities['liberal']= [node.index for node in graph.vs if float(node['party']) < 0]
+        for idx,(v1,v2) in enumerate(graph.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
+            if float(graph.vs[v1]['party']) * float(graph.vs[v2]['party']) >0: 
+                #ingroup, population is the same as that of v1
+                population = communities['conservative'] if float(graph.vs[v1]['party'])>0 else communities['liberal']
+            else: #outgroup, population is the same as that of v2
+                population = communities['conservative'] if float(graph.vs[v2]['party'])>0 else communities['liberal']
+            
+            population = list(set(population) - set([v1,v2]))
+            target = random.choice(population)
+            graph.delete_edges(idx) #delete edge by edge index
+            graph.add_edges([(v1,target)])
         
-        target = random.choice(population)
-        graph.add_edges([(v1,target)])
-        graph.delete_edges(idx) #delete edge by edge index
-    
     assert (Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))) == False
 
     return graph
@@ -170,41 +171,40 @@ def shuffle_preserve_community(og_graph):
 
 def shuffle_preserve_degree(og_graph):
     # Return graph: a new graph w/o the original clustering structures
-    # shuffle the links, preseve node's in-degree. 
-    # for each node rewire link a new node with same degree
+    # shuffle the links, preseve node's in-degree: for each node rewire link a new node with same degree
+    
+    graph = deepcopy(og_graph)
 
-    degs = og_graph.degree(og_graph.vs, mode='in')
-    deg_dict = {} #dict of degree - list of node idxs
-    for i in set(degs):
-        deg_dict[i] = [idx for idx,deg in enumerate(degs) if deg==i]
+    for _ in range(5): # Do procedure multiple times to make sure all community structures is destroyed
+        edges = graph.get_edgelist()
+        indegs = graph.degree(graph.vs, mode='in')
+        newv2s = [idx for idx,indeg in enumerate(indegs) if indeg>0] #nodes with at least 1 indeg
 
-    # test that the dict is correct
-    test_idx = random.choices(list(degs), k=100)
-    for deg in test_idx:
-        idx = deg_dict[deg][0] 
-        assert degs[idx] == deg
+        for idx,(v1,v2) in enumerate(edges): # each item is an edge, v1,v2 are vertex indices
+            # get node degrees before rewire 
+            pre = (graph.degree(v1, mode='in'), graph.degree(v2, mode='out'))
+            
+            # rewire source of v2 to preserve v2 degree
+            # Note that after each edge is removed, index is reset, so don't get mulitple edge indices at once & delete at once 
+            newv2 = random.choice(list(set(newv2s) - set([v1,v2])))
+            sources = list(set([e[0] for e in edges if e[1]==newv2]) - set([v1,v2]))
 
-    # Shuffle links by permutation
-    original=[]
-    mapping = []
-    for degree, nodes in deg_dict.items(): # for each degree
-        permutate = np.random.permutation(nodes)
-        original.extend(nodes)
-        mapping.extend(permutate)
-        
-    assert sorted(original) == list(range(len(og_graph.vs)))
-    assert sorted(mapping) == list(range(len(og_graph.vs)))
+            if len(sources)>0: #could be that v1, v2 are the sources 
+                v2source = random.choice(sources) #get the source
+                graph.delete_edges(idx) #delete by edge index. 
+                graph.add_edges([(v1,newv2)])
+                
+                jdx = graph.get_eid(v2source, newv2)
+                graph.delete_edges(jdx) #delete edge by edge index
+                graph.add_edges([(newv2, v2)])
+                post = (graph.degree(v1, mode='in'), graph.degree(v2, mode='out'))
 
-    graph = og_graph.permute_vertices(mapping)
+                # make sure 2 degree vertices are preserved after rewiring
+                for kdx, deg in enumerate(pre):
+                    assert deg == post[kdx]
 
-    # check that degrees are preserved
+    # check that degree sequence is preserved
     assert Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))
-    # check that attributes are preserved 
-    shuffled = [i for i in graph.vs]
-    ogv = [i for i in og_graph.vs]
-    for idx in range(len(og_graph.vs)):
-        node, = [n for n in shuffled if int(n['id'])==idx]
-        assert ogv[idx]['party']== node['party']
 
     return graph
 
