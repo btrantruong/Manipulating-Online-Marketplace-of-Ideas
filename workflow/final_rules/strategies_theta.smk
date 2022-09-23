@@ -5,7 +5,7 @@ DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "config_09222022")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = "vary_gamma"
+exp_type = "vary_theta"
 # get network names corresponding to the strategy
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 

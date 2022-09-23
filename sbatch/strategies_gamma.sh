@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=20
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --job-name=strategy_theta
+#SBATCH --job-name=strategy_gamma
 
 ######  Module commands #####
 source /N/u/baotruon/Carbonate/miniconda3/etc/profile.d/conda.sh
@@ -15,5 +15,5 @@ conda activate graph
 
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
-echo '###### compare strategies vary theta ######'
-snakemake --nolock --snakefile workflow/final_rules/strategies_theta.smk --cores 20
+echo '###### compare strategies vary gamma ######'
+snakemake --nolock --snakefile workflow/final_rules/strategies_gamma.smk --cores 20

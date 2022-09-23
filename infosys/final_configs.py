@@ -4,9 +4,14 @@ import numpy as np
 follower_network = 'follower_network.gml'
 mode = 'igraph'
 
-BETA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
-GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
-#[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
+# # Vals for all full exps before 09222022
+# BETA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
+# GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
+# #[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
+
+# vals for exp 09222022
+BETA = sorted(list(10.0**(np.arange(-4, 0))))
+GAMMA = sorted(list(10.0**(np.arange(-4, 0))))
 
 ## First iteration of checking beta gamma theta (onepct, tenpct, fivepct.smk)
 # # 0.0001, 0.001, 0.01, 0.1 
@@ -36,7 +41,8 @@ THETA = [1,2,4,6,8,10,12,14]
 
 DEFAULT_THETA = 5
 DEFAULT_BETA = 0.05
-DEFAULT_GAMMA = 0.05
+DEFAULT_GAMMA = 0.01
+# DEFAULT_GAMMA = 0.05 #values for results in results/config_fivefive
 DEFAULT_STRATEGY = None
 
 all_exps = {}
