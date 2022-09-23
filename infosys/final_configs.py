@@ -4,25 +4,37 @@ import numpy as np
 follower_network = 'follower_network.gml'
 mode = 'igraph'
 
+
+# # default values for the results in results/final*
+# DEFAULT_BETA = 0.1
+# DEFAULT_GAMMA = 0.5
+
+DEFAULT_THETA = 5
+DEFAULT_BETA = 0.05
+DEFAULT_GAMMA = 0.01
+# DEFAULT_GAMMA = 0.05 #values for results in results/config_fivefive
+DEFAULT_STRATEGY = None
+
+
 # # Vals for all full exps before 09222022
-# BETA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
-# GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
-# #[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
+# Keep these arrays to match config with the networks we've created.
+BETA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
+GAMMA = sorted(list(10.0**(np.arange(-4, 0))) + list(5*(10.0**(np.arange(-4, 0)))))
+#[0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5]
 
 # vals for exp 09222022
-BETA = sorted(list(10.0**(np.arange(-4, 0))))
-GAMMA = sorted(list(10.0**(np.arange(-4, 0))))
-
+BETA_SWIPE = [DEFAULT_BETA]
+GAMMA_SWIPE = sorted(list(10.0**(np.arange(-4, 0))))
+THETA_SWIPE = [2, 4, 8 ,16, 32]
+PHI_SWIPE = list(range(1,11))
 ## First iteration of checking beta gamma theta (onepct, tenpct, fivepct.smk)
-# # 0.0001, 0.001, 0.01, 0.1 
 # BETA_SHORT = [0.01, 0.1]
 # THETA_SHORT = [1, 10, 100]
 
-## First iteration of checking beta gamma theta
-GAMMA_SHORT = [0.05]
-# 0.0001, 0.001, 0.01, 0.1 
-BETA_SHORT = [0.01, 0.1]
-THETA_SHORT = [1, 2, 5, 8 ,10]
+## Second iteration of checking beta gamma theta (results in results/fivefive*)
+# GAMMA_SHORT = [0.05]
+# BETA_SHORT = [0.01, 0.1]
+# THETA_SHORT = [1, 2, 5, 8 ,10]
 
 RHO = [0.125, 0.25, 0.5, 0.8]
 EPSILON = [0.0001]
@@ -35,15 +47,6 @@ TARGETING = [None, 'hubs', 'partisanship', 'conservative', 'liberal', 'misinform
 PHI_LIN = [1,2,4,8,10]
 THETA = [1,2,4,6,8,10,12,14]
 
-# # default values for the results in results/final*
-# DEFAULT_BETA = 0.1
-# DEFAULT_GAMMA = 0.5
-
-DEFAULT_THETA = 5
-DEFAULT_BETA = 0.05
-DEFAULT_GAMMA = 0.01
-# DEFAULT_GAMMA = 0.05 #values for results in results/config_fivefive
-DEFAULT_STRATEGY = None
 
 all_exps = {}
 
