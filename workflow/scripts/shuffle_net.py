@@ -47,4 +47,18 @@ def main(args):
         shuffled = igraph.Graph()
         shuffled.write_gml(outfile)
 
+def shuffle_net(infile, mode, outfile):
+    graph = ig.Graph.Read_GML(infile)
+    if mode=='community':
+        shuffled = ig_utils.shuffle_preserve_community(graph)
+    else:
+        shuffled = ig_utils.shuffle_preserve_degree(graph)
+    
+    shuffled.write_gml(outfile)
+
 if __name__ == '__main__': main(sys.argv[1:])
+    # # DEBUG LOCAL
+    # infile = 'data/follower_network.gml'
+    # mode='hub'
+    # outfile ='data/network_hub.gml'
+    # shuffle_net(infile, mode, outfile)
