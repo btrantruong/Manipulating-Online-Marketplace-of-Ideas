@@ -152,6 +152,7 @@ def shuffle_preserve_community(og_graph):
         communities = {} #dict of community - list of idxs
         communities['conservative']= [node.index for node in graph.vs if float(node['party']) > 0]
         communities['liberal']= [node.index for node in graph.vs if float(node['party']) < 0]
+        
         for idx,(v1,v2) in enumerate(graph.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
             if float(graph.vs[v1]['party']) * float(graph.vs[v2]['party']) >0: 
                 #ingroup, population is the same as that of v1
@@ -161,7 +162,8 @@ def shuffle_preserve_community(og_graph):
             
             population = list(set(population) - set([v1,v2]))
             target = random.choice(population)
-            graph.delete_edges(idx) #delete edge by edge index
+            jdx = graph.get_eid(v1,v2) #since idx isn't guaranteed to match reindexed edges 
+            graph.delete_edges(jdx) #delete edge by edge index
             graph.add_edges([(v1,target)])
         
     assert (Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))) == False
@@ -174,16 +176,12 @@ def shuffle_preserve_degree(og_graph):
     # shuffle the links, preseve node's in-degree: for each node rewire link a new node with same degree
     
     graph = deepcopy(og_graph)
-
     for _ in range(5): # Do procedure multiple times to make sure all community structures is destroyed
         edges = graph.get_edgelist()
         indegs = graph.degree(graph.vs, mode='in')
         newv2s = [idx for idx,indeg in enumerate(indegs) if indeg>0] #nodes with at least 1 indeg
 
-        for idx,(v1,v2) in enumerate(edges): # each item is an edge, v1,v2 are vertex indices
-            # get node degrees before rewire 
-            pre = (graph.degree(v1, mode='in'), graph.degree(v2, mode='out'))
-            
+        for idx,(v1,v2) in enumerate(edges): # each item is an edge, v1,v2 are vertex indices 
             # rewire source of v2 to preserve v2 degree
             # Note that after each edge is removed, index is reset, so don't get mulitple edge indices at once & delete at once 
             newv2 = random.choice(list(set(newv2s) - set([v1,v2])))
@@ -191,18 +189,26 @@ def shuffle_preserve_degree(og_graph):
 
             if len(sources)>0: #could be that v1, v2 are the sources 
                 v2source = random.choice(sources) #get the source
-                graph.delete_edges(idx) #delete by edge index. 
-                graph.add_edges([(v1,newv2)])
-                
-                jdx = graph.get_eid(v2source, newv2)
-                graph.delete_edges(jdx) #delete edge by edge index
-                graph.add_edges([(newv2, v2)])
-                post = (graph.degree(v1, mode='in'), graph.degree(v2, mode='out'))
+                # get node degrees before rewire 
+                pre = [graph.degree(v1, mode='out'), graph.degree(v2, mode='in'),
+                  graph.degree(v2source, mode='out'), graph.degree(newv2, mode='in')]
 
-                # make sure 2 degree vertices are preserved after rewiring
-                for kdx, deg in enumerate(pre):
-                    assert deg == post[kdx]
+                if ((v1,v2) in edges) and ((v2source, newv2) in edges):
+                    edx = graph.get_eid(v1,v2) #since idx isn't guaranteed to match reindexed edges 
+                    jdx = graph.get_eid(v2source, newv2)
 
+                    graph.delete_edges([edx, jdx]) #delete by edge index. 
+                    graph.add_edges([(v1,newv2), (v2source,v2)])
+
+                    post = [graph.degree(v1, mode='out'), graph.degree(v2, mode='in'),
+                            graph.degree(v2source, mode='out'), graph.degree(newv2, mode='in')]
+
+                    # make sure 2 degree vertices are preserved after rewiring
+                    for kdx, deg in enumerate(pre):
+                        assert deg == post[kdx]
+
+                    # renew list so deleted edges don't get called
+                    edges = graph.get_edgelist() 
     # check that degree sequence is preserved
     assert Counter(og_graph.degree(og_graph.vs,mode='in')) == Counter(graph.degree(graph.vs,mode='in'))
 
@@ -216,7 +222,7 @@ def _make_sample_graph(graph):
     attributes = [i['party'] for i in sample_vs]
     sample_edges = [(v1,v2) for (v1,v2) in graph.get_edgelist() if v1 in sample_idx and v2 in sample_idx]
     # add vertices and edges 
-    sample_graph = ig.Graph()
+    sample_graph = ig.Graph(directed=True)
     sample_graph.add_vertices(sample_idx)
     sample_graph.vs['party'] = attributes
     for e in sample_edges:
