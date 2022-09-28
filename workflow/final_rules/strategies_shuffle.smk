@@ -3,18 +3,11 @@ import infosys.utils as utils
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-
+# ! Note: Before running make sure config_09222022/shuffle/* exists
+# `shuffle` contains .json configs copied from vary_gamma/*2.json (where gamma=0.01)
 CONFIG_PATH = os.path.join(ABS_PATH, "config_09222022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-# Note config file is not on slate! Change this later
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
-# EXP2NET = {}
-# for exp_name in EXP_NOS:
-#     path = os.path.join(CONFIG_PATH, 'shuffle', f'{exp_name}2.json') 
-#     net_cf = json.load(open(path,'r'))
-#     EXP2NET[exp_name] = utils.netconfig2netname(config_fname, net_cf)
-
-# print('test exp2net conservative:', EXP2NET['conservative'])
 
 SHUFFLES = ['community', 'hub']
 
