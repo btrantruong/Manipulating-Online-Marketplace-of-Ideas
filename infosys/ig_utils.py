@@ -146,7 +146,8 @@ def shuffle_preserve_community(og_graph):
 
     graph = deepcopy(og_graph)
 
-    for _ in range(5): # Do procedure multiple times to make sure all community structures is destroyed
+    for iteration in range(3): # Do procedure multiple times to make sure all community structures is destroyed
+        print(f'Shuffling.. {iteration} iteration')
         # Rewire links while keeping the same group
         #conservative >0
         communities = {} #dict of community - list of idxs
@@ -176,7 +177,8 @@ def shuffle_preserve_degree(og_graph):
     # shuffle the links, preseve node's in-degree: for each node rewire link a new node with same degree
     
     graph = deepcopy(og_graph)
-    for _ in range(5): # Do procedure multiple times to make sure all community structures is destroyed
+    for iteration in range(3): # Do procedure multiple times to make sure all community structures is destroyed
+        print(f'Shuffling.. {iteration} iteration')
         edges = graph.get_edgelist()
         indegs = graph.degree(graph.vs, mode='in')
         newv2s = [idx for idx,indeg in enumerate(indegs) if indeg>0] #nodes with at least 1 indeg

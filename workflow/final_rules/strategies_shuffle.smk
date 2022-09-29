@@ -13,8 +13,8 @@ SHUFFLES = ['community', 'hub']
 
 mode='igraph'
 sim_num=2
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09222022_shuffled_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09222022_shuffled_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_shuffled_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_shuffled_{sim_num}runs')
 
 rule all:
     input: 
@@ -23,7 +23,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml"),
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}_3times.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
@@ -35,10 +35,10 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
+        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_3times.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}_3times.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
@@ -47,7 +47,7 @@ rule init_net:
 
 rule shuffle_net:
     input:  follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_3times.gml")
     shell: """
         python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle}
     """ 
