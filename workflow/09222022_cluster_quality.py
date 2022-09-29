@@ -1,21 +1,13 @@
 import infosys.utils as utils 
-import infosys.plot_utils as plot_utils 
-import infosys.config_values as configs
-
 import igraph as ig
-import matplotlib.pyplot as plt
 import os 
-import glob
-import json
-from collections import defaultdict
 import pandas as pd
-import numpy as np
 
-## Look at verbose files where beta=0.005. (conservative3.json)
+## Previously: Look at verbose files where beta=0.005, gamma=0.5. (final_strategies_vary_beta_2runs/conservative3.json)
+# /N/u/baotruon/Carbonate/marketplace/exp_clustering_quality.out 
 
 res_dir = '/N/slate/baotruon/marketplace/newpipeline/verbose'
-folder = 'final_strategies_vary_beta_2runs'
-
+folder = '09222022_strategies_vary_gamma_2runs'
 
 def get_data(strategy):
     ## READ VERBOSE DATA
@@ -47,27 +39,43 @@ def get_cluster_qual(memes, feeds, uids):
     avg_fitness = sum(all_fitness)/len(all_fitness)
     return avg_qual, avg_fitness
 
+def compare_cluster_quality(strategies):
+    """
+    get clustering quality for each group of agents 
+    eg: strategy1: conservative, strategy2: None
+    Return 2 dfs (quality/fitness) where:
+    each row: results for a strategy 
+    each col: quality/fitness for a cluster (conservative, liberal, misinfo)
+
+    """
+    CLUSTERS = ['conservative', 'liberal', 'misinfo']
+    quals = []
+    fitness =[]
+    for strategy in strategies:
+        print(f'-- calculating for {strategy}..')
+        memes, feeds, communities =  get_data(strategy)
+        qual_dict = {'strategy':strategy} # dict: e.g: {'liberal': qual, 'misinfo': qual}
+        fitness_dict = {'strategy':strategy}
+        
+        for cluster in CLUSTERS:
+            vals = get_cluster_qual(memes, feeds, communities[cluster])
+            qual_dict[cluster] = vals[0]
+            fitness_dict[cluster] = vals[1]
+            print(f'quality {cluster}: {qual_dict[cluster]}')
+            print(f'fitness {cluster}: {fitness_dict[cluster]}')
+        
+        quals +=[qual_dict]
+        fitness +=[fitness_dict]
+
+    quality_df = pd.DataFrame.from_records(quals)
+    fitness_df = pd.DataFrame.from_records(fitness)
+    return quality_df, fitness_df
 
 if __name__=="__main__":
-    print('calculating for conservative..')
-    memes, feeds, communities =  get_data('conservative')
-    right_measures = get_cluster_qual(memes, feeds, communities['conservative'])
-    left_measures = get_cluster_qual(memes, feeds, communities['liberal'])
-    misinfo_measures = get_cluster_qual(memes, feeds, communities['misinfo'])
-
-    print('calculating for none..')
-    none_memes, none_feeds, none_communities =  get_data('None')
-    right_none = get_cluster_qual(none_memes, none_feeds, none_communities['conservative'])
-    left_none = get_cluster_qual(none_memes, none_feeds, none_communities['liberal'])
-    misinfo_none = get_cluster_qual(none_memes, none_feeds, none_communities['misinfo'])
-    print('--Difference in quality between clusters:')
-    print('Targeting on conservatives:')
-    print(f'conservative: {right_measures[0]} - liberal: {left_measures[0]} - misinfo: {misinfo_measures[0]}')
-    print('No targeting')
-    print(f'conservative: {right_none[0]} - liberal: {left_none[0]} - misinfo: {misinfo_none[0]}')
-    
-    print('-- Fitness')
-    print('Targeting on conservatives:')
-    print(f'conservative: {right_measures[1]} - liberal: {left_measures[1]} - misinfo: {misinfo_measures[1]}')
-    print('No targeting')
-    print(f'conservative: {right_none[1]} - liberal: {left_none[1]} - misinfo: {misinfo_none[1]}')
+    strategies= ['conservative', 'liberal', 'None']
+    quality_df, fitness_df = compare_cluster_quality(strategies)
+    # note that file obj is opened with mode 'wb', not 'w'
+    out1 = utils.safe_open(os.path.join('exps', '09292022_clustering','quality.csv'), mode='wb')
+    quality_df.to_csv(out1, index=False)
+    out2 = utils.safe_open(os.path.join('exps', '09292022_clustering','fitness.csv'), mode='wb')
+    fitness_df.to_csv(out2, index=False)
