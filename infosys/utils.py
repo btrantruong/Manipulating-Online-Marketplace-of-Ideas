@@ -198,12 +198,21 @@ def make_sure_dir_exists(parent_path, new_dir_name):
             return False
     return True
 
+
 def make_sure_file_exists(filepath):
   file = pathlib.Path(filepath)
   if file.is_file():
     return True
   else: 
     return False
+
+
+def safe_open(path, mode='w'):
+    ''' Open "path" for writing or reading, creating any parent directories as needed.
+        mode =[w, wb, r, rb]
+    '''
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return open(path, mode)
 
 # def profile(func):
 #     def wrapper(*args, **kwargs):
