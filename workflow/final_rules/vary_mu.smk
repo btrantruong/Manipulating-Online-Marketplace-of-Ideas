@@ -2,21 +2,20 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "config_09222022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-# get network names corresponding to the config
-config = json.load(os.path.join(CONFIG_PATH, 'default_network.json'), 'r')
-net_no = utils.netconfig2netname(config_fname, config) #540
-exp_type = vary_mu
-MUS = [0.25, 0.5, 0.75]
-EXP_NOS = list(range(len(MUS)))
+exp_type = "vary_mu"
+# get network names corresponding to the strategy
+EXPS = json.load(open(config_fname,'r'))[exp_type]
 
+EXP_NOS = list(EXPS.keys())
+EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09222022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09222022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
@@ -24,7 +23,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'vary_network', f"network_{net_no}.gml"),
+        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
         configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
@@ -36,9 +35,9 @@ rule run_simulation:
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(CONFIG_PATH, 'vary_network', f"{net_no}.json")
+        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
         
-    output: os.path.join(DATA_PATH, mode, 'vary_network', f"network_{net_no}.gml")
+    output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}

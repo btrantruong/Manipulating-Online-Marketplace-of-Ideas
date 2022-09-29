@@ -141,6 +141,22 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 json.dump(config,open(fp,'w'))
 
 
+    all_exps["vary_mu"] = {}
+    for idx,mu in enumerate(configs.MU_SWIPE):
+        for kdx,target in enumerate([configs.DEFAULT_STRATEGY]):
+            cf = {'mu':mu, 'targeting_criterion': target}
+
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
+
+            config_name = f'{str(target)}{idx}'
+            all_exps["vary_mu"][config_name] = config
+            
+            if utils.make_sure_dir_exists(saving_dir, 'vary_mu'):
+                fp = os.path.join(saving_dir, 'vary_mu', f'{config_name}.json')
+                json.dump(config,open(fp,'w'))
+
+
     #Varying gamma: (for comparing targeting strategies)
     all_exps["vary_gamma"] = {}
     for idx,gamma in enumerate(configs.GAMMA_SWIPE):
@@ -191,5 +207,10 @@ if __name__=='__main__':
 
     # Note that for final experiments looking at strategies, we're using shortened values: GAMMA_SWIPE 
     # But all networks are created using longer values: BETA and GAMMA
-    saving_dir = os.path.join(ABS_PATH, "config_09222022")
+    # results/09222022*
+    # saving_dir = os.path.join(ABS_PATH, "config_09222022")
+    # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
+
+
+    saving_dir = os.path.join(ABS_PATH, "config_09292022")
     make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
