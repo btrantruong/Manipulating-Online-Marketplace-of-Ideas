@@ -23,6 +23,9 @@ def main(args):
     parser.add_argument('--mode',
         action="store", dest="mode", type=str, required=True,
         help="shuffle strategy (community or hub)")
+    parser.add_argument('--iter',
+        action="store", dest="iterations", type=int, required=False,
+        help="number of times all edges are repeatedly shuffled")
 
 
     args = parser.parse_args(args)
@@ -33,9 +36,9 @@ def main(args):
     try:
         graph = ig.Graph.Read_GML(infile)
         if mode=='community':
-            shuffled = ig_utils.shuffle_preserve_community(graph)
+            shuffled = ig_utils.shuffle_preserve_community(graph, iterations=int(args.iter))
         else:
-            shuffled = ig_utils.shuffle_preserve_degree(graph)
+            shuffled = ig_utils.shuffle_preserve_degree(graph, iterations=int(args.iter))
         
         shuffled.write_gml(outfile)
     

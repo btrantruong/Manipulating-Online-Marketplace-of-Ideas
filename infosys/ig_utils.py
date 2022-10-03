@@ -140,13 +140,13 @@ def init_net(targeting_criterion=None, verbose=False, human_network = None, n_hu
         return G
 
 
-def shuffle_preserve_community(og_graph):
+def shuffle_preserve_community(og_graph, iterations=3):
     # Return G_shuffle: a new graph w/o the original hub structures
     # shuffle the links, preseve node's community (party)
 
     graph = deepcopy(og_graph)
 
-    for iteration in range(3): # Do procedure multiple times to make sure all community structures is destroyed
+    for iteration in range(iterations): # Do procedure multiple times to make sure all community structures is destroyed
         print(f'Shuffling.. {iteration} iteration')
         # Rewire links while keeping the same group
         #conservative >0
@@ -155,6 +155,8 @@ def shuffle_preserve_community(og_graph):
         communities['liberal']= [node.index for node in graph.vs if float(node['party']) < 0]
         
         for idx,(v1,v2) in enumerate(graph.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
+            if idx%500==0:
+                print(f'shuffled {idx} edges')
             if float(graph.vs[v1]['party']) * float(graph.vs[v2]['party']) >0: 
                 #ingroup, population is the same as that of v1
                 population = communities['conservative'] if float(graph.vs[v1]['party'])>0 else communities['liberal']
@@ -172,18 +174,20 @@ def shuffle_preserve_community(og_graph):
     return graph
     
 
-def shuffle_preserve_degree(og_graph):
+def shuffle_preserve_degree(og_graph, iterations=3):
     # Return graph: a new graph w/o the original clustering structures
     # shuffle the links, preseve node's in-degree: for each node rewire link a new node with same degree
     
     graph = deepcopy(og_graph)
-    for iteration in range(3): # Do procedure multiple times to make sure all community structures is destroyed
+    for iteration in range(iterations): # Do procedure multiple times to make sure all community structures is destroyed
         print(f'Shuffling.. {iteration} iteration')
         edges = graph.get_edgelist()
         indegs = graph.degree(graph.vs, mode='in')
         newv2s = [idx for idx,indeg in enumerate(indegs) if indeg>0] #nodes with at least 1 indeg
 
         for idx,(v1,v2) in enumerate(edges): # each item is an edge, v1,v2 are vertex indices 
+            if idx%500==0:
+                print(f'shuffled {idx} edges')
             # rewire source of v2 to preserve v2 degree
             # Note that after each edge is removed, index is reset, so don't get mulitple edge indices at once & delete at once 
             newv2 = random.choice(list(set(newv2s) - set([v1,v2])))

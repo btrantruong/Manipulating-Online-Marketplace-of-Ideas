@@ -3,9 +3,9 @@ import infosys.utils as utils
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-# ! Note: Before running make sure config_09222022/shuffle/* exists
+# ! Note: Before running make sure config_09292022/shuffle/* exists
 # `shuffle` contains .json configs copied from vary_gamma/*2.json (where gamma=0.01)
-CONFIG_PATH = os.path.join(ABS_PATH, "config_09222022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
@@ -23,7 +23,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}_3times.gml"),
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
@@ -35,10 +35,10 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_3times.gml"),
+        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}_3times.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
@@ -47,7 +47,7 @@ rule init_net:
 
 rule shuffle_net:
     input:  follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_3times.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
     shell: """
-        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle}
+        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle} --iter 1
     """ 
