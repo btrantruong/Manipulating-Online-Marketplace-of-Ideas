@@ -33,11 +33,18 @@ def main(args):
     outfile = args.outfile
     mode = args.mode
     try:
-        graph = ig.Graph.Read_GML(infile)
+        graph1 = ig.Graph.Read_GML(infile)
+        graph2 = ig.Graph.Read_GML(infile)
         if mode=='community':
-            shuffled = ig_utils.shuffle_preserve_community(graph, iterations=int(args.iter))
+            shuffled = ig_utils.shuffle_preserve_community_nocopy(graph1, graph2, iterations=int(args.iter))
         else:
-            shuffled = ig_utils.shuffle_preserve_degree(graph, iterations=int(args.iter))
+            shuffled = ig_utils.shuffle_preserve_degree_nocopy(graph1, graph2, iterations=int(args.iter))
+
+
+        # if mode=='community':
+        #     shuffled = ig_utils.shuffle_preserve_community(graph, iterations=int(args.iter))
+        # else:
+        #     shuffled = ig_utils.shuffle_preserve_degree(graph, iterations=int(args.iter))
         
         shuffled.write_gml(outfile)
     
@@ -48,6 +55,7 @@ def main(args):
 
         shuffled = igraph.Graph()
         shuffled.write_gml(outfile)
+
 
 def shuffle_net(infile, mode, outfile):
     graph = ig.Graph.Read_GML(infile)
