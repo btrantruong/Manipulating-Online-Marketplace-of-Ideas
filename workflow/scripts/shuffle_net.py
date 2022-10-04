@@ -24,7 +24,7 @@ def main(args):
         action="store", dest="mode", type=str, required=True,
         help="shuffle strategy (community or hub)")
     parser.add_argument('--iter',
-        action="store", dest="iterations", type=int, required=False,
+        action="store", dest="iter", type=int, required=False,
         help="number of times all edges are repeatedly shuffled")
 
 
@@ -32,7 +32,6 @@ def main(args):
     infile = args.infile 
     outfile = args.outfile
     mode = args.mode
-
     try:
         graph = ig.Graph.Read_GML(infile)
         if mode=='community':
