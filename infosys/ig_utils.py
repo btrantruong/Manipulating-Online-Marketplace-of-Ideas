@@ -6,6 +6,10 @@ import string
 import numpy as np
 from collections import Counter 
 from copy import deepcopy
+import os 
+
+
+logger = utils.get_file_logger(also_print=True)
 
 def read_empirical_network(file):
     # print('File: ', file)
@@ -178,10 +182,10 @@ def shuffle_preserve_community_nocopy(graph1, graph2, iterations=3):
     # Work around from having to make deep copy of the original graph 
     # Return graph2: a new graph w/o the original hub structures
     # shuffle the links, preseve node's community (party)
-    print('Do shuffle (no deep copy)')
-
+    logger.info('Do shuffle (no deep copy)')
+    
     for iteration in range(iterations): # Do procedure multiple times to make sure all community structures is destroyed
-        print(f'Shuffling.. {iteration} iteration')
+        logger.info(f'Shuffling.. {iteration} iteration')
         # Rewire links while keeping the same group
         #conservative >0
         communities = {} #dict of community - list of idxs
@@ -190,7 +194,7 @@ def shuffle_preserve_community_nocopy(graph1, graph2, iterations=3):
         
         for idx,(v1,v2) in enumerate(graph2.get_edgelist()): # each item is an edge, v1,v2 are vertex indices
             if idx%100==0:
-                print(f'shuffled {idx} edges')
+                logger.info(f'shuffled {idx} edges')
             if float(graph2.vs[v1]['party']) * float(graph2.vs[v2]['party']) >0: 
                 #ingroup, population is the same as that of v1
                 population = communities['conservative'] if float(graph2.vs[v1]['party'])>0 else communities['liberal']
@@ -204,7 +208,13 @@ def shuffle_preserve_community_nocopy(graph1, graph2, iterations=3):
             graph2.add_edges([(v1,target)])
         
         assert (Counter(graph1.degree(graph1.vs,mode='in')) == Counter(graph2.degree(graph2.vs,mode='in'))) == False
-
+        
+        #save intermediate network 
+        if utils.make_sure_dir_exists('shuffle_intermediate', '') is True:
+            fpath = os.path.join('shuffle_intermediate', f'community_iter{iteration}.gml')
+            graph2.write_gml(fpath)
+            logger.info(f'Save intermediate to {fpath}')
+            
     return graph2
 
 
@@ -259,17 +269,17 @@ def shuffle_preserve_degree_nocopy(graph1, graph2, iterations=3):
     # Work around from having to make deep copy of original graph
     # Return graph2: a new graph w/o the original clustering structures
     # shuffle the links, preseve node's in-degree: for each node rewire link a new node with same degree
-    print('Do shuffle (no deep copy)')
+    logger.info('Do shuffle (no deep copy)')
 
     for iteration in range(iterations): # Do procedure multiple times to make sure all community structures is destroyed
-        print(f'Shuffling.. {iteration} iteration')
+        logger.info(f'Shuffling.. {iteration} iteration')
         edges = graph2.get_edgelist()
         indegs = graph2.degree(graph2.vs, mode='in')
         newv2s = [idx for idx,indeg in enumerate(indegs) if indeg>0] #nodes with at least 1 indeg
 
         for idx,(v1,v2) in enumerate(edges): # each item is an edge, v1,v2 are vertex indices 
             if idx%100==0:
-                print(f'shuffled {idx} edges')
+                logger.info(f'shuffled {idx} edges')
             # rewire source of v2 to preserve v2 degree
             # Note that after each edge is removed, index is reset, so don't get mulitple edge indices at once & delete at once 
             newv2 = random.choice(list(set(newv2s) - set([v1,v2])))
@@ -297,8 +307,15 @@ def shuffle_preserve_degree_nocopy(graph1, graph2, iterations=3):
 
                     # renew list so deleted edges don't get called
                     edges = graph2.get_edgelist() 
-    # check that degree sequence is preserved
-    assert Counter(graph1.degree(graph1.vs,mode='in')) == Counter(graph2.degree(graph2.vs,mode='in'))
+        
+        #save intermediate network 
+        if utils.make_sure_dir_exists('shuffle_intermediate', '') is True:
+            fpath = os.path.join('shuffle_intermediate', f'hub_iter{iteration}.gml')
+            graph2.write_gml(fpath)
+            logger.info(f'Save intermediate to {fpath}')
+
+        # check that degree sequence is preserved
+        assert Counter(graph1.degree(graph1.vs,mode='in')) == Counter(graph2.degree(graph2.vs,mode='in'))
 
     return graph2
 
