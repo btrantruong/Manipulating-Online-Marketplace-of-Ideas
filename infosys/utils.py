@@ -171,6 +171,42 @@ def get_logger(name):
     logger.setLevel(level)
     return logger
 
+
+def get_file_logger(log_dir='.log', also_print=False):
+    """Create logger."""
+
+    # Create log_dir if it doesn't exist already
+    try:
+        os.makedirs(f"{log_dir}")
+    except:
+        pass
+
+    # Create logger and set level
+    logger = logging.getLogger(__name__)
+    logger.setLevel(level=logging.INFO)
+
+    # Configure file handler
+    formatter = logging.Formatter(
+        fmt="%(asctime)s-%(name)s-%(levelname)s-%(message)s",
+        datefmt="%Y-%m-%d_%H:%M:%S",
+    )
+    log_fpath = os.path.join(log_dir, f"{__name__}_{get_now()}")
+    fh = logging.FileHandler(log_fpath)
+    fh.setFormatter(formatter)
+    fh.setLevel(level=logging.INFO)
+    # Add handlers to logger
+    logger.addHandler(fh)
+
+    # If true, also print the output to the console in addition to sending it to the log file
+    if also_print:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        ch.setLevel(level=logging.INFO)
+        logger.addHandler(ch)
+
+    return logger
+
+
 #log time profiling to file 
 # def get_logger_tofile():
 #     logger = logging
