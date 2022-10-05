@@ -33,8 +33,11 @@ def main(args):
     outfile = args.outfile
     mode = args.mode
     try:
+        print('Reading network 1.. ')
         graph1 = ig.Graph.Read_GML(infile)
+        print('Reading network 2.. ')
         graph2 = ig.Graph.Read_GML(infile)
+        print('Finished reading network, shuffle..')
         if mode=='community':
             shuffled = ig_utils.shuffle_preserve_community_nocopy(graph1, graph2, iterations=int(args.iter))
         else:
