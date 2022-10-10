@@ -9,7 +9,7 @@ CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
-SHUFFLES = ['community', 'hub']
+SHUFFLES = ['hub'] #TODO: run this for community shuffle later
 
 mode='igraph'
 sim_num=2
