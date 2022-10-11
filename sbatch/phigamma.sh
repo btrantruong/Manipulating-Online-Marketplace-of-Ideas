@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=23
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --job-name=vary_thetaphi
+#SBATCH --job-name=vary_phigamma
 
 ######  Module commands #####
 source /N/u/baotruon/Carbonate/miniconda3/etc/profile.d/conda.sh
@@ -15,5 +15,5 @@ conda activate graph
 
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
-echo '###### vary thetaphi ######'
-snakemake --nolock --snakefile workflow/final_rules/vary_thetaphi.smk --cores 23
+echo '###### vary phigamma ######'
+snakemake --nolock --snakefile workflow/final_rules/vary_phigamma.smk --cores 23
