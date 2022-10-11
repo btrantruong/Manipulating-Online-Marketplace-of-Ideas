@@ -5,17 +5,23 @@ DATA_PATH = os.path.join(ABS_PATH, 'data')
 CONFIG_PATH = os.path.join(ABS_PATH, "config_10102022")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = 'vary_thetaphi'
+exp_type = 'vary_thetagamma'
 # get names for exp_config and network
-# exclude theta[0]=1 (default value, in which case results are same as No targeting vary_phi)
-# exclude phi[0]=1 exps (same as results in No targeting vary_theta)
+EXPS = json.load(open(config_fname,'r'))[exp_type]
 
-EXP2NET = utils.expconfig2netname(config_fname, exp_type)
-EXPS = [
+# exclude theta[0] exps (same as results in No targeting vary_gamma)
+# exclude gamma[2]=0.01 (default value, in which case results are same as No targeting vary_theta)
+EXP_NOS = [
     exp_name
     for exp_name in EXPS.keys()
-    if int(exp_name[0]) != 0 and int(exp_name[1]) != 0
+    if int(exp_name[0]) != 0 and int(exp_name[1]) != 2
 ]
+
+EXP2NET = {
+    exp_name: utils.netconfig2netname(config_fname, net_cf)
+    for exp_name, net_cf in EXPS.items()
+    if exp_name in EXP_NOS
+}
 
 sim_num = 1
 mode='igraph'
@@ -23,16 +29,17 @@ mode='igraph'
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10102022_{exp_type}_{sim_num}runs')
 TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10102022_{exp_type}_{sim_num}runs')
 
+
 rule all:
     input: 
-        expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
+        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXP_NOS)
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
-        configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")
+        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
+        configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json") #data/vary_thetabeta/004.json
     output: 
-        measurements = os.path.join(RES_DIR, '{exp_no}.json'),
+        measurements = os.path.join(RES_DIR, '{exp_no}.json')
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
     shell: """
         python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
