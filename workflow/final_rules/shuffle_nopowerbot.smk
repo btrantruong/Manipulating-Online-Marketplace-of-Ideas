@@ -23,8 +23,8 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}0_{shuffle}.gml"),
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}0.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
@@ -35,10 +35,10 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
+        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml"),
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}0.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}0_{shuffle}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
@@ -47,7 +47,7 @@ rule init_net:
 
 rule shuffle_net:
     input:  follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml")
     shell: """
-        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle} --iter 1
+        python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle} --iter 10
     """ 
