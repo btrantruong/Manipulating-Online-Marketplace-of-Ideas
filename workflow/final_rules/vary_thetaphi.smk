@@ -11,9 +11,10 @@ exp_type = 'vary_thetaphi'
 # exclude phi[0]=1 exps (same as results in No targeting vary_theta)
 
 EXP2NET = utils.expconfig2netname(config_fname, exp_type)
+EXPS = EXP2NET.keys()
 EXPS = [
     exp_name
-    for exp_name in EXPS.keys()
+    for exp_name in EXPS
     if int(exp_name[0]) != 0 and int(exp_name[1]) != 0
 ]
 
