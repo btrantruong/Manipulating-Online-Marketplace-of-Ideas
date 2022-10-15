@@ -12,9 +12,9 @@ EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 SHUFFLES = ['hub'] #TODO: run this for community shuffle later
 
 mode='igraph'
-sim_num=2
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_shuffled10iter_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_shuffled10iter_{sim_num}runs')
+sim_num=3
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10102022_shuffled10iter_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10102022_shuffled10iter_{sim_num}runs')
 
 rule all:
     input: 
