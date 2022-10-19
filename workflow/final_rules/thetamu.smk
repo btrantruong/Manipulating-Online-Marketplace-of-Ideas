@@ -34,7 +34,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
+        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, '10192022_networkbackup', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
         configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json')
@@ -47,7 +47,7 @@ rule init_net:
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
         configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
         
-    output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
+    output: os.path.join(DATA_PATH, mode, '10192022_networkbackup', "network_{net_no}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
