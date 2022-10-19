@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary gammamu ######'
-snakemake --nolock --snakefile workflow/final_rules/gammamu.smk --cores 23
+snakemake --snakefile workflow/final_rules/gammamu.smk --cores 23
