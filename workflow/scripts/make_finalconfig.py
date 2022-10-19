@@ -60,6 +60,54 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 fp = os.path.join(saving_dir, "vary_thetaphi", f"{config_name}.json")
                 json.dump(config, open(fp, "w"))
 
+    # vary gamma, theta & phi
+    all_exps["vary_gammathetaphi"] = {}
+    for hdx, gamma in enumerate(configs.GAMMA_SWIPE):
+        for idx, theta in enumerate(configs.THETA_SWIPE):
+            for jdx, phi in enumerate(configs.PHI_SWIPE):
+                cf = {"gamma": gamma, "theta": theta, "phi": phi}
+                config = utils.update_dict(cf, default_net_config)
+                config = utils.update_dict(config, default_infosys_config)
+
+                config_name = f"{hdx}{idx}{jdx}"
+                all_exps["vary_gammathetaphi"][config_name] = config
+
+                if utils.make_sure_dir_exists(saving_dir, "vary_gammathetaphi"):
+                    fp = os.path.join(
+                        saving_dir, "vary_gammathetaphi", f"{config_name}.json"
+                    )
+                    json.dump(config, open(fp, "w"))
+
+    # vary theta & mu
+    all_exps["vary_thetamu"] = {}
+    for idx, theta in enumerate(configs.THETA_SWIPE):
+        for jdx, mu in enumerate(configs.MU_SWIPE):
+            cf = {"theta": theta, "mu": mu}
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
+
+            config_name = f"{idx}{jdx}"
+            all_exps["vary_thetamu"][config_name] = config
+
+            if utils.make_sure_dir_exists(saving_dir, "vary_thetamu"):
+                fp = os.path.join(saving_dir, "vary_thetamu", f"{config_name}.json")
+                json.dump(config, open(fp, "w"))
+
+    # vary gamma & mu
+    all_exps["vary_gammamu"] = {}
+    for idx, gamma in enumerate(configs.GAMMA_SWIPE):
+        for jdx, mu in enumerate(configs.MU_SWIPE):
+            cf = {"gamma": gamma, "mu": mu}
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
+
+            config_name = f"{idx}{jdx}"
+            all_exps["vary_gammamu"][config_name] = config
+
+            if utils.make_sure_dir_exists(saving_dir, "vary_gammamu"):
+                fp = os.path.join(saving_dir, "vary_gammamu", f"{config_name}.json")
+                json.dump(config, open(fp, "w"))
+
     # #Varying theta beta:
     # all_exps["vary_thetabeta"] = {}
     # for idx, theta in enumerate(configs.THETA):
@@ -223,5 +271,8 @@ if __name__ == "__main__":
     # saving_dir = os.path.join(ABS_PATH, "config_09292022")
     # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
 
-    saving_dir = os.path.join(ABS_PATH, "config_10102022")
-    make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
+    # saving_dir = os.path.join(ABS_PATH, "config_10102022")
+    # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
+
+    saving_dir = os.path.join(ABS_PATH, "config_10182022")
+    make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_notracking)
