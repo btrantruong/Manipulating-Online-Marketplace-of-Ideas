@@ -4,7 +4,7 @@ ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
 # ! Note: Before running make sure config_09292022/shuffle/* exists
-# `shuffle` contains .json configs copied from vary_gamma/*2.json (where gamma=0.01)
+# `shuffle` contains .json configs copied from vary_gamma/*3.json (where gamma=0.1)
 CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
@@ -23,8 +23,8 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}2_{shuffle}.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}3_{shuffle}.gml"),
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}3.json')
     output: 
         measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
@@ -36,9 +36,9 @@ rule run_simulation:
 rule init_net:
     input: 
         follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}3.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}2_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}3_{shuffle}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
