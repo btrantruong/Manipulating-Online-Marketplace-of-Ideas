@@ -3,7 +3,7 @@
 #SBATCH --mail-user=baotruon@iu.edu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=36
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --job-name=strategy_theta
@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary theta ######'
-snakemake --snakefile workflow/final_rules/strategies_theta.smk --cores 20
+snakemake --nolock --snakefile workflow/final_rules/strategies_theta.smk --cores 36
