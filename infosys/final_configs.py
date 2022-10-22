@@ -14,6 +14,7 @@ mode = "igraph"
 DEFAULT_THETA = 1
 DEFAULT_BETA = 0.05
 DEFAULT_GAMMA = 0.01
+MINIMAL_GAMMA = 0.0001
 # DEFAULT_GAMMA = 0.05 #values for results in results/config_fivefive
 DEFAULT_STRATEGY = None
 
@@ -101,6 +102,14 @@ infosys_notracking = {
     "phi": 1,
     "alpha": 15,
     "theta": DEFAULT_THETA,
+}
+
+fivepctbot_minimal_infiltration_default_net = {
+    "beta": 0.05,
+    "gamma": MINIMAL_GAMMA,
+    "targeting_criterion": None,
+    "verbose": False,
+    "human_network": follower_network,
 }
 
 fivepctbot_default_net = {

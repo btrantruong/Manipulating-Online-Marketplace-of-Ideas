@@ -8,6 +8,7 @@ from collections import Counter
 from copy import deepcopy
 import os
 
+# * remember link direction is following, opposite of info spread!
 
 logger = utils.get_file_logger(also_print=True)
 
