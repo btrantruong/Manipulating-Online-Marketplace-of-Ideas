@@ -168,6 +168,33 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 fp = os.path.join(saving_dir, "vary_mu", f"{config_name}.json")
                 json.dump(config, open(fp, "w"))
 
+    # no bot baseline
+    all_exps["baseline"] = {}
+    cf = default_net_config
+    config = utils.update_dict(cf, default_infosys_config)
+
+    config_name = f"baseline"
+    all_exps["baseline"][config_name] = config
+
+    if utils.make_sure_dir_exists(saving_dir, "baseline"):
+        fp = os.path.join(saving_dir, "baseline", f"{config_name}.json")
+        json.dump(config, open(fp, "w"))
+
+    all_exps["vary_alpha"] = {}
+    for idx, alpha in enumerate(configs.ALPHA_SWIPE):
+        for kdx, target in enumerate([configs.DEFAULT_STRATEGY]):
+            cf = {"alpha": alpha, "targeting_criterion": target}
+
+            config = utils.update_dict(cf, default_net_config)
+            config = utils.update_dict(config, default_infosys_config)
+
+            config_name = f"{str(target)}{idx}"
+            all_exps["vary_alpha"][config_name] = config
+
+            if utils.make_sure_dir_exists(saving_dir, "vary_alpha"):
+                fp = os.path.join(saving_dir, "vary_alpha", f"{config_name}.json")
+                json.dump(config, open(fp, "w"))
+
     # Varying gamma: (for comparing targeting strategies)
     all_exps["vary_gamma"] = {}
     for idx, gamma in enumerate(configs.GAMMA_SWIPE):
@@ -223,5 +250,5 @@ if __name__ == "__main__":
     # saving_dir = os.path.join(ABS_PATH, "config_09292022")
     # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
 
-    saving_dir = os.path.join(ABS_PATH, "config_10102022")
+    saving_dir = os.path.join(ABS_PATH, "config_10202022_baseline")
     make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)

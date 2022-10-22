@@ -32,7 +32,7 @@ GAMMA_SWIPE = sorted(list(10.0 ** (np.arange(-4, 0))))
 THETA_SWIPE = [1, 2, 4, 8, 16, 32]  # default 1 can be copied from vary_gamma
 PHI_SWIPE = list(range(1, 11))  # default 1 can be copied from vary_gamma
 MU_SWIPE = [0.25, 0.75, 0.9]  # because 0.5 is the default
-
+ALPHA_SWIPE = [4, 16, 32, 64]
 
 # # Vals for all full exps before 09222022
 # Keep these arrays to match config with the networks we've created.
