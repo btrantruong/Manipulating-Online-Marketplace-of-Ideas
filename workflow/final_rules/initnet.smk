@@ -11,7 +11,13 @@ EXPS = json.load(open(config_fname,'r'))[exp_type]
 # only init networks of interest: 
 beta_idxs = [configs.BETA.index(beta) for beta in configs.BETA_SWIPE]
 gamma_jdxs = [configs.GAMMA.index(gamma) for gamma in configs.GAMMA_SWIPE]
-EXP_NOS = list([netname for netname in EXPS.keys() if netname[0] in beta_idxs and netname[1] in gamma_jdxs])
+EXP_NOS = list(
+    [
+        netname
+        for netname in EXPS.keys()
+        if int(netname[0]) in beta_idxs and int(netname[1]) in gamma_jdxs
+    ]
+)
 mode='igraph'
 
 rule all:
