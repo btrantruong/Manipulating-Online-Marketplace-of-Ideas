@@ -13,11 +13,13 @@ EXP_NOS = list(EXPS.keys())
 mode='igraph'
 
 rule all:
-    expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml"), net_no=EXP_NOS)
+    input:
+        expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml"), net_no=EXP_NOS)
+
 rule init_net:
     input: 
         follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = expand(os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json"), net_no=EXP_NOS)
+        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
         
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
