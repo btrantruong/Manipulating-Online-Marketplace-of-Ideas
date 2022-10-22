@@ -153,6 +153,7 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
                 fp = os.path.join(saving_dir, "vary_phi", f"{config_name}.json")
                 json.dump(config, open(fp, "w"))
 
+    # Vary mu, only None strategy
     all_exps["vary_mu"] = {}
     for idx, mu in enumerate(configs.MU_SWIPE):
         for kdx, target in enumerate([configs.DEFAULT_STRATEGY]):
@@ -223,5 +224,13 @@ if __name__ == "__main__":
     # saving_dir = os.path.join(ABS_PATH, "config_09292022")
     # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
 
-    saving_dir = os.path.join(ABS_PATH, "config_10102022")
-    make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
+    # saving_dir = os.path.join(ABS_PATH, "config_10102022")
+    # make_exps(saving_dir, configs.fivepctbot_default_net, configs.infosys_default)
+
+    saving_dir = os.path.join(ABS_PATH, "config_10222022")
+    make_exps(
+        saving_dir,
+        configs.fivepctbot_minimal_infiltration_default_net,
+        configs.infosys_default,
+    )
+

@@ -14,6 +14,7 @@ mode = "igraph"
 DEFAULT_THETA = 1
 DEFAULT_BETA = 0.05
 DEFAULT_GAMMA = 0.01
+MINIMAL_GAMMA = 0.0001
 # DEFAULT_GAMMA = 0.05 #values for results in results/config_fivefive
 DEFAULT_STRATEGY = None
 
@@ -31,7 +32,6 @@ GAMMA_SWIPE = sorted(list(10.0 ** (np.arange(-4, 0))))
 THETA_SWIPE = [1, 2, 4, 8, 16, 32]  # default 1 can be copied from vary_gamma
 PHI_SWIPE = list(range(1, 11))  # default 1 can be copied from vary_gamma
 MU_SWIPE = [0.25, 0.75, 0.9]  # because 0.5 is the default
-
 
 # # Vals for all full exps before 09222022
 # Keep these arrays to match config with the networks we've created.
@@ -101,6 +101,14 @@ infosys_notracking = {
     "phi": 1,
     "alpha": 15,
     "theta": DEFAULT_THETA,
+}
+
+fivepctbot_minimal_infiltration_default_net = {
+    "beta": 0.05,
+    "gamma": MINIMAL_GAMMA,
+    "targeting_criterion": None,
+    "verbose": False,
+    "human_network": follower_network,
 }
 
 fivepctbot_default_net = {
