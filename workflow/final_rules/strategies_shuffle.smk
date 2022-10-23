@@ -3,9 +3,9 @@ import infosys.utils as utils
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-# ! Note: Before running make sure config_10202022/shuffle/* exists
+# ! Note: Before running make sure config_10202022_baseline/shuffle/* exists
 # `shuffle` contains .json configs copied from vary_gamma/*{[0,2,3]}.json (where gamma=0.0001, 0.01 and 0.1)
-CONFIG_PATH = os.path.join(ABS_PATH, "config_10202022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_10202022_baseline")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
