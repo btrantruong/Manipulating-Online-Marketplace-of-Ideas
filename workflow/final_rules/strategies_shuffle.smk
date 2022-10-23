@@ -3,31 +3,31 @@ import infosys.utils as utils
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-# ! Note: Before running make sure config_09292022/shuffle/* exists
-# `shuffle` contains .json configs copied from vary_gamma/*3.json (where gamma=0.1)
-CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
+# ! Note: Before running make sure config_10222022/shuffle/* exists
+# `shuffle` contains .json configs copied from vary_gamma/*{[0,2,3]}.json (where gamma=0.0001, 0.01 and 0.1)
+CONFIG_PATH = os.path.join(ABS_PATH, "config_10222022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
 SHUFFLES = ['hub'] #TODO: run this for community shuffle later
-
+GAMMAS = [0,2,3]
 mode='igraph'
-sim_num=2
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_shuffled10iter_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_shuffled10iter_{sim_num}runs')
+sim_num=3
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10222022_shuffle_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10222022_shuffle_{sim_num}runs')
 
 rule all:
     input: 
-        expand(os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'), shuffle=SHUFFLES, exp_no=EXP_NOS),
+        expand(os.path.join(RES_DIR, '{shuffle}_shuffle__{strategy}{gamma}.json'), shuffle=SHUFFLES, strategy=EXP_NOS, gamma=GAMMAS),
 
 
 rule run_simulation:
     input: 
-        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}3_{shuffle}.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}3.json')
+        network = os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "{shuffle}_shuffle__{strategy}{gamma}.gml"),
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{strategy}{gamma}.json')
     output: 
-        measurements = os.path.join(RES_DIR, '{shuffle}_{exp_no}.json'),
-        tracking = os.path.join(TRACKING_DIR, '{shuffle}_{exp_no}.json.gz')
+        measurements = os.path.join(RES_DIR, '{shuffle}_shuffle__{strategy}{gamma}.json'),
+        tracking = os.path.join(TRACKING_DIR, '{shuffle}_shuffle__{strategy}{gamma}.json.gz')
     shell: """
         python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """
@@ -36,9 +36,9 @@ rule run_simulation:
 rule init_net:
     input: 
         follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml"),
-        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}3.json')
+        configfile = os.path.join(CONFIG_PATH, 'shuffle', '{strategy}{gamma}.json')
         
-    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}3_{shuffle}.gml")
+    output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "{shuffle}_shuffle__{strategy}{gamma}.gml")
 
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
