@@ -3,9 +3,9 @@ import infosys.utils as utils
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
 
-# ! Note: Before running make sure config_10222022/shuffle/* exists
+# ! Note: Before running make sure config_10202022/shuffle/* exists
 # `shuffle` contains .json configs copied from vary_gamma/*{[0,2,3]}.json (where gamma=0.0001, 0.01 and 0.1)
-CONFIG_PATH = os.path.join(ABS_PATH, "config_10222022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_10202022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
@@ -13,8 +13,8 @@ SHUFFLES = ['hub'] #TODO: run this for community shuffle later
 GAMMAS = [0,2,3]
 mode='igraph'
 sim_num=3
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10222022_shuffle_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10222022_shuffle_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10202022_shuffle_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10202022_shuffle_{sim_num}runs')
 
 rule all:
     input: 
