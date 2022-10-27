@@ -11,7 +11,7 @@ EXPS = json.load(open(config_fname,'r'))[exp_type]
 
 EXP_NOS = list(EXPS.keys())
 EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10202022_baseline_{exp_type}_{sim_num}runs')
