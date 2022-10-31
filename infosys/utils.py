@@ -28,7 +28,7 @@ import scipy.stats as stats
 from scipy.stats import ks_2samp
 
 # import infosys.config_values as configs
-import infosys.final_configs as configs
+import infosys.config_vals as configs
 
 
 ### I/O
