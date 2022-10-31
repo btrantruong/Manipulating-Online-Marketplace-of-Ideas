@@ -50,7 +50,7 @@ rule init_net:
         follower= ancient(os.path.join(DATA_PATH, 'follower_network.gml')),
         configfile = ancient(os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json"))
         
-    output: ancient(os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml"))
+    output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
     shell: """
             python3 -m workflow.scripts.init_net -i {input.follower} -o {output} --config {input.configfile} --mode {mode}
         """ 
