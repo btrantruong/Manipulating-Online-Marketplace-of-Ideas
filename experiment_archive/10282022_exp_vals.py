@@ -1,3 +1,7 @@
+""" Values are used for experiments prior to Oct 28, 2022
+    Corresponding configs (specified in the code comments) are created in experiement_config_archive.py
+"""
+
 import os
 import numpy as np
 

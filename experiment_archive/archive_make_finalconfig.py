@@ -3,7 +3,7 @@ import os
 
 print(os.getcwd())
 import infosys.utils as utils
-import infosys.final_configs as configs
+import infosys.config_vals as configs
 import numpy as np
 import os
 import json
