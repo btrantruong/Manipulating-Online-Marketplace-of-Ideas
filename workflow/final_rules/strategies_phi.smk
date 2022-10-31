@@ -33,8 +33,8 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
-        configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")
+        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml"))),
+        configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json"))
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
@@ -44,8 +44,8 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
+        follower= ancient(os.path.join(DATA_PATH, 'follower_network.gml')),
+        configfile = ancient(os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json"))
         
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
