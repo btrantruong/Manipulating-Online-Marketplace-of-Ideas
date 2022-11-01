@@ -6,7 +6,6 @@ import string
 import numpy as np
 from collections import Counter
 from copy import deepcopy
-import os
 
 # * remember link direction is following, opposite of info spread!
 
@@ -26,8 +25,7 @@ def write_gmlz(graph, file):
     graph.Graph.write_graphmlz(file)
 
 
-# TODO: comment out random seed in actual run
-def random_walk_network(net_size, p=0.5, k_out=3, seed=100):
+def random_walk_network(net_size, p=0.5, k_out=3):
     # create a network with random-walk growth model
     # default p = 0.5 for network clustering
     # default k_out = 3 is average no. friends within humans & bots
@@ -164,64 +162,14 @@ def init_net(
         return G
 
 
-def shuffle_preserve_community(og_graph, iterations=3):
-    # Return G_shuffle: a new graph w/o the original hub structures
-    # shuffle the links, preseve node's community (party)
-
-    graph = deepcopy(og_graph)
-    print("Finished making network copy.")
-
-    for iteration in range(
-        iterations
-    ):  # Do procedure multiple times to make sure all community structures is destroyed
-        print(f"Shuffling.. {iteration} iteration")
-        # Rewire links while keeping the same group
-        # conservative >0
-        communities = {}  # dict of community - list of idxs
-        communities["conservative"] = [
-            node.index for node in graph.vs if float(node["party"]) > 0
-        ]
-        communities["liberal"] = [
-            node.index for node in graph.vs if float(node["party"]) < 0
-        ]
-
-        for idx, (v1, v2) in enumerate(
-            graph.get_edgelist()
-        ):  # each item is an edge, v1,v2 are vertex indices
-            if idx % 100 == 0:
-                print(f"shuffled {idx} edges")
-            if float(graph.vs[v1]["party"]) * float(graph.vs[v2]["party"]) > 0:
-                # ingroup, population is the same as that of v1
-                population = (
-                    communities["conservative"]
-                    if float(graph.vs[v1]["party"]) > 0
-                    else communities["liberal"]
-                )
-            else:  # outgroup, population is the same as that of v2
-                population = (
-                    communities["conservative"]
-                    if float(graph.vs[v2]["party"]) > 0
-                    else communities["liberal"]
-                )
-
-            population = list(set(population) - set([v1, v2]))
-            target = random.choice(population)
-            jdx = graph.get_eid(
-                v1, v2
-            )  # since idx isn't guaranteed to match reindexed edges
-            graph.delete_edges(jdx)  # delete edge by edge index
-            graph.add_edges([(v1, target)])
-
-    assert (
-        Counter(og_graph.degree(og_graph.vs, mode="in"))
-        == Counter(graph.degree(graph.vs, mode="in"))
-    ) == False
-
-
 def rewire_preserve_degree(og_graph, iterations=5):
-    # shuffle links preserve degree
-    # rewire is done in place.
-    graph = deepcopy(og_graph)
+    """
+    Returns a rewired graph where degree distribution is preserved. 
+    Parameters:
+        - iterations: number of times to rewire to make sure community structure is destroyed
+    """
+
+    graph = deepcopy(og_graph)  # rewire is done in place so we want to make a deepcopy
     indeg, outdeg = graph.indegree(), graph.outdegree()
 
     graph.rewire(n=iterations * graph.ecount())
@@ -230,6 +178,115 @@ def rewire_preserve_degree(og_graph, iterations=5):
     print("Finished shuffling network (degree-preserving)!")
 
     return graph
+
+
+def _is_ingroup(graph, edge, party=None):
+    """
+    Check if an edge connects 2 nodes from the same community (party).
+    Make sure that graph has a 'party' attribute s.t. -1<party<1
+    For Nikolov et al. (2019) empirical follower network: 
+    Conservative: node['party'] > 0, Liberal: node['party'] < 0
+    Parameters:
+        - party (str): {conservative, liberal}
+    Outputs:
+        - True if the edge is between 2 nodes in the same community (if specified)
+        - else False
+    """
+
+    #     Every node belongs to a community
+    #     len([node.index for node in graph.vs if float(node['party']) == 0])
+    source_com = graph.vs[edge.source]["party"]
+    target_com = graph.vs[edge.target]["party"]
+
+    if float(source_com) * float(target_com) > 0:
+        if party is not None:
+            if (party == "conservative") and (float(source_com) > 0):
+                return True
+            if (party == "liberal") and (float(source_com) < 0):
+                return True
+            else:
+                return False
+        else:
+            return True
+    else:
+        return False
+
+
+def _rewire_subgraph_by_edges(
+    graph, edge_idxs, iterations=5, prob=0.5, loops=False, multiple=False
+):
+    # Returns subgraphs spanned by partisan links
+    # delete_vertices=True: vertices not incident on any of the specified edges will be deleted from the result
+    og_subgraph = graph.subgraph_edges([e.index for e in edge_idxs])
+    subgraph = deepcopy(og_subgraph)
+
+    for iter in range(iterations):
+        # Each endpoint of each edge of the graph will be rewired with a constant probability, given in the first argument.
+        subgraph.rewire_edges(prob=prob, loops=loops, multiple=multiple)
+
+    assert sorted([node["name"] for node in og_subgraph.vs]) == sorted(
+        [node["name"] for node in subgraph.vs]
+    )
+    print("Finished rewiring subgraph!")
+    return subgraph
+
+
+def rewire_preserve_community(graph, iterations=5):
+    """
+    Returns a rewired graph where degree community structure is preserved. 
+    Parameters:
+        - iterations: number of times to rewire to make sure community structure is destroyed
+    """
+    graph.vs["name"] = [str(node["id"]) for node in graph.vs]
+    conservative_edges = [
+        e for e in graph.es if _is_ingroup(graph, e, party="conservative")
+    ]
+    liberal_edges = [e for e in graph.es if _is_ingroup(graph, e, party="liberal")]
+    outgroup_edges = [e for e in graph.es if not _is_ingroup(graph, e)]
+
+    assert (
+        len(outgroup_edges) + len(conservative_edges) + len(liberal_edges)
+        == graph.ecount()
+    )
+
+    print("Rewiring subgraphs...")
+    # Ingroup edges should be rewired within a group, outgroup edges should be rewired between groups
+    left_graph = _rewire_subgraph_by_edges(
+        graph, liberal_edges, iterations=iterations, prob=0.5
+    )
+    right_graph = _rewire_subgraph_by_edges(
+        graph, conservative_edges, iterations=iterations, prob=0.5
+    )
+    outgroup_graph = _rewire_subgraph_by_edges(
+        graph, outgroup_edges, iterations=iterations, prob=0.5
+    )
+
+    # Create a new graph with rewired edges
+    # Add vertices and edges by node *name* insted of *index* (because igraph continuously reindexes the nodes and edges)
+    right_rewired = [
+        (right_graph.vs[e.source]["name"], right_graph.vs[e.target]["name"])
+        for e in right_graph.es
+    ]
+    left_rewired = [
+        (left_graph.vs[e.source]["name"], left_graph.vs[e.target]["name"])
+        for e in left_graph.es
+    ]
+    outgroup_rewired = [
+        (outgroup_graph.vs[e.source]["name"], outgroup_graph.vs[e.target]["name"])
+        for e in outgroup_graph.es
+    ]
+
+    # Make new graph
+    print("Make new graph from rewired edges")
+    rewired = ig.Graph(directed=True)
+    rewired.add_vertices([node["name"] for node in graph.vs])
+    all_edges = right_rewired + left_rewired + outgroup_rewired
+    assert len(all_edges) == graph.ecount()
+    rewired.add_edges(all_edges)
+
+    print("Finished shuffling network (community-preserving)!")
+
+    return rewired
 
 
 def _make_sample_graph(graph):
