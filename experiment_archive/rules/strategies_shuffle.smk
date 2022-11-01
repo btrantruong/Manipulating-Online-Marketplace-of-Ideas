@@ -9,12 +9,12 @@ CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
-SHUFFLES = ['community']
+SHUFFLES = ['hub'] #TODO: run this for community shuffle later
 
 mode='igraph'
-sim_num=3
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'11012022_communityshuffle_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'11012022_communityshuffle_{sim_num}runs')
+sim_num=2
+RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_shuffled10iter_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_shuffled10iter_{sim_num}runs')
 
 rule all:
     input: 
@@ -35,7 +35,7 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml"),
+        follower = os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml"),
         configfile = os.path.join(CONFIG_PATH, 'shuffle', '{exp_no}2.json')
         
     output: os.path.join(DATA_PATH, mode, 'shuffle_infosysnet', "network_{exp_no}2_{shuffle}.gml")
@@ -46,8 +46,8 @@ rule init_net:
 
 
 rule shuffle_net:
-    input:  follower=ancient(os.path.join(DATA_PATH, 'follower_network.gml')),
-    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
+    input:  follower=os.path.join(DATA_PATH, 'follower_network.gml'),
+    output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}_10iter.gml")
     shell: """
         python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle} --iter 10
     """ 
