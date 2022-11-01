@@ -16,4 +16,5 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary shuffle ######'
-snakemake --nolock --snakefile workflow/final_rules/strategies_shuffle.smk --cores 23
+# snakemake --nolock --snakefile workflow/final_rules/strategies_shuffle.smk --cores 23
+snakemake --nolock --snakefile workflow/final_rules/strategies_shuffle_community.smk --cores 23
