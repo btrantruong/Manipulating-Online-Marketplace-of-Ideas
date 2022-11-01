@@ -280,6 +280,9 @@ def rewire_preserve_community(graph, iterations=5):
     print("Make new graph from rewired edges")
     rewired = ig.Graph(directed=True)
     rewired.add_vertices([node["name"] for node in graph.vs])
+    for attribute in graph.vs.attributes():
+        rewired.vs[attribute] = graph.vs[attribute]
+
     all_edges = right_rewired + left_rewired + outgroup_rewired
     assert len(all_edges) == graph.ecount()
     rewired.add_edges(all_edges)
