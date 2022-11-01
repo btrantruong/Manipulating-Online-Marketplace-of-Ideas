@@ -46,7 +46,7 @@ rule init_net:
 
 
 rule shuffle_net:
-    input:  ancient(follower=os.path.join(DATA_PATH, 'follower_network.gml')),
+    input:  follower=ancient(os.path.join(DATA_PATH, 'follower_network.gml')),
     output: os.path.join(DATA_PATH, mode, 'shuffle_network', "network_{shuffle}.gml")
     shell: """
         python3 -m workflow.scripts.shuffle_net -i {input} -o {output} --mode {wildcards.shuffle} --iter 10
