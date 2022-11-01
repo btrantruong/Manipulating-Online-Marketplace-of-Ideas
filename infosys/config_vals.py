@@ -4,17 +4,17 @@ import numpy as np
 follower_network = "follower_network.gml"
 mode = "igraph"
 
-### DONT CHANGE THESE VALUES ### 
+### DONT CHANGE THESE VALUES ###
 
-DEFAULT_PHI=1
+DEFAULT_PHI = 1
 DEFAULT_THETA = 1
 DEFAULT_BETA = 0.05
 DEFAULT_GAMMA = 0.01
 MINIMAL_GAMMA = 0.0001
 DEFAULT_STRATEGY = None
-DEFAULT_RHO=0.8
+DEFAULT_RHO = 0.8
 DEFAULT_EPSILON = 0.0001
-DEFAULT_MU=0.5
+DEFAULT_MU = 0.5
 DEFAULT_ALPHA = 15
 
 # Varying values for Oct 30, 2022
@@ -69,7 +69,22 @@ infosys_notracking = {
     "theta": DEFAULT_THETA,
 }
 
-### PREVIOUS EXPLORATION WITH VARYING BETA ### 
+baseline_exp = {
+    "beta": 0,
+    "targeting_criterion": DEFAULT_STRATEGY,
+    "gamma": 0,
+    "verbose": False,
+    "human_network": "follower_network.gml",
+    "trackmeme": True,
+    "epsilon": DEFAULT_EPSILON,
+    "rho": DEFAULT_RHO,
+    "mu": DEFAULT_MU,
+    "phi": DEFAULT_PHI,
+    "alpha": DEFAULT_ALPHA,
+    "theta": DEFAULT_THETA,
+}
+
+### PREVIOUS EXPLORATION WITH VARYING BETA ###
 
 # fivepctbot_minimal_infiltration_default_net = {
 #     "beta": 0.05,

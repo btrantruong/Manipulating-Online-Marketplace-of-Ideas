@@ -63,10 +63,8 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
 
     ##### BASELINE #####
     all_exps["baseline"] = {}
-    cf = default_net_config
-    config = utils.update_dict(cf, default_infosys_config)
-
     config_name = f"baseline"
+    config = configs.baseline_exp
     all_exps["baseline"][config_name] = config
 
     save_config_to_subdir(config, config_name, saving_dir, "baseline")
@@ -188,5 +186,5 @@ if __name__ == "__main__":
 
     ABS_PATH = "/N/slate/baotruon/marketplace"
 
-    saving_dir = os.path.join(ABS_PATH, "config_10302022")
+    saving_dir = os.path.join(ABS_PATH, "config_11012022")
     make_exps(saving_dir, configs.default_net, configs.infosys_default)
