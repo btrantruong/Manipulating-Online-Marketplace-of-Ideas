@@ -1,12 +1,7 @@
-import infosys.ig_utils as ig_utils
+from infosys.ig_utils import rewire_preserve_community, rewire_preserve_degree
 import igraph as ig
-import infosys.graphutils as graphutils
-import infosys.utils as utils
-import networkx as nx
 import sys
 import argparse
-import json
-import igraph
 
 
 def main(args):
@@ -58,11 +53,9 @@ def main(args):
         graph = ig.Graph.Read_GML(infile)
 
         if mode == "community":
-            shuffled = ig_utils.shuffle_preserve_community(
-                graph, iterations=int(args.iter)
-            )
+            shuffled = rewire_preserve_community(graph, iterations=int(args.iter))
         else:
-            shuffled = ig_utils.rewire_preserve_degree(graph, iterations=int(args.iter))
+            shuffled = rewire_preserve_degree(graph, iterations=int(args.iter))
 
         shuffled.write_gml(outfile)
 
@@ -80,9 +73,9 @@ def main(args):
 def shuffle_net(infile, mode, outfile):
     graph = ig.Graph.Read_GML(infile)
     if mode == "community":
-        shuffled = ig_utils.shuffle_preserve_community(graph)
+        shuffled = rewire_preserve_community(graph)
     else:
-        shuffled = ig_utils.shuffle_preserve_degree(graph)
+        shuffled = rewire_preserve_degree(graph)
 
     shuffled.write_gml(outfile)
 
