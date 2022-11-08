@@ -5,11 +5,7 @@ class Meme:
     def __init__(self, id, is_by_bot=0, phi=1):
         self.id = id
         self.is_by_bot = is_by_bot
-        if self.is_by_bot == 0:
-            # Because phi is deception by bot, phi for human memes should stay constant
-            self.phi = 1
-        else:
-            self.phi = phi
+        self.phi = phi * 0.1
         quality, fitness = self.get_values()
         self.quality = quality
         self.fitness = fitness
@@ -19,13 +15,14 @@ class Meme:
     # default phi = 1 is bot deception; >= 1: meme fitness higher than quality
     # id: unique IDs
     def get_values(self):
-        if self.is_by_bot == 1:
-            exponent = 1 + (1 / self.phi)
-        else:
-            exponent = 1 + self.phi
-
         u = random.random()
-        fitness = 1 - (1 - u) ** (1 / exponent)
+        exponent = 2  # b: previously human exponent = 1+phi
+        human_fitness = 1 - (1 - u) ** (1 / exponent)
+
+        if self.is_by_bot == 1:
+            fitness = 1 if u < self.phi else human_fitness
+        else:
+            fitness = human_fitness
 
         if self.is_by_bot == 1:
             quality = 0
