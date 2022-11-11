@@ -1,3 +1,8 @@
+"""
+Provides functions used to create a network. 
+remember link direction is following, opposite of info spread!
+"""
+
 import infosys.utils as utils
 
 import igraph as ig
@@ -7,13 +12,14 @@ import numpy as np
 from collections import Counter
 from copy import deepcopy
 
-# * remember link direction is following, opposite of info spread!
-
+# TODO: add logger
 logger = utils.get_file_logger(also_print=True)
 
 
 def read_empirical_network(file):
-    # print('File: ', file)
+    """
+    Returns a network from a .graph_gml file path
+    """
     net = ig.Graph.Read_GML(file)
 
     # prevent errors with duplicate attribs
@@ -22,20 +28,23 @@ def read_empirical_network(file):
 
 
 def write_gmlz(graph, file):
+    """
+    Save a network to a .graph_gml file
+    """
     graph.Graph.write_graphmlz(file)
 
 
 def random_walk_network(net_size, p=0.5, k_out=3):
-    # create a network with random-walk growth model
-    # default p = 0.5 for network clustering
-    # default k_out = 3 is average no. friends within humans & bots
-    #
+    """
+    Creates a network using random-walk growth model
+    default p = 0.5 for network clustering
+    default k_out = 3 is average no. friends within humans & bots
+    """
+
     if net_size <= k_out + 1:  # if super small just return a clique
         return ig.Graph.Full(net_size, directed=True)
 
     graph = ig.Graph.Full(k_out, directed=True)
-
-    # random.seed(seed)
 
     for n in range(k_out, net_size):
         target = random.choice(graph.vs)
@@ -58,12 +67,6 @@ def random_walk_network(net_size, p=0.5, k_out=3):
     return graph
 
 
-# create network of humans and bots
-# preferential_targeting is a flag; if False, random targeting
-# default n_humans=1000 but 10k for paper
-# default beta=0.1 is bots/humans ratio
-# default gamma=0.1 is infiltration: probability that a human follows each bot
-#
 def init_net(
     targeting_criterion=None,
     verbose=False,
@@ -73,6 +76,17 @@ def init_net(
     gamma=0.05,
     track_bot_followers=False,
 ):
+    """
+    Creates an network of humans and bots by taking the disjoint union of these two networks.
+    Parameters:
+        - preferential_targeting (bool): if False, random targeting
+        - n_human (int): number of humans (if constructing synthetic human net)
+        - beta (float): bots/humans ratio
+        - gamma (float): infiltration rate --- probability that a human follows each bot
+    Outputs:
+        - G (igraph.DirectedGraph object): a network of humans and bots
+    """
+
     # TODO: change the name convention of H, B and G (single char makes it hard to refactor if needed)
 
     # humans
@@ -215,7 +229,10 @@ def _is_ingroup(graph, edge, party=None):
 def _rewire_subgraph_by_edges(
     graph, edge_idxs, iterations=5, prob=0.5, loops=False, multiple=False
 ):
-    # Returns subgraphs spanned by partisan links
+    """
+    Helper to community-preserving shuffle
+    Returns subgraphs spanned by partisan links
+    """
     # delete_vertices=True: vertices not incident on any of the specified edges will be deleted from the result
     og_subgraph = graph.subgraph_edges([e.index for e in edge_idxs])
     subgraph = deepcopy(og_subgraph)
@@ -293,7 +310,10 @@ def rewire_preserve_community(graph, iterations=5):
 
 
 def _make_sample_graph(graph):
-    # return a sample network with 'party' attribute to test shuffling
+    """
+    Helper function for testing
+    Returns a sample network with attributes preserved
+    """
     sample_vs = random.choices([i for i in graph.vs], k=1000)
     sample_idx = [i.index for i in sample_vs]
     attributes = [i["party"] for i in sample_vs]
