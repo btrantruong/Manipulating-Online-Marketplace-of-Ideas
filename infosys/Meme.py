@@ -1,8 +1,15 @@
+"""
+Class representing a meme.
+"""
+
 import random
 
 
 class Meme:
     def __init__(self, id, is_by_bot=0, phi=1):
+        """
+        Initialize a meme
+        """
         self.id = id
         self.is_by_bot = is_by_bot
         self.phi = phi * 0.1
@@ -10,11 +17,12 @@ class Meme:
         self.quality = quality
         self.fitness = fitness
 
-    # return (quality, fitness, id) meme tuple depending on bot flag
-    # using https://en.wikipedia.org/wiki/Inverse_transform_sampling
-    # default phi = 1 is bot deception; >= 1: meme fitness higher than quality
-    # id: unique IDs
     def get_values(self):
+        """
+        Assign quality and fitness values to a meme depending on bot flag & phi. 
+        human_fitness is drawn from a distribution
+            using https://en.wikipedia.org/wiki/Inverse_transform_sampling
+        """
         u = random.random()
         exponent = 2  # b: previously human exponent = 1+phi
         human_fitness = 1 - (1 - u) ** (1 / exponent)
