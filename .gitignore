@@ -1,14 +1,21 @@
 .DS_Store
+.log
 .ipynb_checkpoints/
 __pycache__/
 
-config_final/*
+scratch.py
+
+shuffle_intermediate/*
+presentation/*
+
+config*/*
 exps/*
 data/*
 data_/*
 newpipeline/*
 .snakemake/*
-results/
+results/*
+results*/*
 infosys.egg-info/
 synthetic_results/*
 strategy_analyses/*

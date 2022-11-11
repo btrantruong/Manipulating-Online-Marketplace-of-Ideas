@@ -18,11 +18,11 @@ EXPS = [
     if int(exp_name[0]) != 0 and int(exp_name[1]) != 0
 ]
 
-sim_num = 2
+sim_num = 1
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'10302022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'10302022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11082022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11082022_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
