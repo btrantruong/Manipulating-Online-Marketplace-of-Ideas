@@ -2,7 +2,7 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_10102022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_11262022")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetagamma'
@@ -23,11 +23,11 @@ EXP2NET = {
     if exp_name in EXP_NOS
 }
 
-sim_num = 1
+sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'10102022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'10102022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11262022_{exp_type}_{sim_num}runs')
 
 
 rule all:
@@ -36,8 +36,8 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no])),
-        configfile = os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json") #data/vary_thetabeta/004.json
+        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no]))),
+        configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")) #data/vary_thetabeta/004.json
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
@@ -47,8 +47,8 @@ rule run_simulation:
 
 rule init_net:
     input: 
-        follower=os.path.join(DATA_PATH, 'follower_network.gml'),
-        configfile = os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json")
+        follower=ancient(os.path.join(DATA_PATH, 'follower_network.gml')),
+        configfile = ancient(os.path.join(CONFIG_PATH, 'vary_network', "{net_no}.json"))
         
     output: os.path.join(DATA_PATH, mode, 'vary_network', "network_{net_no}.gml")
 
