@@ -7,6 +7,7 @@ mode = "igraph"
 ### DONT CHANGE THESE VALUES ###
 
 DEFAULT_PHI = 1
+DEFAULT_PHI_PROB = 0
 DEFAULT_THETA = 1
 DEFAULT_BETA = 0.05
 DEFAULT_GAMMA = 0.01
@@ -21,6 +22,7 @@ DEFAULT_ALPHA = 15
 GAMMA_SWIPE = sorted(list(10.0 ** (np.arange(-4, 0))))
 THETA_SWIPE = [1, 2, 4, 8, 16, 32]  # default 1 can be copied from vary_gamma
 PHI_SWIPE = list(range(1, 11))  # default 1 can be copied from vary_gamma
+PHI_PROB = list(range(0, 11))
 MU_SWIPE = [0.25, 0.75, 0.9]  # because 0.5 is the default
 ALPHA_SWIPE = [4, 16, 32, 64]
 
@@ -44,7 +46,7 @@ infosys_default = {
     "epsilon": DEFAULT_EPSILON,
     "rho": DEFAULT_RHO,
     "mu": DEFAULT_MU,
-    "phi": DEFAULT_PHI,
+    "phi": DEFAULT_PHI_PROB,
     "alpha": DEFAULT_ALPHA,
     "theta": DEFAULT_THETA,
 }
