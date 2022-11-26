@@ -23,7 +23,7 @@ EXP2NET = {
     if exp_name in EXP_NOS
 }
 
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_{exp_type}_phi0.1_{sim_num}runs')

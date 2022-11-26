@@ -16,7 +16,7 @@ EXPS = [
     if int(exp_name[1]) == 0 #only run exp where phi=0.1
 ]
 
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_{exp_type}_phi0.1_{sim_num}runs')
