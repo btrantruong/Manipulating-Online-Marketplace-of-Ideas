@@ -9,12 +9,12 @@ exp_type = 'vary_phigamma'
 # get names for exp_config and network
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 
-# exclude phi[0] exps (same as results in No targeting vary_gamma)
+# exclude phi=0 exps (same as results in No targeting vary_gamma)
 # exclude gamma[2]=0.01 (default value, in which case results are same as No targeting vary_phi)
 EXP_NOS = [
     exp_name
     for exp_name in EXPS.keys()
-    if int(exp_name[0]) != 0 and int(exp_name[1]) != 2
+    if int(exp_name[0]) == 0 #only run exps where phi=0.1
 ]
 
 EXP2NET = {
@@ -23,11 +23,11 @@ EXP2NET = {
     if exp_name in EXP_NOS
 }
 
-sim_num = 1
+sim_num = 3
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11082022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11082022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_{exp_type}_phi0.1_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11262022_{exp_type}_phi0.1_{sim_num}runs')
 
 
 rule all:
