@@ -3,7 +3,7 @@
 #SBATCH --mail-user=baotruon@iu.edu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=45
+#SBATCH --cpus-per-task=67
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --job-name=thetaphi
@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary thetaphi ######'
-snakemake --nolock --snakefile workflow/final_rules/vary_thetaphi.smk --cores 45
+snakemake --nolock --snakefile workflow/final_rules/vary_thetaphi.smk --cores 67
