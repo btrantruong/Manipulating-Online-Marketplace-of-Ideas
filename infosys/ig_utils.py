@@ -180,6 +180,23 @@ def rewire_preserve_degree(og_graph, iterations=5):
     return graph
 
 
+def rewire_random(og_graph, probability=1):
+    """
+    Returns a randomly rewired graph. 
+    Parameters:
+        - probability (float): constant probability with which each endpoint of each edge is rewired
+    """
+
+    graph = deepcopy(og_graph)  # rewire is done in place so we want to make a deepcopy
+    graph.rewire_edges(prob=probability, loops=False, multiple=False)
+
+    print(
+        f"Finished shuffling network (each edge's endpoints are rewired with probability {probability})!"
+    )
+
+    return graph
+
+
 def _is_ingroup(graph, edge, party=None):
     """
     Check if an edge connects 2 nodes from the same community (party).

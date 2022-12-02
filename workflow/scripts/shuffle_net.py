@@ -1,4 +1,8 @@
-from infosys.ig_utils import rewire_preserve_community, rewire_preserve_degree
+from infosys.ig_utils import (
+    rewire_preserve_community,
+    rewire_preserve_degree,
+    rewire_random,
+)
 import igraph as ig
 import sys
 import argparse
@@ -33,7 +37,7 @@ def main(args):
         dest="mode",
         type=str,
         required=True,
-        help="shuffle strategy (community or hub)",
+        help="shuffle strategy {community, hub, all}: shuffle network preserving community, hub or shuffle randomly",
     )
     parser.add_argument(
         "--iter",
@@ -54,8 +58,10 @@ def main(args):
 
         if mode == "community":
             shuffled = rewire_preserve_community(graph, iterations=int(args.iter))
-        else:
+        elif mode == "hub":
             shuffled = rewire_preserve_degree(graph, iterations=int(args.iter))
+        else:
+            shuffled = rewire_random(graph, probability=1)
 
         shuffled.write_gml(outfile)
 
@@ -65,8 +71,7 @@ def main(args):
             "Exception when creating shuffled network. Likely due to assertion error in shuffling"
         )
         print(e)
-
-        shuffled = igraph.Graph()
+        shuffled = ig.Graph()
         shuffled.write_gml(outfile)
 
 
@@ -74,8 +79,10 @@ def shuffle_net(infile, mode, outfile):
     graph = ig.Graph.Read_GML(infile)
     if mode == "community":
         shuffled = rewire_preserve_community(graph)
-    else:
+    elif mode == "hub":
         shuffled = rewire_preserve_degree(graph)
+    else:
+        shuffled = rewire_random(graph, probability=1)
 
     shuffled.write_gml(outfile)
 
