@@ -1,4 +1,7 @@
-""" I/O functions and plotting """
+"""
+Provides functions to help with plotting and do statistic tests
+"""
+
 # from base_logger import logger
 import random
 import numpy as np
