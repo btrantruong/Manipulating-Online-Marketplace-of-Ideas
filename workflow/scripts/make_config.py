@@ -186,9 +186,5 @@ if __name__ == "__main__":
 
     ABS_PATH = "/N/slate/baotruon/marketplace"
 
-    # saving_dir = os.path.join(ABS_PATH, "config_11012022")
-    # make_exps(saving_dir, configs.default_net, configs.infosys_default)
-    # saving_dir = os.path.join(ABS_PATH, "config_11032022_minimalbot")
-    # make_exps(saving_dir, configs.default_net, configs.infosys_default)
-    saving_dir = os.path.join(ABS_PATH, "config_11262022")
+    saving_dir = os.path.join(ABS_PATH, "config_main")
     make_exps(saving_dir, configs.default_net, configs.infosys_default)
