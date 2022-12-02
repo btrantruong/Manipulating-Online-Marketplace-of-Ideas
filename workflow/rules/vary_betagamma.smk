@@ -1,5 +1,5 @@
 import infosys.utils as utils
-
+# NOTE: expconfig2netname is deprecated
 # ABS_PATH = ''
 # DATA_PATH = os.path.join(ABS_PATH, "data_")
 
