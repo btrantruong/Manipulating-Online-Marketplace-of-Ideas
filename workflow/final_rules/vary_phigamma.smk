@@ -2,32 +2,24 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_10302022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_phigamma'
+
 # get names for exp_config and network
 EXPS = json.load(open(config_fname,'r'))[exp_type]
-
-# exclude phi=0 exps (same as results in No targeting vary_gamma)
-# exclude gamma[2]=0.01 (default value, in which case results are same as No targeting vary_phi)
-EXP_NOS = [
-    exp_name
-    for exp_name in EXPS.keys()
-    if int(exp_name[0]) == 0 #only run exps where phi=0.1
-]
-
+EXP_NOS = list(EXPS.keys())
 EXP2NET = {
     exp_name: utils.netconfig2netname(config_fname, net_cf)
     for exp_name, net_cf in EXPS.items()
-    if exp_name in EXP_NOS
 }
 
 sim_num = 3
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_{exp_type}_phi0.1_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11262022_{exp_type}_phi0.1_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
 
 
 rule all:
