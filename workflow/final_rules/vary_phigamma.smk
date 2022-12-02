@@ -15,11 +15,11 @@ EXP2NET = {
     for exp_name, net_cf in EXPS.items()
 }
 
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12022022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12022022_{exp_type}_{sim_num}runs')
 
 
 rule all:
