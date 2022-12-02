@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=45
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --job-name=vary_thetaphi
+#SBATCH --job-name=thetaphi
 
 ######  Module commands #####
 source /N/u/baotruon/Carbonate/miniconda3/etc/profile.d/conda.sh
