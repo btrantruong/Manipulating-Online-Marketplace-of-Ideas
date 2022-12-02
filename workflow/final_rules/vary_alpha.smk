@@ -5,7 +5,7 @@ DATA_PATH = os.path.join(ABS_PATH, "data")
 CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = "vary_mu"
+exp_type = "vary_alpha"
 # get network names corresponding to the strategy
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 
