@@ -2,7 +2,7 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "config_11262022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = "vary_gamma"
@@ -11,11 +11,11 @@ EXPS = json.load(open(config_fname,'r'))[exp_type]
 
 EXP_NOS = list(EXPS.keys())
 EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
-sim_num = 2
+sim_num = 3
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11262022_strategies_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11262022_strategies_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12022022_strategies_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12022022_strategies_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
