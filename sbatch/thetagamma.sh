@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary thetagamma ######'
-snakemake --nolock --snakefile workflow/final_rules/vary_thetagamma.smk --cores 25
+snakemake --nolock --snakefile workflow/final_rules/thetagamma.smk --cores 25
