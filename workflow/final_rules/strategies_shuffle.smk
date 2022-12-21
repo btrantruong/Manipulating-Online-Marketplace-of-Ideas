@@ -10,11 +10,11 @@ config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 EXP_NOS = ['conservative', 'liberal', 'hubs', 'None']
 
 SHUFFLES = ['hub','community', 'all']
-GAMMAS = [0,1,2,3]
+GAMMAS = [2]
 mode='igraph'
 sim_num=3
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_shuffle_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_shuffle_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12212022_shuffle_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12212022_shuffle_{sim_num}runs')
 
 rule all:
     input: 
