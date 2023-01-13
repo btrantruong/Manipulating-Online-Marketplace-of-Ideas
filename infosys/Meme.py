@@ -17,7 +17,7 @@ class Meme:
     def get_values(self):
         u = random.random()
         exponent = 2  # b: previously human exponent = 1+phi
-        human_fitness = 1 - (1 - u) ** (1 / exponent)
+        human_fitness = 0 if u < 0.5 else 1
 
         if self.is_by_bot == 1:
             fitness = 1 if u < self.phi else human_fitness
