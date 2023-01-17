@@ -3,7 +3,7 @@ Run simulations on random & hubs network where the quality of human content is d
 To test hypothesis that hubs amplifies high-quality similarly as low-quality 
 Bots have the same engagement to humans, 
 There should be no difference in overall quality between random and hubs network
-""""
+"""
 import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'

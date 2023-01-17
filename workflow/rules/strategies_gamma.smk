@@ -9,7 +9,7 @@ exp_type = "vary_gamma"
 # get network names corresponding to the strategy
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 
-EXP_NOS = list(EXPS.keys())
+EXP_NOS = [exp_name for exp_name in EXPS.keys() if exp_name=='None2')]
 EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items() if exp_name=='None2'}
 sim_num = 2
 mode='igraph'
