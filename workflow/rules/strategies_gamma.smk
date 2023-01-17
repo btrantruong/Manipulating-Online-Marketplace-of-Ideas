@@ -10,12 +10,12 @@ exp_type = "vary_gamma"
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 
 EXP_NOS = list(EXPS.keys())
-EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
+EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items() if exp_name=='None2'}
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_strategies_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_strategies_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01132023_strategies_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01132023_strategies_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 

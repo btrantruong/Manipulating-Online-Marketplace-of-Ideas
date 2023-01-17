@@ -3,7 +3,7 @@
 #SBATCH --mail-user=baotruon@iu.edu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=25
+#SBATCH --cpus-per-task=2
 #SBATCH --time=3-23:59:00
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --job-name=gamma
@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary gamma ######'
-snakemake --nolock --snakefile workflow/final_rules/strategies_gamma.smk --cores 25
+snakemake --nolock --snakefile workflow/rules/strategies_gamma.smk --cores 2
