@@ -40,7 +40,7 @@ Outputs:
             - spread_via_agents (list): list of ids of agents who spread this meme
             - qual_th (int): quality ranking
             - share_th (int): popularity ranking
-        - all_feeds (dict): dictionary mapping agent's feed to the memes it contains. 
+        - all_feeds (dict): dictionary mapping agent's feed to the memes it contains at convergence
             Structure: {agent_id (str): meme ids(list)} 
         - meme_influx: 
         - meme_netchange: 
