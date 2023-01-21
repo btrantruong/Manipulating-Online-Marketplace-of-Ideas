@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary gamma ######'
-snakemake --nolock --snakefile workflow/final_rules/strategies_gamma.smk --cores 25
+snakemake --nolock --snakefile workflow/rules/strategies_gamma.smk --cores 25

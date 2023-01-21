@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary alpha ######'
-snakemake --nolock --snakefile workflow/final_rules/vary_alpha.smk --cores 8
+snakemake --nolock --snakefile workflow/rules/vary_alpha.smk --cores 8

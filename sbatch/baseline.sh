@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### baseline ######'
-snakemake --nolock --snakefile workflow/final_rules/baseline.smk --cores 5
+snakemake --nolock --snakefile workflow/rules/baseline.smk --cores 5

@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### init net ######'
-snakemake --nolock --snakefile workflow/final_rules/initnet.smk --cores 23
+snakemake --nolock --snakefile workflow/rules/initnet.smk --cores 23
