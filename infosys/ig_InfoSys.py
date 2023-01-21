@@ -37,7 +37,9 @@ Outputs:
             - fitness (float): engagement 
             - human_shares (int): number of shares by humans
             - bot_shares (int): number of shares by bots
-            - spread_via_agents (list): list of ids of agents who spread this meme
+            - spread_via_agents (list): list of uids of agents who reshared this meme
+            - seen_by_agents (list): list of uids of agents who are exposed to this meme (disregard bot spam)
+            - infeed_of_agents (list): list of uids of agents who are exposed to this meme (including bot spam)
             - qual_th (int): quality ranking
             - share_th (int): popularity ranking
         - all_feeds (dict): dictionary mapping agent's feed to the memes it contains at convergence
@@ -261,6 +263,7 @@ class InfoSystem:
         # TODO: add forgotten memes per degree
         if self.trackmeme is True:
             self._update_meme_popularity(meme, agent)
+            self._update_exposure(feed, agent)
 
         influx_by_agent_all = {
             "bot_in": 0,
@@ -429,8 +432,28 @@ class InfoSystem:
             meme_dict.update(self.meme_popularity[meme_dict["id"]])
         return memes
 
+    def _update_exposure(self, feed, agent):
+        """
+        Update human's exposure to meme whenever an agent is activated (equivalent to logging in)
+        Input: 
+        - feed (list of Meme objects): agent's news feed
+        - agent (Graph vertex): agent resharing the meme
+        """
+        seen = []
+        for meme in feed:
+            if meme.id not in seen:
+                self.meme_popularity[meme.id]["seen_by_agents"] += [agent["uid"]]
+            self.meme_popularity[meme.id]["infeed_of_agents"] += [agent["uid"]]
+            seen += [meme.id]
+        return
+
     def _update_meme_popularity(self, meme, agent):
-        # meme_popularity is a value in a dict: list (is_by_bot, human popularity, bot popularity)
+        """
+        Update information of a meme whenever it is reshared. 
+        Input: 
+        - meme (Meme object): meme being reshared
+        - agent (Graph vertex): agent resharing the meme
+        """
         # (don't use tuple! tuple doesn't support item assignment)
         if meme.id not in self.meme_popularity.keys():
             self.meme_popularity[meme.id] = {
@@ -438,11 +461,11 @@ class InfoSystem:
                 "human_shares": 0,
                 "bot_shares": 0,
                 "spread_via_agents": [],
+                "seen_by_agents": [],  # disregard bot spam
+                "infeed_of_agents": [],  # regard bot spam
             }
 
-        self.meme_popularity[meme.id]["spread_via_agents"] += [
-            int(agent["id"])
-        ]  # index needs to be int
+        self.meme_popularity[meme.id]["spread_via_agents"] += [agent["uid"]]
 
         if agent["bot"] == 0:
             self.meme_popularity[meme.id]["human_shares"] += 1
