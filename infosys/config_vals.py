@@ -18,7 +18,7 @@ DEFAULT_MU = 0.5
 DEFAULT_ALPHA = 15
 
 GAMMA_SWIPE = sorted(list(10.0 ** (np.arange(-4, 0))))
-THETA_SWIPE = [1, 2, 4, 8, 16, 32]  # default 1 can be copied from vary_gamma
+THETA_SWIPE = [1, 2, 4, 8, 16, 32, 64]  # default 1 can be copied from vary_gamma
 PHI_PROB = list(range(0, 11))  # default 0 can be copied from vary_gamma
 MU_SWIPE = [0.1, 0.25, 0.5, 0.75, 0.9]  # because 0.5 is the default
 ALPHA_SWIPE = [1, 2, 4, 8, 16, 32, 64, 128]
@@ -82,6 +82,21 @@ baseline_exp = {
     "phi": DEFAULT_PHI,
     "alpha": DEFAULT_ALPHA,
     "theta": DEFAULT_THETA,
+}
+
+extreme_exp = {
+    "beta": DEFAULT_BETA,
+    "targeting_criterion": DEFAULT_STRATEGY,
+    "gamma": GAMMA_SWIPE[-1],
+    "verbose": False,
+    "human_network": "follower_network.gml",
+    "trackmeme": True,
+    "epsilon": DEFAULT_EPSILON,
+    "rho": DEFAULT_RHO,
+    "mu": DEFAULT_MU,
+    "alpha": DEFAULT_ALPHA,
+    "phi": PHI_PROB[-1],
+    "theta": THETA_SWIPE[-1],
 }
 
 ### PREVIOUS EXPLORATION WITH VARYING BETA ###
