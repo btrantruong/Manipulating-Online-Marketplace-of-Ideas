@@ -2,7 +2,7 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_01202023")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_01212023")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_phigamma'
@@ -18,8 +18,8 @@ EXP2NET = {
 sim_num = 3
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01202023_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01202023_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01212023_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01212023_{exp_type}_{sim_num}runs')
 
 
 rule all:
