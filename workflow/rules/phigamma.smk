@@ -28,7 +28,7 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no]))),
+        network = ancient(lambda wildcards: os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
         configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")) #data/vary_thetabeta/004.json
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
