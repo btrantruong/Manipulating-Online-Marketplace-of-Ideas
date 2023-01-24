@@ -31,6 +31,7 @@ Outputs:
         - quality_timestep (list of dict): quality of the system over time 
         - all_memes (list of dict): each dictionary contains the meme's information. Dict keys are:
             - id (int): unique identifier for this meme
+            - agent_id (str): uid of agent originating this meme
             - is_by_bot (int): 0 if meme is by human, 1 if by bot
             - phi (int): same as phi specified in InfoSys
             - quality (float): quality
@@ -44,17 +45,20 @@ Outputs:
             - share_th (int): popularity ranking
         - all_feeds (dict): dictionary mapping agent's feed to the memes it contains at convergence
             Structure: {agent_id (str): meme ids(list)} 
+            - agent_id (str): uid -- unique identifier of an agent (different from vertex id)
         - meme_influx: 
         - meme_netchange: 
-
+        - reshares (list of dict): each dict is a reshare edge. The keys are:
+            - meme_id (int): unique identifier of a meme
+            - timestep (int): timestamp of the reshare
+            - agent1 (str): uid of the agent spreading the meme
+            - agent2 (str): uid of the agent resharing the meme
 """
 
-from infosys.User import User
 from infosys.Meme import Meme
 import infosys.utils as utils
 import igraph as ig
 
-import networkx as nx
 import random
 import numpy as np
 from collections import Counter, defaultdict
@@ -117,7 +121,7 @@ class InfoSystem:
         if trackmeme is True:
             self.meme_popularity = {}
             # dict of popularity (all memes), structure: {"meme_id": {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}}
-
+            self.reshares = []
         try:
             self.network = ig.Graph.Read_GML(self.graph_gml)
             print(self.network.summary())
@@ -233,6 +237,7 @@ class InfoSystem:
             "quality_timestep": self.quality_timestep,
             "all_memes": self.meme_dict,
             "all_feeds": feeds,
+            "reshares": self.reshares,
             "meme_influx": self.meme_all_changes,
             "meme_netchange": self.meme_net_change_timestep,
         }
@@ -294,6 +299,8 @@ class InfoSystem:
                 follower_influx = self._add_meme_to_feed(follower, meme)
 
             assert len(self.agent_feeds[follower]) <= self.alpha
+
+            self._update_reshares(meme, agent_id, follower)
 
             # only track in-outflux for human agents
             if (self.track_forgotten is True) and (follower in humfollower_uids):
@@ -424,13 +431,30 @@ class InfoSystem:
     def _return_all_meme_info(self):
         for meme in self.all_memes:
             assert isinstance(meme, Meme)
-        # Be careful
-        memes = [
-            meme.__dict__ for meme in self.all_memes
-        ]  # convert to dict to avoid infinite recursion
+        # Be careful: convert to dict to avoid infinite recursion
+        memes = [meme.__dict__ for meme in self.all_memes]
         for meme_dict in memes:
             meme_dict.update(self.meme_popularity[meme_dict["id"]])
         return memes
+
+    def _update_reshares(self, meme, source, target):
+        """
+        Update the reshare cascade information. 
+        Input: 
+        - meme (Meme object): meme being reshared
+        - source (str): uid of agent spreading the meme
+        - target (str): uid of agent resharing the meme
+        """
+        # ncopies of the meme on agent2's feed can be referred from source uid & theta (if bot, theta)
+        reshare = {
+            "meme_id": meme.id,
+            "timestep": self.time_step,
+            "agent1": source,
+            "agent2": target,
+        }
+        self.reshares += [reshare]
+
+        return
 
     def _update_exposure(self, feed, agent):
         """
@@ -457,6 +481,7 @@ class InfoSystem:
         # (don't use tuple! tuple doesn't support item assignment)
         if meme.id not in self.meme_popularity.keys():
             self.meme_popularity[meme.id] = {
+                "agent_id": agent["uid"],
                 "is_by_bot": meme.is_by_bot,
                 "human_shares": 0,
                 "bot_shares": 0,
