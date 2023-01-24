@@ -16,11 +16,11 @@ EXP2NET = {
 }
 
 
-sim_num = 3
+sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01212023_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01212023_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01242023_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01242023_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
