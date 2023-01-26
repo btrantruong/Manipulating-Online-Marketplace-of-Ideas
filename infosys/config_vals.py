@@ -38,7 +38,6 @@ EPSILON = [0.0001]
 
 
 infosys_default = {
-    "trackmeme": True,
     "verbose": False,
     "epsilon": DEFAULT_EPSILON,
     "rho": DEFAULT_RHO,
@@ -58,7 +57,6 @@ default_net = {
 
 
 infosys_notracking = {
-    "trackmeme": True,
     "track_forgotten": False,
     "verbose": False,
     "epsilon": 0.0001,
@@ -75,7 +73,6 @@ baseline_exp = {
     "gamma": 0,
     "verbose": False,
     "human_network": "follower_network.gml",
-    "trackmeme": True,
     "epsilon": DEFAULT_EPSILON,
     "rho": DEFAULT_RHO,
     "mu": DEFAULT_MU,
@@ -90,7 +87,6 @@ extreme_exp = {
     "gamma": GAMMA_SWIPE[-1],
     "verbose": False,
     "human_network": "follower_network.gml",
-    "trackmeme": True,
     "epsilon": DEFAULT_EPSILON,
     "rho": DEFAULT_RHO,
     "mu": DEFAULT_MU,
