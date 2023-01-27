@@ -116,7 +116,7 @@ class InfoSystem:
 
         self.meme_popularity = {}
         # dict of popularity (all memes), structure: {"meme_id": {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}}
-        self.reshares = []
+        # self.reshares = [] # deprecated
         try:
             self.network = ig.Graph.Read_GML(self.graph_gml)
             print(self.network.summary())
@@ -253,7 +253,6 @@ class InfoSystem:
             "quality_timestep": self.quality_timestep,
             "all_memes": self.meme_dict,
             "all_feeds": feeds,
-            "reshares": self.reshares,
         }
         if self.track_forgotten is True:
             measurements["meme_influx"] = self.meme_all_changes
