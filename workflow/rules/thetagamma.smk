@@ -15,7 +15,7 @@ EXP2NET = {
     for exp_name, net_cf in EXPS.items()
 }
 
-sim_num = 2
+sim_num = 1
 mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01242023_{exp_type}_{sim_num}runs')
@@ -33,7 +33,7 @@ rule run_simulation:
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz'),
-        reshare =  os.path.join(CASCADE_DIR, '{exp_no}', '__reshare.csv')
+        reshare =  os.path.join(CASCADE_DIR, '{exp_no}__reshare.csv')
     shell: """
         python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -r {output.reshare} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """

@@ -35,10 +35,8 @@ def multiple_simulations(infosys_specs, times=1, reshare_fpath="reshares.csv"):
                 prefix = f".csv"
             measurements = follower_sys.simulation(
                 reshare_fpath=reshare_fpath.replace(".csv", prefix),
-                exposure_fpath=os.path.join(dir, f"{exp_name}", "__exposure", prefix),
-                activation_fpath=os.path.join(
-                    dir, f"{exp_name}", "__activation", prefix
-                ),
+                exposure_fpath=os.path.join(dir, f"{exp_name}__exposure{prefix}"),
+                activation_fpath=os.path.join(dir, f"{exp_name}__activation{prefix}"),
             )
 
             # Update results over multiple simulations
