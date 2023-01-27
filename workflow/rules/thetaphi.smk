@@ -2,7 +2,7 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_01212023")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_01242023")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetaphi'
@@ -21,6 +21,7 @@ mode='igraph'
 
 RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01242023_{exp_type}_{sim_num}runs')
 TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01242023_{exp_type}_{sim_num}runs')
+CASCADE_DIR = os.path.join(ABS_PATH,'results', 'cascade', f'01242023_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
@@ -33,8 +34,9 @@ rule run_simulation:
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
+        reshare =  os.path.join(CASCADE_DIR, '{exp_no}', '__reshare.csv')
     shell: """
-        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} -r {output.reshare} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:
