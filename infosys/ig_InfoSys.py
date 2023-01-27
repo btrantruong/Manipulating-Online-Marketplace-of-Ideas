@@ -57,7 +57,7 @@ Outputs:
 from infosys.Meme import Meme
 import infosys.utils as utils
 import igraph as ig
-
+import csv
 import random
 import numpy as np
 from collections import Counter, defaultdict
@@ -69,7 +69,7 @@ class InfoSystem:
     def __init__(
         self,
         graph_gml,
-        track_forgotten=True,
+        track_forgotten=False,
         tracktimestep=True,
         verbose=False,
         epsilon=0.0001,  # Don't change this value
@@ -95,8 +95,6 @@ class InfoSystem:
             # All changes happening in simulation: max num_memes= alpha * num_agents * num_followers (avg)
             # structure: {"bot_in":[], "bot_out": [], "human_in":[], "human_out":[]} - items in list correspond to each timestep
 
-        self.meme_popularity = None
-
         self.epsilon = epsilon
         self.rho = rho
         self.mu = mu
@@ -105,10 +103,10 @@ class InfoSystem:
         self.theta = theta
 
         # Keep track of number of memes globally
-        self.meme_dict = (
-            []
-        )  # list of dicts, contains of {"meme_id": meme.__dict__ and popularity information updated from self.meme_popularity}
+        # list of dicts, contains of {"meme_id": meme.__dict__ and popularity information updated from self.meme_popularity}
+        self.meme_dict = []
         self.all_memes = []  # list of Meme objects
+
         self.num_memes = 0  # for verbose debug
         self.num_meme_unique = 0  # for verbose debug
         self.memes_human_feed = 0  # for verbose debug
@@ -116,7 +114,6 @@ class InfoSystem:
         self.quality = 1
         self.time_step = 0
 
-        
         self.meme_popularity = {}
         # dict of popularity (all memes), structure: {"meme_id": {"is_by_bot": meme.is_by_bot, "human_shares":0, "bot_shares":0, "spread_via_agents":[]}}
         self.reshares = []
@@ -150,19 +147,36 @@ class InfoSystem:
             print(f"Graph file: {graph_gml}")
 
     # @profile
-    def simulation(self):
+    def simulation(self, reshare_fpath, exposure_fpath, activation_fpath):
+        """
+        - reshare_fpath: path to .csv file containing reshare cascade info
+        - exposure_fpath: path to .csv file containing exposure cascade info
+        - activation_fpath: path to .csv file containing agent activation info
+        """
+
+        self.reshare_fpath = reshare_fpath
+        reshare_fields = ["meme_id", "timestep", "agent1", "agent2"]
+        with open(self.reshare_fpath, "w", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            writer.writerow(reshare_fields)
+
+        self.exposure_fpath = exposure_fpath
+        exposure_fields = ["agent_id", "meme_id", "reshared_by_agent", "timestep"]
+        with open(self.exposure_fpath, "w", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            writer.writerow(exposure_fields)
+
+        self.activation_fpath = activation_fpath
+        activation_fields = ["agent_id", "timestep_activated", "meme_id"]
+        with open(self.activation_fpath, "w", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            writer.writerow(activation_fields)
+
         while self.quality_diff > self.epsilon:
             if self.verbose:
                 # print('time_step = {}, q = {}, diff = {}'.format(self.time_step, self.quality, self.quality_diff), flush=True)
                 print(
-                    "time_step = {}, q = {}, diff = {}, unique/human memes = {}/{}, all memes created={}".format(
-                        self.time_step,
-                        self.quality,
-                        self.quality_diff,
-                        self.num_meme_unique,
-                        self.memes_human_feed,
-                        self.num_memes,
-                    ),
+                    f"time_step = {self.time_step}, q = {self.quality}, diff = {self.quality_diff}, unique/human memes = {self.num_meme_unique}/{self.memes_human_feed}, all memes created={self.num_memes}",
                     flush=True,
                 )
 
@@ -199,7 +213,7 @@ class InfoSystem:
                     for key in influx_by_agent_all.keys():
                         self.meme_all_changes_timestep[key] += influx_by_agent_all[key]
 
-            # book keeping
+            # book keeping system's net meme flow
             if self.track_forgotten is True:
                 for key in dict(self.meme_all_changes_timestep).keys():
                     # add total meme changes by all agents to the timeline
@@ -222,15 +236,12 @@ class InfoSystem:
         )  # dict of {agent['uid']:[Meme()] } each value is a list of Meme obj in the agent's feed
 
         # b: Save feed info of agent & meme popularity
-        # convert self.agent_feed into dict of agent_uid - [meme_id]
         feeds = {}
         for agent, memelist in all_feeds.items():
+            # convert self.agent_feed into dict of agent_uid - [meme_id]
             feeds[agent] = [meme.id for meme in memelist]
 
         # return feeds, self.meme_popularity, self.quality
-
-        # b: return all values in a dict & meme popularity
-        # save meme_popularity
         self.meme_dict = (
             self._return_all_meme_info()
         )  # need to call this before calculating tau and diversity!!
@@ -257,6 +268,9 @@ class InfoSystem:
         agent_id = agent["uid"]
         feed = self.agent_feeds[agent_id]
 
+        self._update_activation_data(
+            agent_id, self.time_step, [meme.id for meme in feed]
+        )
         if len(feed) > 0 and random.random() > self.mu:
             # retweet a meme from feed selected on basis of its fitness
             # unpack because random choices return a list
@@ -293,13 +307,17 @@ class InfoSystem:
         for follower in follower_uids:
             # print('follower feed before:', ["{0:.2f}".format(round(m[0], 2)) for m in G.nodes[f]['feed']])
             # add meme to top of follower's feed (theta copies if poster is bot to simulate flooding)
-
             if agent["bot"] == 1:
                 follower_influx = self._add_meme_to_feed(
-                    follower, meme, n_copies=self.theta
+                    target_id=follower,
+                    meme=meme,
+                    source_id=agent_id,
+                    n_copies=self.theta,
                 )
             else:
-                follower_influx = self._add_meme_to_feed(follower, meme)
+                follower_influx = self._add_meme_to_feed(
+                    target_id=follower, meme=meme, source_id=agent_id
+                )
 
             assert len(self.agent_feeds[follower]) <= self.alpha
 
@@ -392,12 +410,22 @@ class InfoSystem:
 
         return zero_memes / count
 
-    def _add_meme_to_feed(self, agent_id, meme, n_copies=1):
+    def _add_meme_to_feed(self, target_id, meme, source_id, n_copies=1):
+        """
+        Add meme to agent's feed, update all news feed information.
+        Input: 
+        - target_id (str): uid of agent resharing the meme -- whose feed we're adding the meme to 
+        - meme (Meme object): meme being reshared
+        - source_id (str): uid of agent spreading the meme
+        """
+
         # Insert meme to feed. Forget if feed size exceeds alpha (Last in last out)
         # Return information about meme flow in/out of the feed
-        feed = self.agent_feeds[agent_id]
+        feed = self.agent_feeds[target_id]
         feed[0:0] = [meme] * n_copies
-        if self.track_forgotten: 
+
+        self._update_feed_data(target=target_id, meme_id=meme.id, source=source_id)
+        # if self.track_forgotten is True:
         meme_influx = {"bot_in": 0, "bot_out": 0, "human_in": 0, "human_out": 0}
 
         if meme.is_by_bot == 1:
@@ -407,7 +435,7 @@ class InfoSystem:
 
         if len(feed) > self.alpha:
             if self.track_forgotten is True:
-                forgotten = self.agent_feeds[agent_id][
+                forgotten = self.agent_feeds[target_id][
                     self.alpha :
                 ]  # keep track of forgotten memes
                 n_bot_out = len([meme for meme in forgotten if meme.is_by_bot == 1])
@@ -416,11 +444,11 @@ class InfoSystem:
                 meme_influx["bot_out"] = n_bot_out
                 meme_influx["human_out"] = n_human_out
 
-            self.agent_feeds[agent_id] = self.agent_feeds[agent_id][
+            self.agent_feeds[target_id] = self.agent_feeds[target_id][
                 : self.alpha
             ]  # we can make sure dict values reassignment is correct this way
             # Remove memes from popularity info & all_meme list if extinct
-            for meme in set(self.agent_feeds[agent_id][self.alpha :]):
+            for meme in set(self.agent_feeds[target_id][self.alpha :]):
                 _ = self.meme_popularity.pop(meme.id, "No Key found")
                 self.all_memes.remove(meme)
             return dict(meme_influx)
@@ -438,20 +466,56 @@ class InfoSystem:
 
     def _update_reshares(self, meme, source, target):
         """
-        Update the reshare cascade information. 
+        Update the reshare cascade information to a file. 
         Input: 
         - meme (Meme object): meme being reshared
         - source (str): uid of agent spreading the meme
         - target (str): uid of agent resharing the meme
         """
         # ncopies of the meme on agent2's feed can be referred from source uid & theta (if bot, theta)
-        reshare = {
-            "meme_id": meme.id,
-            "timestep": self.time_step,
-            "agent1": source,
-            "agent2": target,
-        }
-        self.reshares += [reshare]
+        # reshare = {
+        #     "meme_id": meme.id,
+        #     "timestep": self.time_step,
+        #     "agent1": source,
+        #     "agent2": target,
+        # }
+        # self.reshares += [reshare]
+        with open(self.reshare_fpath, "a", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            writer.writerow([meme.id, self.time_step, source, target])
+
+        return
+
+    def _update_activation_data(self, agent_id, timestep, meme_ids):
+        """
+        Update activation data
+        fields: "agent_id", "timestep_activated", "meme_ids"]
+        Input: 
+        - agent_id (str): uid of agent being activated
+        - timestep (int): timestep in which the agent is activate
+        - meme_ids (list): list of meme ids in the agent's feed at activation
+        """
+
+        with open(self.activation_fpath, "a", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            for id in meme_ids:
+                writer.writerow([agent_id, timestep, id])
+
+        return
+
+    def _update_feed_data(self, target, meme_id, source):
+        """
+        Concat news feed information to feed information at all time
+        fields: "agent_id", "meme_id", "reshared_by_agent", "timestep"]
+        Input: 
+        - target: agent_id (str): uid of agent being activated
+        - meme_id (int): id of meme in this agent's feed 
+        - source: reshared_by_agent (str): uid of agent who shared the meme
+        """
+
+        with open(self.exposure_fpath, "a", encoding="utf-8") as f:
+            writer = csv.writer(f, delimiter=",")
+            writer.writerow([target, meme_id, source, self.time_step])
 
         return
 
