@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### vary mu ######'
-snakemake --nolock --snakefile workflow/final_rules/vary_mu.smk --cores 6
+snakemake --nolock --snakefile workflow/rules/vary_mu.smk --cores 6

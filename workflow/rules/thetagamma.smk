@@ -2,7 +2,7 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_01242023")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetagamma'
@@ -15,12 +15,12 @@ EXP2NET = {
     for exp_name, net_cf in EXPS.items()
 }
 
-sim_num = 3
+sim_num = 1
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
-
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'01242023_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'01242023_{exp_type}_{sim_num}runs')
+CASCADE_DIR = os.path.join(ABS_PATH,'results', 'cascade', f'01242023_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
@@ -28,13 +28,14 @@ rule all:
 
 rule run_simulation:
     input: 
-        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no]))),
+        network = ancient(lambda wildcards: os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml")),
         configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")) #data/vary_thetabeta/004.json
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
-        tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
+        tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz'),
+        reshare =  os.path.join(CASCADE_DIR, '{exp_no}__reshare.csv')
     shell: """
-        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
+        python3 -m workflow.scripts.driver -i {input.network} -o {output.measurements} -r {output.reshare} -v {output.tracking} --config {input.configfile} --mode {mode} --times {sim_num}
     """
 
 rule init_net:

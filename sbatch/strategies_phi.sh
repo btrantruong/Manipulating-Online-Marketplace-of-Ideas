@@ -16,4 +16,4 @@ conda activate graph
 ######  Job commands go below this line #####
 cd /N/u/baotruon/Carbonate/marketplace
 echo '###### compare strategies vary phi ######'
-snakemake --nolock --snakefile workflow/final_rules/strategies_phi.smk --cores 10
+snakemake --nolock --snakefile workflow/rules/strategies_phi.smk --cores 10

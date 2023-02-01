@@ -69,6 +69,17 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
 
     save_config_to_subdir(config, config_name, saving_dir, "baseline")
 
+    ##### EXTREME BOT ACTIVITY #####
+    all_exps["extreme"] = {}
+    # exp with highest bot paramters (gamma, theta, phi)
+    # 2 last values of theta (depending on what we decide to include in the paper)
+    for idx, theta in enumerate(configs.THETA_SWIPE[-2:]):
+        cf = {"theta": theta}
+        config = utils.update_dict(cf, configs.extreme_exp)
+        config_name = f"extreme{idx}"
+        all_exps["extreme"][config_name] = config
+        save_config_to_subdir(config, config_name, saving_dir, "extreme")
+
     ##### HUMAN CHARACTERISTICS #####
     all_exps["vary_mu"] = {}
     for idx, mu in enumerate(configs.MU_SWIPE):
@@ -186,5 +197,5 @@ if __name__ == "__main__":
 
     ABS_PATH = "/N/slate/baotruon/marketplace"
 
-    saving_dir = os.path.join(ABS_PATH, "config_main")
+    saving_dir = os.path.join(ABS_PATH, "config_01242023")
     make_exps(saving_dir, configs.default_net, configs.infosys_default)
