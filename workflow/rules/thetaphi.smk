@@ -2,31 +2,29 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_10302022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
 exp_type = 'vary_thetaphi'
+
 # get names for exp_config and network
-# exclude theta[0]=1 (default value, in which case results are same as No targeting vary_phi)
-# exclude phi[0]=1 exps (same as results in No targeting vary_theta)
+EXPS = json.load(open(config_fname,'r'))[exp_type]
+EXP_NOS = list(EXPS.keys())
+EXP2NET = {
+    exp_name: utils.netconfig2netname(config_fname, net_cf)
+    for exp_name, net_cf in EXPS.items()
+}
 
-EXP2NET = utils.expconfig2netname(config_fname, exp_type)
-EXPS = EXP2NET.keys()
-EXPS = [
-    exp_name
-    for exp_name in EXPS
-    if int(exp_name[0]) != 0 and int(exp_name[1]) != 0
-]
 
-sim_num = 1
+sim_num = 3
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'11082022_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'11082022_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
-        expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
+        expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXP_NOS),
 
 rule run_simulation:
     input: 

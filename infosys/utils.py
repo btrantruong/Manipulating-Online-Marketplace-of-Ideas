@@ -1,4 +1,7 @@
-""" I/O functions and plotting """
+"""
+Provides functions to help with plotting and do statistic tests
+"""
+
 # from base_logger import logger
 import random
 import numpy as np
@@ -12,11 +15,9 @@ import fcntl
 import time
 import logging
 import pathlib
-import io
 import os
 import json
 import gzip
-import glob
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -83,85 +84,12 @@ def netconfig2netname(config_fname, network_config):
     GAMMA = configs.GAMMA
     TARGETING = configs.TARGETING
 
-    network_fname = "%s%s%s" % (
-        BETA.index(network_config["beta"]),
-        GAMMA.index(network_config["gamma"]),
-        TARGETING.index(network_config["targeting_criterion"]),
-    )
+    network_fname = f"{BETA.index(network_config['beta'])}{GAMMA.index(network_config['gamma'])}{TARGETING.index(network_config['targeting_criterion'])}"
 
     for arg_name in network_config.keys():
         assert EXPS[network_fname][arg_name] == network_config[arg_name]
 
     return network_fname
-
-
-def expconfig2netname(config_fname, exp_type):
-    ## Return a dict of {network name: infosys config}
-
-    exp_configs = json.load(open(config_fname, "r"))
-    # Get the network name from the exp config
-    EXP2NET = {}
-
-    if exp_type == "vary_betagamma":
-        for exp, exp_config in exp_configs[exp_type].items():
-            cf = {
-                "beta": exp_config["beta"],
-                "gamma": exp_config["gamma"],
-                "targeting_criterion": configs.DEFAULT_STRATEGY,
-            }
-            EXP2NET[exp] = netconfig2netname(config_fname, cf)
-        assert len(EXP2NET) == len(configs.BETA) * len(configs.GAMMA)
-
-    elif exp_type == "vary_phigamma" or exp_type == "vary_thetagamma":
-        for exp, exp_config in exp_configs[exp_type].items():
-            cf = {
-                "beta": configs.DEFAULT_BETA,
-                "gamma": exp_config["gamma"],
-                "targeting_criterion": configs.DEFAULT_STRATEGY,
-            }
-            EXP2NET[exp] = netconfig2netname(config_fname, cf)
-        if exp_type == "vary_phigamma":
-            assert len(EXP2NET) == len(configs.PHI_LIN) * len(configs.GAMMA)
-        else:
-            assert len(EXP2NET) == len(configs.THETA) * len(configs.GAMMA)
-
-    elif exp_type == "vary_phibeta" or exp_type == "vary_thetabeta":
-        for exp, exp_config in exp_configs[exp_type].items():
-            cf = {
-                "beta": exp_config["beta"],
-                "gamma": configs.DEFAULT_GAMMA,
-                "targeting_criterion": configs.DEFAULT_STRATEGY,
-            }
-            EXP2NET[exp] = netconfig2netname(config_fname, cf)
-        if exp_type == "vary_phibeta":
-            assert len(EXP2NET) == len(configs.PHI_LIN) * len(configs.BETA)
-        else:
-            assert len(EXP2NET) == len(configs.THETA) * len(configs.BETA)
-
-    elif exp_type == "vary_thetaphi":
-        for exp, exp_config in exp_configs[exp_type].items():
-            cf = {
-                "beta": configs.DEFAULT_BETA,
-                "gamma": configs.DEFAULT_GAMMA,
-                "targeting_criterion": configs.DEFAULT_STRATEGY,
-            }
-            EXP2NET[exp] = netconfig2netname(config_fname, cf)
-        # assert len(EXP2NET) ==len(configs.THETA)*len(configs.PHI_LIN)
-
-    elif exp_type == "convergence_rhoepsilon":
-        for exp, exp_config in exp_configs[exp_type].items():
-            cf = {
-                "beta": configs.DEFAULT_BETA,
-                "gamma": configs.DEFAULT_GAMMA,
-                "targeting_criterion": configs.DEFAULT_STRATEGY,
-            }
-            EXP2NET[exp] = netconfig2netname(config_fname, cf)
-        assert len(EXP2NET) == len(configs.RHO) * len(configs.EPSILON)
-
-    for netname in EXP2NET.values():
-        assert netname in exp_configs["vary_network"]
-
-    return EXP2NET
 
 
 def remove_illegal_kwargs(adict, amethod):
@@ -558,8 +486,7 @@ def ks_test(dist1, dist2, alpha=0.01, verbose=False):
         )
 
         print(
-            "The 2 distributions are similar: %s (At alpha %s, D=%s)"
-            % (similar, alpha, np.round(critical_val, 3))
+            f"The 2 distributions are similar: {similar} (At alpha {alpha}, D={np.round(critical_val, 3)})"
         )
 
     return similar

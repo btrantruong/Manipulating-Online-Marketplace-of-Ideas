@@ -99,7 +99,7 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
     ##### COMBINATORY EFFECTS #####
     all_exps["vary_thetaphi"] = {}
     for idx, theta in enumerate(configs.THETA_SWIPE):
-        for jdx, phi in enumerate(configs.PHI_SWIPE):
+        for jdx, phi in enumerate(configs.PHI_PROB):
             cf = {"theta": theta, "phi": phi}
             config = utils.update_dict(cf, default_net_config)
             config = utils.update_dict(config, default_infosys_config)
@@ -122,7 +122,7 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
             save_config_to_subdir(config, config_name, saving_dir, "vary_thetagamma")
 
     all_exps["vary_phigamma"] = {}
-    for idx, phi in enumerate(configs.PHI_SWIPE):
+    for idx, phi in enumerate(configs.PHI_PROB):
         for jdx, gamma in enumerate(configs.GAMMA_SWIPE):
             cf = {"phi": phi, "gamma": gamma}
             config = utils.update_dict(cf, default_net_config)
@@ -150,7 +150,7 @@ def make_exps(saving_dir, default_net_config, default_infosys_config):
 
     # Varying phi: (for comparing targeting strategies)
     all_exps["vary_phi"] = {}
-    for idx, phi in enumerate(configs.PHI_SWIPE):
+    for idx, phi in enumerate(configs.PHI_PROB):
         for kdx, target in enumerate(configs.TARGETING):
             cf = {"phi": phi, "targeting_criterion": target}
 
@@ -186,5 +186,5 @@ if __name__ == "__main__":
 
     ABS_PATH = "/N/slate/baotruon/marketplace"
 
-    saving_dir = os.path.join(ABS_PATH, "config_11012022")
+    saving_dir = os.path.join(ABS_PATH, "config_main")
     make_exps(saving_dir, configs.default_net, configs.infosys_default)

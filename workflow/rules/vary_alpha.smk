@@ -2,10 +2,10 @@ import infosys.utils as utils
 
 ABS_PATH = '/N/slate/baotruon/marketplace'
 DATA_PATH = os.path.join(ABS_PATH, "data")
-CONFIG_PATH = os.path.join(ABS_PATH, "config_09292022")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = "vary_gamma"
+exp_type = "vary_alpha"
 # get network names corresponding to the strategy
 EXPS = json.load(open(config_fname,'r'))[exp_type]
 
@@ -14,8 +14,8 @@ EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name,
 sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'newpipeline', 'results', f'09292022_strategies_{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'newpipeline', 'verbose', f'09292022_strategies_{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 

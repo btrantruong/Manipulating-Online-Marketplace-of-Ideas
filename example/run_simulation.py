@@ -1,12 +1,12 @@
+"""
+    Minimal example for running simulation
+"""
 from infosys.ig_InfoSys import InfoSystem
-import infosys.utils as utils
 import infosys.ig_utils as ig_utils
 import json
 import numpy as np
-import copy
 from collections import defaultdict
 import os
-import pandas as pd
 
 DATA_PATH = "example/data"
 

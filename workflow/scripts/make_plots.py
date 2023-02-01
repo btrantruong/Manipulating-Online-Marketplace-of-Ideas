@@ -1,6 +1,6 @@
 import infosys.utils as utils
 import infosys.plot_utils as plot_utils
-import infosys.config_values as configs
+import infosys.config_vals as configs
 
 
 import matplotlib.pyplot as plt
@@ -36,7 +36,7 @@ TARGET_PARAMS = [
     "rho",
     "graph_gml",
     "targeting_criterion",
-    "quality"
+    "quality",
 ]
 
 
@@ -278,7 +278,62 @@ def plot_multiple_strategies(
     else:
         plt.show()
 
-def single_variable_plots(res_dir, folders, figure_dir="", variable='gamma', save_fig=False):
+
+def plot_multiple_strategies_panel(
+    data,
+    ax,
+    x_axis="beta",
+    y_axis="quality",
+    logx=False,
+    logy=False,
+    fpath=None,
+    err_measure="std",
+):
+    """
+    OPTION TO PASS AX, USE TO PLOT IN PANEL
+    Plot (and save if fpath not None) the ratio of 
+    Inputs: 
+        - data: df of raw results
+    Outputs:
+        - save file to fpath or show figure 
+    """
+    if logx:
+        ax.set_xscale("log")
+    if logy:
+        ax.set_yscale("log")
+
+    data = get_relative_qual(data)
+
+    # get available strategies
+    available_strategies = sorted(
+        list(set(data["targeting_criterion"].unique()) - set(["none"]))
+    )
+
+    plt.gca().set_prop_cycle(
+        plt.rcParams["axes.prop_cycle"] + plt.cycler(marker=list(".s*o^v<>+x"))
+    )
+    markers = list(".s*o^v<>+x")
+
+    for idx, strategy in enumerate(available_strategies):
+        try:
+            plot_data = get_strategy_ratio(
+                data,
+                line_name=strategy,
+                x_axis=x_axis,
+                y_axis=y_axis,
+                err_measure=err_measure,
+            )
+            draw_lines(ax, plot_data, line_name=strategy, marker=markers[idx])
+        except:
+            continue
+    ax.axhline(y=1, color="grey", linestyle="--", alpha=0.7)
+
+    return
+
+
+def single_variable_plots(
+    res_dir, folders, figure_dir="", variable="gamma", save_fig=False
+):
     """
     Make 2 plots (in both .png and .pdf)
         - plot of none strategy
@@ -288,9 +343,10 @@ def single_variable_plots(res_dir, folders, figure_dir="", variable='gamma', sav
     dfs = read_data(res_dir, folders)
     data = dfs[0]
     for df in dfs[1:]:
-        data = pd.merge(data, df, on=list(set(TARGET_PARAMS) - set(["quality"])), how="outer")
+        data = pd.merge(
+            data, df, on=list(set(TARGET_PARAMS) - set(["quality"])), how="outer"
+        )
         print(data.shape)
-
 
     if save_fig is True:
         if not os.path.exists(figure_dir):
@@ -298,23 +354,29 @@ def single_variable_plots(res_dir, folders, figure_dir="", variable='gamma', sav
         single_strategy_path = os.path.join(figure_dir, f"varying_{variable}")
         multi_strategy_path = os.path.join(figure_dir, f"strategies_{variable}")
     else:
-        single_strategy_path=None
-        multi_strategy_path=None
-        
+        single_strategy_path = None
+        multi_strategy_path = None
+
     plot_single_strategy(
-    data,
-    strategy="none",
-    x_axis=variable,
-    y_axis="quality",
-    marker=".",
-    logx=False,
-    logy=False,
-    fpath=single_strategy_path,
-)
-    
+        data,
+        strategy="none",
+        x_axis=variable,
+        y_axis="quality",
+        marker=".",
+        logx=False,
+        logy=False,
+        fpath=single_strategy_path,
+    )
+
     plot_multiple_strategies(
-    data, x_axis=variable, y_axis="quality", logx=False, logy=False, fpath=multi_strategy_path
-)
+        data,
+        x_axis=variable,
+        y_axis="quality",
+        logx=False,
+        logy=False,
+        fpath=multi_strategy_path,
+    )
+
 
 if __name__ == "__main__":
     ## PLOTTING GAMMA
@@ -323,6 +385,4 @@ if __name__ == "__main__":
         "09292022_strategies_vary_gamma_2runs",
         "10102022_strategies_vary_gamma_3runs",
     ]
-
-    
 

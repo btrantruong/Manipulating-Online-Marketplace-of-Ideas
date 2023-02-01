@@ -1,38 +1,30 @@
 import infosys.utils as utils
 
-# ABS_PATH = ''
-# DATA_PATH = os.path.join(ABS_PATH, "data")
-# CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
-
 ABS_PATH = '/N/slate/baotruon/marketplace'
-DATA_PATH = os.path.join(ABS_PATH, 'data')
-CONFIG_PATH = os.path.join(ABS_PATH, "config_final")
+DATA_PATH = os.path.join(ABS_PATH, "data")
+CONFIG_PATH = os.path.join(ABS_PATH, "config_main")
 
 config_fname = os.path.join(CONFIG_PATH, 'all_configs.json')
-exp_type = 'vary_thetabeta'
-
-# get names for exp_config and network
+exp_type = "vary_mu"
+# get network names corresponding to the strategy
 EXPS = json.load(open(config_fname,'r'))[exp_type]
-EXP_NOS = list(EXPS.keys())
-EXP2NET = {
-    exp_name: utils.netconfig2netname(config_fname, net_cf)
-    for exp_name, net_cf in EXPS.items()
-}
 
-sim_num = 1
+EXP_NOS = list(EXPS.keys())
+EXP2NET = {exp_name: utils.netconfig2netname(config_fname, net_cf) for exp_name, net_cf in EXPS.items()}
+sim_num = 2
 mode='igraph'
 
-RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'{exp_type}_{sim_num}runs')
-TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'{exp_type}_{sim_num}runs')
+RES_DIR = os.path.join(ABS_PATH,'results', 'short', f'12012022_{exp_type}_{sim_num}runs')
+TRACKING_DIR = os.path.join(ABS_PATH,'results', 'verbose', f'12012022_{exp_type}_{sim_num}runs')
 
 rule all:
     input: 
-        results = expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXPS),
+        expand(os.path.join(RES_DIR, '{exp_no}.json'), exp_no=EXP_NOS),
 
 rule run_simulation:
     input: 
-        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', "network_%s.gml" %EXP2NET[wildcards.exp_no]))),
-        configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json")) #data/vary_thetabeta/004.json
+        network = ancient(lambda wildcards: expand(os.path.join(DATA_PATH, mode, 'vary_network', f"network_{EXP2NET[wildcards.exp_no]}.gml"))),
+        configfile = ancient(os.path.join(CONFIG_PATH, exp_type, "{exp_no}.json"))
     output: 
         measurements = os.path.join(RES_DIR, '{exp_no}.json'),
         tracking = os.path.join(TRACKING_DIR, '{exp_no}.json.gz')
